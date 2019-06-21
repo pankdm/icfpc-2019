@@ -1,8 +1,11 @@
 #pragma once
 
+#include "base/action.h"
+#include "base/action_type.h"
 #include "base/direction.h"
 #include "base/manipulator.h"
 #include "base/map.h"
+#include <cassert>
 #include <vector>
 
 class Worker {
@@ -33,5 +36,30 @@ class Worker {
 
   void RotateCounterClockwise() {
     for (Manipulator& m : manipulators) m.RotateCounterClockwise();
+  }
+
+  void Apply(Map& map, const Action& action) {
+    switch (action.type) {
+      case ActionType::MOVE_RIGHT:
+      case ActionType::MOVE_UP:
+      case ActionType::MOVE_LEFT:
+      case ActionType::MOVE_DOWN:
+        Direction d(action.type);
+        Move(d, map);
+        Wrap(map);
+        break;
+      case ActionType::DO_NOTHING:
+        break;
+      case ActionType::ROTATE_CLOCKWISE:
+        RotateClockwise();
+        Wrap(map);
+        break;
+      case ActionType::ROTATE_COUNTERCLOCKWISE:
+        RotateCounterClockwise();
+        Wrap(map);
+        break;
+      default:
+        assert(false);
+    }
   }
 };

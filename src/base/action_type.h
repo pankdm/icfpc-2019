@@ -1,0 +1,12 @@
+#pragma once
+
+enum class ActionType {
+  MOVE_UP,
+  MOVE_DOWN,
+  MOVE_LEFT,
+  MOVE_RIGHT,
+  DO_NOTHING,
+  ROTATE_CLOCKWISE,
+  ROTATE_COUNTERCLOCKWISE,
+  END
+};
