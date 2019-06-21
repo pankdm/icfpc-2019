@@ -1,4 +1,6 @@
-# list of folders with problemsets, relative to root
+# list of directories with problemsets, relative to root
 problems:
   - problems/part-1-initial
   - problems/part-2-teleports
+# directory with known to be best solutions, safe to be submitted manually
+gold: solutions
