@@ -5,9 +5,9 @@ class World:
         pass
 
 class Action:
-    def __init__(self):
-        self.type = None
-        self.pt = None
+    def __init__(self, type, pt = None):
+        self.type = type
+        self.pt = pt
 
 # returns pair of next index, result
 def parse_token(path, index):
@@ -15,8 +15,7 @@ def parse_token(path, index):
     single = set(['W', 'S', 'A', 'D', 'Z', 'E', 'Q', 'F', 'L'])
     with_pt = set(['B', 'T'])
     if path[index] in single:
-        action = Action()
-        action.type = path[index]
+        action = Action(path[index])
         return (action, index + 1)
     if path[index] in with_pt:
         assert path[index + 1] == '('
@@ -30,9 +29,21 @@ def parse_token(path, index):
         assert index2 > 0
         assert path[index2] == ')'
         y = int(path[index1 + 1 : index2])
-        action = Action()
-        action.type = path[index]
+
+        action = Action(path[index])
         action.pt = (x, y)
         return action, index2 + 1
 
-    assert 'Unknown command: ', path[index]
+    assert 'Unknown action: ', path[index]
+
+def parse_path(path):
+    index = 0
+    res = []
+    while True:
+        action, new_index = parse_token(path, index)
+
+        assert new_index > index
+        index = new_index
+        res.append(action)
+        if index >= len(path):
+            return res
