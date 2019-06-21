@@ -3,6 +3,7 @@
 #include "base/action.h"
 #include "base/action_type.h"
 #include "base/direction.h"
+#include "base/item.h"
 #include "base/manipulator.h"
 #include "base/map.h"
 #include <cassert>
@@ -47,6 +48,23 @@ class Worker {
     x += d.DX();
     y += d.DY();
     assert(map.ValidToMove(x, y));
+    Item item = map(x, y).GetItem();
+    switch (item) {
+      case Item::EXTENSION:
+        ++unused_extensions;
+        break;
+      case Item::FAST_WHEELS:
+        ++unused_fast_wheels;
+        break;
+      case Item::DRILL:
+        ++unused_drills;
+        break;
+      case Item::NONE:
+      case Item::CODEX:
+        break;
+      default:
+        assert(false);
+    }
   }
 
   void RotateClockwise() {

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "base/item.h"
 #include <cstdint>
 
 class Square {
@@ -20,5 +21,11 @@ class Square {
     if (!Blocked()) value |= mask_wrapped;
   }
 
-  uint8_t Item() const { return value & mask; }
+  Item CheckItem() const { return Item(value & mask); }
+
+  Item GetItem() {
+    Item t = CheckItem();
+    value &= ~mask;
+    return t;
+  }
 };
