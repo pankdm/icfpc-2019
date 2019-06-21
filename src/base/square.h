@@ -1,6 +1,7 @@
 #pragma once
 
 #include "base/item.h"
+#include <cassert>
 #include <cstdint>
 
 class Square {
@@ -27,7 +28,12 @@ class Square {
 
   Item GetItem() {
     Item t = CheckItem();
-    value &= ~mask;
+    if (t != Item::BEACON) value &= ~mask;
     return t;
+  }
+
+  void SetBeacon() {
+    assert((value & mask) == 0);
+    value += uint8_t(Item::BEACON);
   }
 };

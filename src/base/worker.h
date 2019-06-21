@@ -21,6 +21,7 @@ class Worker {
   unsigned unused_extensions = 0;
   unsigned unused_fast_wheels = 0;
   unsigned unused_drills = 0;
+  unsigned unused_teleporters = 0;
   unsigned time_fast_wheels = 0;
   unsigned time_drill = 0;
 
@@ -60,7 +61,11 @@ class Worker {
       case Item::DRILL:
         ++unused_drills;
         break;
+      case Item::TELEPORT:
+        ++unused_teleporters;
+        break;
       case Item::NONE:
+      case Item::BEACON:
       case Item::CODEX:
         break;
       default:
@@ -129,6 +134,17 @@ class Worker {
         assert(unused_fast_wheels > 0);
         --unused_fast_wheels;
         time_drill = time + TIME_DRILL + 1;
+        break;
+      case ActionType::SET_BEACON:
+        assert(unused_teleporters > 0);
+        --unused_teleporters;
+        map.SetBeacon(x, y);
+        break;
+      case ActionType::SHIFT:
+        assert(map.HasBeacon(action.x, action.y));
+        x = action.x;
+        y = action.y;
+        Wrap(map);
         break;
       default:
         assert(false);

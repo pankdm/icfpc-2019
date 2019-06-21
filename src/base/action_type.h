@@ -11,5 +11,7 @@ enum class ActionType {
   ATTACH_MANIPULATOR,
   ATTACH_FAST_WHEELS,
   USING_DRILL,
+  SET_BEACON,
+  SHIFT,
   END
 };

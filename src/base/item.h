@@ -7,6 +7,8 @@ enum class Item : uint8_t {
   EXTENSION,
   FAST_WHEELS,
   DRILL,
+  TELEPORT,
+  BEACON,
   CODEX,
   UNKNOWN
 };
