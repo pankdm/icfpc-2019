@@ -12,13 +12,17 @@
 void World::Init(const std::string& desc) {
   time = 0;
   auto vs = Split(desc, '#');
-  std::cerr << "World: [" << desc << "]" << std::endl;
-  std::cerr << "VS size = " << vs.size() << std::endl;
-  for (auto& s : vs) std::cerr << "\t[" << s << "]" << std::endl;
+  //   std::cerr << "World: [" << desc << "]" << std::endl;
+  //   std::cerr << "VS size = " << vs.size() << std::endl;
+  //   for (auto& s : vs) std::cerr << "\t[" << s << "]" << std::endl;
   assert(vs.size() == 4);
   map.Init(vs[0]);
-  std::cerr << "Map inititalized" << std::endl;
+  //   std::cerr << "Map inititalized 1" << std::endl;
+  // map.Print();
   for (auto& block_desc : Split(vs[2], ';')) map.AddBlock(block_desc);
+  //   std::cerr << "Map inititalized 2" << std::endl;
+  //   map.Print();
+  //   std::cout << std::endl;
   for (auto& boost_desc : Split(vs[3], ';')) {
     assert(boost_desc.size() >= 1);
     Point pboost(boost_desc.substr(1));
@@ -41,11 +45,13 @@ void World::Init(const std::string& desc) {
         break;
     }
     assert(item != Item::UNKNOWN);
+    // std::cerr << "\tAddItem(" << pboost.x << ", " << pboost.y << ", "
+    //           << unsigned(item) << ")" << std::endl;
     map(pboost.x, pboost.y).AddItem(item);
   }
   Point pworker(vs[1]);
   worker.Init(map, pworker.x, pworker.y);
-  std::cerr << "World initialized" << std::endl;
+  //   std::cerr << "World initialized" << std::endl;
 }
 
 void World::Apply(const Action& action) { worker.Apply(++time, map, action); }

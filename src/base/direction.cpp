@@ -7,7 +7,7 @@ Direction::Direction(unsigned _d) : direction(_d & 3) {}
 Direction::Direction(ActionType t) { Set(t); }
 
 int Direction::DX() const {
-  static const std::vector<int> dx{-1, 0, 1, 0};
+  static const std::vector<int> dx{1, 0, -1, 0};
   return dx[direction];
 }
 

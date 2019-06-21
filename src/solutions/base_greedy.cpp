@@ -5,6 +5,7 @@
 #include "base/worker.h"
 #include <cassert>
 #include <queue>
+#include <unordered_set>
 #include <utility>
 
 namespace solutions {
@@ -12,12 +13,16 @@ ActionsList BaseGreedy::Solve(const std::string& task) {
   world.Init(task);
   ActionsList actions;
   for (; !world.Solved();) {
-    Point p(world.worker.x, world.worker.y);
+    std::unordered_set<int> s;
+    Point pw(world.worker.x, world.worker.y);
     std::queue<std::pair<Point, Direction>> q;
     for (unsigned _d = 0; _d < 4; ++_d) {
       Direction d(_d);
-      Point pd = p + d;
-      if (world.map.ValidToMove(pd.x, pd.y)) q.push(std::make_pair(pd, d));
+      Point pd = pw + d;
+      if (world.map.ValidToMove(pd.x, pd.y)) {
+        q.push(std::make_pair(pd, d));
+        s.insert((pd.x << 16) + pd.y);
+      }
     }
     for (; !q.empty(); q.pop()) {
       Point p = q.front().first;
@@ -30,7 +35,11 @@ ActionsList BaseGreedy::Solve(const std::string& task) {
       }
       for (unsigned _d = 0; _d < 4; ++_d) {
         Point pd = p + Direction(_d);
-        if (world.map.ValidToMove(pd.x, pd.y)) q.push(std::make_pair(pd, d));
+        int hkey = (pd.x << 16) + pd.y;
+        if (world.map.ValidToMove(pd.x, pd.y) && (s.find(hkey) == s.end())) {
+          q.push(std::make_pair(pd, d));
+          s.insert(hkey);
+        }
       }
     }
     if (q.empty()) {
