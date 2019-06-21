@@ -19,4 +19,6 @@ class Square {
   void Wrap() {
     if (!Blocked()) value |= mask_wrapped;
   }
+
+  uint8_t Item() const { return value & mask; }
 };
