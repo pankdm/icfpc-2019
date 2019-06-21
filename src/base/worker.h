@@ -10,8 +10,6 @@
 #include <cmath>
 #include <vector>
 
-// TODO:
-//  Support boosters (get from map and apply).
 class Worker {
  public:
   int x;
@@ -23,6 +21,7 @@ class Worker {
   unsigned unused_extensions = 0;
   unsigned unused_fast_wheels = 0;
   unsigned unused_drills = 0;
+  unsigned time_fast_wheels = 0;
 
  protected:
   void AddManipulatorI(const Manipulator& m) { manipulators.emplace_back(m); }
@@ -89,7 +88,7 @@ class Worker {
     AddManipulatorI(m);
   }
 
-  void Apply(Map& map, const Action& action) {
+  void Apply(unsigned time, Map& map, const Action& action) {
     switch (action.type) {
       case ActionType::MOVE_RIGHT:
       case ActionType::MOVE_UP:
@@ -98,6 +97,9 @@ class Worker {
         Direction d(action.type);
         Move(d, map);
         Wrap(map);
+        if (time_fast_wheels >= time) {
+          if (map.ValidToMove(x + d.DX(), y + d.DY())) Move(d, map);
+        }
         break;
       case ActionType::DO_NOTHING:
         break;
@@ -113,6 +115,10 @@ class Worker {
         AddManipulator({action.x, action.y});
         Wrap(map);
         break;
+      case ActionType::ATTACH_FAST_WHEELS:
+        assert(unused_fast_wheels > 0);
+        --unused_fast_wheels;
+        time_fast_wheels = time + 51;
       default:
         assert(false);
     }
