@@ -3,6 +3,14 @@
 class World:
     def __init__(self):
         pass
+        # need to remember:
+        # (x, y) of robot
+        # manipulators
+        # booster in inventory
+        # remaning booster time
+
+    def move(self, dx, dy):
+        pass
 
 class Action:
     def __init__(self, type, pt = None):
