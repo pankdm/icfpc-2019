@@ -14,4 +14,5 @@ class World {
   void Apply(const ActionsList& actions) {
     for (const Action& action : actions) Apply(action);
   }
+  bool Solved() const { return map.Wrapped(); }
 };

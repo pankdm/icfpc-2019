@@ -12,6 +12,9 @@ class Square {
 
   bool Blocked() const { return value & mask_blocked; }
   bool Wrapped() const { return value & mask_wrapped; }
+  bool WrappedOrBlocked() const {
+    return value & (mask_blocked | mask_wrapped);
+  }
 
   void Wrap() {
     if (!Blocked()) value |= mask_wrapped;

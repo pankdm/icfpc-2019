@@ -27,4 +27,11 @@ class Map {
   void Wrap(int x, int y) {
     if (Inside(x, y)) operator()(x, y).Wrap();
   }
+
+  bool Wrapped() const {
+    for (const Square& square : map) {
+      if (!square.WrappedOrBlocked()) return false;
+    }
+    return true;
+  }
 };
