@@ -5,6 +5,7 @@
 #include "utils/split.h"
 #include <algorithm>
 #include <cassert>
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -107,4 +108,19 @@ bool Map::Wrapped() const {
     if (!square.WrappedOrBlocked()) return false;
   }
   return true;
+}
+
+void Map::Print() const {
+  for (int y = ysize - 1; y >= 0; --y) {
+    for (int x = 0; x < xsize; ++x) {
+      auto& s = Get(x, y);
+      if (s.Blocked())
+        std::cout << "#";
+      else if (s.Wrapped())
+        std::cout << "~";
+      else
+        std::cout << ".";
+    }
+    std::cout << std::endl;
+  }
 }

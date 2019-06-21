@@ -34,4 +34,5 @@ class Map {
   void SetBeacon(int x, int y);
 
   bool Wrapped() const;
+  void Print() const;
 };
