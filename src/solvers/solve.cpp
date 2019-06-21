@@ -10,7 +10,7 @@
 #include <string>
 
 namespace solvers {
-void Solve(const std::string& input_file, const std::string& output_file) {
+bool Solve(const std::string& input_file, const std::string& output_file) {
   std::ifstream input(input_file);
   std::string task;
   assert(std::getline(input, task));
@@ -20,11 +20,14 @@ void Solve(const std::string& input_file, const std::string& output_file) {
   BaseGreedy s;
   auto actions = s.Solve(task);
   std::cout << " Done. Time = " << t.GetMilliseconds() << std::endl;
-  if (!Test(task, actions)) {
+  if (Test(task, actions)) {
+    std::ofstream output(output_file);
+    output << actions;
+    return true;
+  } else {
     std::cerr << "Solution for problem " << task_index << " is incorrect."
               << std::endl;
+    return false;
   }
-  std::ofstream output(output_file);
-  output << actions;
 }
 }  // namespace solvers

@@ -3,5 +3,5 @@
 #include <string>
 
 namespace solvers {
-void Solve(const std::string& input_file, const std::string& output_file);
+bool Solve(const std::string& input_file, const std::string& output_file);
 }  // namespace solvers
