@@ -20,8 +20,12 @@ class Map {
   Square& operator()(int x, int y) { return map[x * ysize + y]; }
   const Square& operator()(int x, int y) const { return map[x * ysize + y]; }
 
-  bool ValidToMove(int x, int y) const {
-    return Inside(x, y) && !operator()(x, y).Blocked();
+  bool ValidToMove(int x, int y, bool drill_enabled = false) const {
+    return Inside(x, y) && (drill_enabled || !operator()(x, y).Blocked());
+  }
+
+  void Drill(int x, int y) {
+    if (Inside(x, y)) operator()(x, y).Drill();
   }
 
   void Wrap(int x, int y) {

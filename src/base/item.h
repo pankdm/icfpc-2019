@@ -10,3 +10,6 @@ enum class Item : uint8_t {
   CODEX,
   UNKNOWN
 };
+
+const unsigned TIME_FAST_WHEELS = 50;
+const unsigned TIME_DRILL = 30;

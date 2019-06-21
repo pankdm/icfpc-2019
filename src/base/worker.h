@@ -22,6 +22,7 @@ class Worker {
   unsigned unused_fast_wheels = 0;
   unsigned unused_drills = 0;
   unsigned time_fast_wheels = 0;
+  unsigned time_drill = 0;
 
  protected:
   void AddManipulatorI(const Manipulator& m) { manipulators.emplace_back(m); }
@@ -43,10 +44,11 @@ class Worker {
     }
   }
 
-  void Move(const Direction& d, Map& map) {
+  void Move(const Direction& d, Map& map, bool drill_enabled = false) {
     x += d.DX();
     y += d.DY();
-    assert(map.ValidToMove(x, y));
+    assert(map.ValidToMove(x, y, drill_enabled));
+    if (drill_enabled) map.Drill(x, y);
     Item item = map(x, y).GetItem();
     switch (item) {
       case Item::EXTENSION:
@@ -94,11 +96,14 @@ class Worker {
       case ActionType::MOVE_UP:
       case ActionType::MOVE_LEFT:
       case ActionType::MOVE_DOWN:
+        bool drill_enabled = (time_drill >= time);
         Direction d(action.type);
-        Move(d, map);
+        Move(d, map, drill_enabled);
         Wrap(map);
         if (time_fast_wheels >= time) {
-          if (map.ValidToMove(x + d.DX(), y + d.DY())) Move(d, map);
+          if (map.ValidToMove(x + d.DX(), y + d.DY(), drill_enabled))
+            Move(d, map, drill_enabled);
+          Wrap(map);
         }
         break;
       case ActionType::DO_NOTHING:
@@ -118,7 +123,13 @@ class Worker {
       case ActionType::ATTACH_FAST_WHEELS:
         assert(unused_fast_wheels > 0);
         --unused_fast_wheels;
-        time_fast_wheels = time + 51;
+        time_fast_wheels = time + TIME_FAST_WHEELS + 1;
+        break;
+      case ActionType::USING_DRILL:
+        assert(unused_fast_wheels > 0);
+        --unused_fast_wheels;
+        time_drill = time + TIME_DRILL + 1;
+        break;
       default:
         assert(false);
     }
