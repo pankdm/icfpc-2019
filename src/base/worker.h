@@ -6,6 +6,7 @@
 #include "base/manipulator.h"
 #include "base/map.h"
 #include <cassert>
+#include <cmath>
 #include <vector>
 
 // TODO:
@@ -17,7 +18,18 @@ class Worker {
 
   std::vector<Manipulator> manipulators;
 
+ protected:
+  void AddManipulatorI(const Manipulator& m) { manipulators.emplace_back(m); }
+
  public:
+  Worker(Map& map, int _x, int _y) : x(_x), y(_y) {
+    AddManipulatorI({0, 0});
+    AddManipulatorI({1, 1});
+    AddManipulatorI({1, 0});
+    AddManipulatorI({1, -1});
+    Wrap(map);
+  }
+
   // TODO:
   //   Add reachability check.
   void Wrap(Map& map) {
@@ -38,6 +50,18 @@ class Worker {
 
   void RotateCounterClockwise() {
     for (Manipulator& m : manipulators) m.RotateCounterClockwise();
+  }
+
+  void AddManipulator(const Manipulator& m) {
+    bool valid = false;
+    for (const Manipulator& cm : manipulators) {
+      if (std::abs(cm.x - m.x) + std::abs(cm.y - m.y) == 1) {
+        valid = true;
+        break;
+      }
+    }
+    assert(valid);
+    AddManipulatorI(m);
   }
 
   void Apply(Map& map, const Action& action) {
