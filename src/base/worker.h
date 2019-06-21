@@ -8,6 +8,8 @@
 #include <cassert>
 #include <vector>
 
+// TODO:
+//  Support boosters (get from map and apply).
 class Worker {
  public:
   int x;
