@@ -4,3 +4,5 @@ problems:
   - problems/part-2-teleports
 # directory with known to be best solutions, safe to be submitted manually
 gold: solutions
+# directory with solutions to evaluate
+evaluate: evaluate

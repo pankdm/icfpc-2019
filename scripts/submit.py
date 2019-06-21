@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import os
 import sys
 from yaml import safe_load as yaml
 
@@ -21,4 +22,27 @@ if __name__ == "__main__":
     if not config["problems"]:
         sys.exit("No problems specified")
 
-    print(config)
+    problems = []
+    for dir in config["problems"]:
+        if os.path.exists(dir):
+            files = os.listdir(dir)
+            descriptions = filter(
+                lambda f: os.path.splitext(f)[-1] == ".desc", files)
+            problems.extend(descriptions)
+
+    if not problems:
+        sys.exit(f'No problems found in directories {config["problems"]}')
+    else:
+        print(f'Found {len(problems)} problem(s)')
+
+    try:
+        os.makedirs(config["gold"], exist_ok=True)
+    except:
+        sys.exit("No gold directory exists, and unable to create")
+
+    if not config["evaluate"] or not os.path.exists(config["evaluate"]):
+        sys.exit("No new problems for evaluation")
+
+    # TODO: evaluation
+    # TODO: submit
+    # TODO: merge gold solutions
