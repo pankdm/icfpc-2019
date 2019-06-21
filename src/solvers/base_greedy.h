@@ -1,14 +1,14 @@
 #pragma once
 
 #include "base/world.h"
-#include "solutions/solution.h"
+#include "solvers/solver.h"
 
-namespace solutions {
-class BaseGreedy : public Solution {
+namespace solvers {
+class BaseGreedy : public Solver {
  protected:
   World world;
 
  public:
   ActionsList Solve(const std::string& task);
 };
-}  // namespace solutions
+}  // namespace solvers

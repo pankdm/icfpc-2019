@@ -3,6 +3,6 @@
 #include "base/action.h"
 #include <string>
 
-namespace solutions {
+namespace solvers {
 bool Test(const std::string& task, const ActionsList& actions);
-}  // namespace solutions
+}  // namespace solvers

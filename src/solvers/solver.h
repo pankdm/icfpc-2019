@@ -3,9 +3,9 @@
 #include "base/action.h"
 #include <string>
 
-namespace solutions {
-class Solution {
+namespace solvers {
+class Solver {
  public:
   ActionsList Solve(const std::string& task);
 };
-}  // namespace solutions
+}  // namespace solvers

@@ -1,13 +1,13 @@
-#include "solutions/solve.h"
+#include "solvers/solve.h"
 
 #include "base/action_encode.h"
-#include "solutions/base_greedy.h"
-#include "solutions/test.h"
+#include "solvers/base_greedy.h"
+#include "solvers/test.h"
 #include <cassert>
 #include <fstream>
 #include <string>
 
-namespace solutions {
+namespace solvers {
 void Solve(const std::string& input_file, const std::string& output_file) {
   std::ifstream input(input_file);
   std::string task;
@@ -18,4 +18,4 @@ void Solve(const std::string& input_file, const std::string& output_file) {
   std::ofstream output(output_file);
   output << actions;
 }
-}  // namespace solutions
+}  // namespace solvers

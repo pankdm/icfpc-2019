@@ -1,4 +1,4 @@
-#include "solutions/base_greedy.h"
+#include "solvers/base_greedy.h"
 
 #include "base/direction.h"
 #include "base/point.h"
@@ -8,7 +8,7 @@
 #include <unordered_set>
 #include <utility>
 
-namespace solutions {
+namespace solvers {
 ActionsList BaseGreedy::Solve(const std::string& task) {
   world.Init(task);
   ActionsList actions;
@@ -49,4 +49,4 @@ ActionsList BaseGreedy::Solve(const std::string& task) {
   }
   return actions;
 }
-}  // namespace solutions
+}  // namespace solvers
