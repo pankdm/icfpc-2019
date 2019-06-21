@@ -1,5 +1,12 @@
 #pragma once
 
-struct Point {
+#include <string>
+
+class Point {
+ public:
   int x, y;
+
+ public:
+  Point(int _x, int _y);
+  Point(const std::string& desc);
 };

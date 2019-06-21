@@ -20,20 +20,27 @@ void Map::AddBlock(int x0, int x1, int y0, int y1) {
   }
 }
 
-Map::Map(int _xsize, int _ysize) { Resize(_xsize, _ysize); }
+Map::Map() : xsize(0), ysize(0) {}
 
-Map::Map(const std::string& desc) {
+Map::Map(const std::string& desc) { Init(desc); }
+
+void Map::AddBlock(const std::string& desc) {
+  Map t(desc);
+  for (int x = 0; x < t.xsize; ++x) {
+    for (int y = 0; y < t.ysize; ++y) {
+      if (!t.Get(x, y).Blocked()) Get(x, y).SetBlock();
+    }
+  }
+}
+
+void Map::Init(const std::string& desc) {
   int maxx = 0, maxy = 0;
   std::vector<Point> v;
   for (const std::string& st : Split(desc, ',')) {
-    assert((st.size() >= 2) && (st[0] == '(') && (st.back() == ')'));
-    size_t npos = st.find(',');
-    assert(npos != std::string::npos);
-    int x = std::stoi(st.substr(0, npos));
-    int y = std::stoi(st.substr(npos + 1));
-    v.emplace_back(Point{x, y});
-    maxx = std::max(x, maxx);
-    maxy = std::max(y, maxy);
+    Point p(st);
+    maxx = std::max(p.x, maxx);
+    maxy = std::max(p.y, maxy);
+    v.emplace_back(p);
   }
   assert(v.size() > 1);
   v.push_back(v[0]);

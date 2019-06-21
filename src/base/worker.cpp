@@ -13,7 +13,9 @@ void Worker::AddManipulatorI(const Manipulator& m) {
   manipulators.emplace_back(m);
 }
 
-Worker::Worker(Map& map, int _x, int _y) : x(_x), y(_y) {
+void Worker::Init(Map& map, int _x, int _y) {
+  x = _x;
+  y = _y;
   AddManipulatorI({0, 0});
   AddManipulatorI({1, 1});
   AddManipulatorI({1, 0});

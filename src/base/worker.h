@@ -25,7 +25,7 @@ class Worker {
   void AddManipulatorI(const Manipulator& m);
 
  public:
-  Worker(Map& map, int _x, int _y);
+  void Init(Map& map, int _x, int _y);
 
   void Wrap(Map& map);
   void Move(const Direction& d, Map& map, bool drill_enabled);

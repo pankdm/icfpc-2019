@@ -15,8 +15,11 @@ class Map {
   void AddBlock(int x0, int x1, int y0, int y1);
 
  public:
-  Map(int _xsize, int _ysize);
+  Map();
   Map(const std::string& desc);
+
+  void AddBlock(const std::string& desc);
+  void Init(const std::string& desc);
 
   bool Inside(int x, int y) const;
   Square& Get(int x, int y);
