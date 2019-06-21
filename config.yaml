@@ -6,3 +6,5 @@ problems:
 gold: solutions
 # directory with solutions to evaluate
 evaluate: evaluate
+# directory with all existing submissions
+submission: submissions
