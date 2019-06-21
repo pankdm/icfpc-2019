@@ -7,6 +7,7 @@ import time
 from types import SimpleNamespace
 from zipfile import ZipFile, ZIP_DEFLATED
 
+from requests import post
 from tqdm import tqdm
 from yaml import safe_load
 
@@ -22,6 +23,7 @@ if __name__ == "__main__":
                         help="List of directories containing problems")
     parser.add_argument("-s", "--submission",
                         help="Directory with all existing submissions")
+    parser.add_argument("-t", "--token", help="Team private ID")
     args = parser.parse_args()
 
     yaml_config.update(vars(args))
@@ -70,10 +72,18 @@ if __name__ == "__main__":
     print(f"Submitting {len(submissions)} new solutions")
     timestamp = time.strftime("%Y-%m-%d_%H-%M-%S.zip")
     archive = os.path.join(config.submission, timestamp)
-    with ZipFile(archive, mode="w", compression=ZIP_DEFLATED, compresslevel=9) as zip:
+    with ZipFile(archive, mode="w", compression=ZIP_DEFLATED, compresslevel=9) as zipfile:
         for submission in tqdm(submissions, desc="Archiving new solutions"):
             zipname = os.path.basename(submission)
-            zip.write(submission, arcname=zipname)
+            zipfile.write(submission, arcname=zipname)
 
-    # TODO: submit
+    if config.token:
+        with open(archive, mode="rb") as zipfile:
+            data = {"private_id": config.token}
+            response = post("https://monadic-lab.org/submit",
+                            data=data, files={"file": zipfile})
+            print(response.text)
+    else:
+        sys.exit(f"Private id is not set, you can submit {archive} manually")
+
     # TODO: merge gold solutions
