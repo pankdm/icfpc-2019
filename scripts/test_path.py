@@ -1,6 +1,11 @@
 import unittest
 
-from path import parse_token, parse_path, Action
+from path import (
+    parse_token,
+    parse_path,
+    Action,
+    Arm
+)
 
 
 class TestPath(unittest.TestCase):
@@ -24,9 +29,39 @@ class TestPath(unittest.TestCase):
         self.assertActionEqual(result[2], Action('W'))
         self.assertActionEqual(result[3], Action('A'))
 
+    def test_parse_invalid_token(self):
+        with self.assertRaises(AssertionError):
+            result = parse_token("PPP", 0)
+
+    def test_rotate(self):
+        arm = Arm(1, 0)
+
+        arm.rotate_clockwise()
+        self.assertEqual(arm, Arm(0, -1))
+
+        arm.rotate_clockwise()
+        self.assertEqual(arm, Arm(-1, 0))
+
+        arm.rotate_clockwise()
+        self.assertEqual(arm, Arm(0, 1))
+
+
+    def test_rotate_counter(self):
+        arm = Arm(1, 0)
+
+        arm.rotate_counter_clockwise()
+        self.assertEqual(arm, Arm(0, 1))
+
+        arm.rotate_counter_clockwise()
+        self.assertEqual(arm, Arm(-1, 0))
+
+        arm.rotate_counter_clockwise()
+        self.assertEqual(arm, Arm(0, -1))
+
     def assertActionEqual(self, a, b):
         self.assertEqual(a.type, b.type)
         self.assertEqual(a.pt, b.pt)
+
 
 if __name__ == '__main__':
     unittest.main()

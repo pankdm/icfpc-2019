@@ -1,21 +1,104 @@
 
 
-class World:
-    def __init__(self):
-        pass
-        # need to remember:
-        # (x, y) of robot
-        # manipulators
-        # booster in inventory
-        # remaning booster time
+class Arm:
+    def __init__(self, x, y):
+        # x and y are relative
+        self.x = x
+        self.y = y
 
-    def move(self, dx, dy):
-        pass
+    def rotate_clockwise(self):
+        self.x, self.y = self.y, -self.x
+
+    def rotate_counter_clockwise(self):
+        self.x, self.y = -self.y, self.x
+
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y
+
+class Manipulators:
+    def __init__(self, arms):
+        self.arms = arms
+
+    def rotate_clockwise(self):
+        for arm in arms:
+            arm.rotate_clockwise()
+
+    def rotate_counter_clockwise(self):
+        for arm in arms:
+            arm.rotate_counter_clockwise()
 
 class Action:
     def __init__(self, type, pt = None):
         self.type = type
         self.pt = pt
+
+class World:
+    def __init__(self):
+        self.step = 0
+        self.manipulators = None
+
+    # public API:
+    def do_nothing(self):
+        self.step += 1
+
+    def move(self, dx, dy):
+        self.step += 1
+
+    def rotate_clockwise(self):
+        self.step += 1
+        self.manipulators.rotate_clockwise()
+        # TODO: wrap
+
+    def rotate_counter_clockwise(self):
+        self.step += 1
+        self.manipulators.rotate_counter_clockwise()
+        # TODO: wrap
+
+    def add_new_manipulator(self, dx, dy):
+        pass
+
+    def fast_wheels(self):
+        pass
+
+    def start_drill(self):
+        pass
+
+    def set_teleport(self):
+        pass
+
+    def shift(self, x, y):
+        pass
+
+def apply_action(world, action):
+    t = action.type
+    if t == 'W':
+        world.move(0, 1)
+    elif t == 'S':
+        world.move(0, -1)
+    elif t == 'A':
+        world.move(-1, 0)
+    elif t == 'D':
+        world.move(1, 0)
+    elif t == 'Z':
+        world.do_nothing()
+    elif t == 'E':
+        world.rotate_clockwise()
+    elif t == 'Q':
+        world.rotate_counter_clockwise()
+    elif t == 'B':
+        dx, dy = action.pt
+        world.add_new_manipulator(dx, dy)
+    elif t == 'F':
+        world.fast_wheels()
+    elif t == 'L':
+        world.start_drill()
+    elif t == 'R':
+        world.set_teleport()
+    elif t == 'T':
+        x, y = action.pt
+        world.shift(x, y)
+    else:
+        assert False, "Unknown action: {}".format(t)
 
 # returns pair of next index, result
 def parse_token(path, index):
@@ -41,8 +124,7 @@ def parse_token(path, index):
         action = Action(path[index])
         action.pt = (x, y)
         return action, index2 + 1
-
-    assert 'Unknown action: ', path[index]
+    assert False, 'Unknown action: {}'.format(path[index])
 
 def parse_path(path):
     index = 0
