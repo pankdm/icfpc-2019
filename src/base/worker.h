@@ -18,6 +18,11 @@ class Worker {
 
   std::vector<Manipulator> manipulators;
 
+  // boosters
+  unsigned unused_extensions = 0;
+  unsigned unused_fast_wheels = 0;
+  unsigned unused_drills = 0;
+
  protected:
   void AddManipulatorI(const Manipulator& m) { manipulators.emplace_back(m); }
 
@@ -53,6 +58,7 @@ class Worker {
   }
 
   void AddManipulator(const Manipulator& m) {
+    assert(unused_extensions > 0);
     bool valid = false;
     for (const Manipulator& cm : manipulators) {
       if (std::abs(cm.x - m.x) + std::abs(cm.y - m.y) == 1) {
@@ -61,6 +67,7 @@ class Worker {
       }
     }
     assert(valid);
+    --unused_extensions;
     AddManipulatorI(m);
   }
 
