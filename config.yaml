@@ -1,0 +1,4 @@
+# list of folders with problemsets, relative to root
+problems:
+  - problems/part-1-initial
+  - problems/part-2-teleports
