@@ -18,6 +18,8 @@ class Square {
     return value & (mask_blocked | mask_wrapped);
   }
 
+  void SetBlock() { value |= mask_blocked; }
+
   void Drill() { value &= ~mask_blocked; }
 
   void Wrap() {

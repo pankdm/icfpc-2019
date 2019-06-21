@@ -1,6 +1,7 @@
 #pragma once
 
 #include "base/action_type.h"
+#include <cstdint>
 #include <vector>
 
 class Action {
