@@ -36,7 +36,10 @@ void Map::AddBlock(const std::string& desc) {
 void Map::Init(const std::string& desc) {
   int maxx = 0, maxy = 0;
   std::vector<Point> v;
-  for (const std::string& st : Split(desc, ',')) {
+  std::vector<std::string> vst = Split(desc, ','), vs;
+  for (unsigned i = 0; i < vst.size(); i += 2)
+    vs.emplace_back(vst[i] + "," + vst[i + 1]);
+  for (const std::string& st : vs) {
     Point p(st);
     maxx = std::max(p.x, maxx);
     maxy = std::max(p.y, maxy);
