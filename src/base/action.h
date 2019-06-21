@@ -6,6 +6,7 @@
 class Action {
  public:
   ActionType type;
+  int8_t x, y;
 };
 
 using ActionsList = std::vector<Action>;

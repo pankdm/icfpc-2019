@@ -109,6 +109,10 @@ class Worker {
         RotateCounterClockwise();
         Wrap(map);
         break;
+      case ActionType::ATTACH_MANIPULATOR:
+        AddManipulator({action.x, action.y});
+        Wrap(map);
+        break;
       default:
         assert(false);
     }
