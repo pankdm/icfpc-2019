@@ -49,23 +49,30 @@ void Map::Init(const std::string& desc) {
   assert(v.size() > 1);
   v.push_back(v[0]);
   Resize(maxx, maxy);
+  std::vector<std::vector<int>> vvy(xsize);
   for (size_t i = 1; i < v.size(); ++i) {
-    if (v[i - 1].x == v[i].x) {
-      assert(v[i - 1].y != v[i].y);
-      if (v[i - 1].y < v[i].y) {
-        AddBlock(v[i].x, maxx, v[i - 1].y, v[i].y);
-      } else {
-        AddBlock(0, v[i].x, v[i].y, v[i - 1].y);
-      }
-    } else if (v[i - 1].y == v[i].y) {
-      assert(v[i - 1].x != v[i].x);
-      if (v[i - 1].x < v[i].x) {
-        AddBlock(v[i - 1].x, v[i].x, 0, v[i].y);
-      } else {
-        AddBlock(v[i].x, v[i - 1].x, v[i].y, maxy);
+    if (v[i - 1].y == v[i].y) {
+      int x1 = std::min(v[i - 1].x, v[i].x);
+      int x2 = std::max(v[i - 1].x, v[i].x);
+      for (int x = x1; x < x2; ++x) {
+        vvy[x].push_back(v[i].y);
       }
     } else {
-      assert(false);
+      assert(v[i - 1].x == v[i].x);
+    }
+  }
+  for (int x = 0; x < xsize; ++x) {
+    auto& vy = vvy[x];
+    std::sort(vy.begin(), vy.end());
+    assert((vy.size() % 2) == 0);
+    vy.push_back(maxy);
+    vy.push_back(maxy);
+    int y = 0;
+    for (unsigned i = 0; i < vy.size(); i += 2) {
+      for (; y < vy[i]; ++y) {
+        Get(x, y).SetBlock();
+      }
+      y = vy[i + 1];
     }
   }
 }
