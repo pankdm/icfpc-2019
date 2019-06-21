@@ -2,9 +2,9 @@
 
 #include "base/point.h"
 #include "base/square.h"
+#include "utils/split.h"
 #include <algorithm>
 #include <cassert>
-#include <sstream>
 #include <string>
 #include <vector>
 
@@ -25,8 +25,7 @@ Map::Map(int _xsize, int _ysize) { Resize(_xsize, _ysize); }
 Map::Map(const std::string& desc) {
   int maxx = 0, maxy = 0;
   std::vector<Point> v;
-  std::stringstream ss(desc);
-  for (std::string st; getline(ss, st, ',');) {
+  for (const std::string& st : Split(desc, ',')) {
     assert((st.size() >= 2) && (st[0] == '(') && (st.back() == ')'));
     size_t npos = st.find(',');
     assert(npos != std::string::npos);
