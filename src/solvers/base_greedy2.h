@@ -2,6 +2,7 @@
 
 #include "base/world.h"
 #include "solvers/solver.h"
+#include "common/disjoint_set.h"
 #include "common/graph/graph.h"
 #include "common/unsigned_set.h"
 #include <vector>
@@ -13,9 +14,13 @@ class BaseGreedy2 : public Solver {
 
   UndirectedGraph g;
   UnsignedSet unwrapped;
+  DisjointSet ds;
+  UnsignedSet target;
 
  protected:
   void Init(const std::string& task);
+  void BuildDS(const std::vector<unsigned>& v);
+  void SetTarget();
   Action NextMove();
   void Update();
   bool Wrapped();

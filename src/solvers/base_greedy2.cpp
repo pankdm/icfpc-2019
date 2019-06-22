@@ -6,6 +6,7 @@
 #include "base/point.h"
 #include "base/worker.h"
 #include "common/unsigned_set.h"
+#include <algorithm>
 #include <cassert>
 #include <iostream>
 #include <queue>
@@ -20,6 +21,7 @@ void BaseGreedy2::Init(const std::string& task) {
   g.Resize(size);
   unwrapped.Clear();
   unwrapped.Resize(size);
+  target.Resize(size);
   for (int x = 0; x < map.xsize; ++x) {
     for (int y = 0; y < map.ysize; ++y) {
       if (map.ValidToMove(x, y)) {
@@ -32,6 +34,28 @@ void BaseGreedy2::Init(const std::string& task) {
   }
 }
 
+void BaseGreedy2::BuildDS(const std::vector<unsigned>& v) {
+  ds.Init(world.map.Size());
+  for (unsigned u : v) {
+    for (unsigned t : g.Edges(u)) {
+      if ((t > u) && unwrapped.HasKey(t)) {
+        ds.Union(u, t);
+      }
+    }
+  }
+}
+
+void BaseGreedy2::SetTarget() {
+  unsigned min_ds_size = ds.Size();
+  for (unsigned u : unwrapped.List()) {
+    min_ds_size = std::min(min_ds_size, ds.GetSize(u));
+  }
+  target.Clear();
+  for (unsigned u : unwrapped.List()) {
+    if (ds.GetSize(u) == min_ds_size) target.Insert(u);
+  }
+}
+
 Action BaseGreedy2::NextMove() {
   thread_local UnsignedSet s;
   thread_local std::queue<std::pair<int, Direction>> q;
@@ -41,6 +65,8 @@ Action BaseGreedy2::NextMove() {
     s.Clear();
   }
   for (; !q.empty();) q.pop();
+  BuildDS(unwrapped.List());
+  SetTarget();
   Point pw(world.worker.x, world.worker.y);
   for (unsigned _d = 0; _d < 4; ++_d) {
     Direction d(_d);
@@ -54,7 +80,7 @@ Action BaseGreedy2::NextMove() {
   for (; !q.empty(); q.pop()) {
     int index = q.front().first;
     Direction d = q.front().second;
-    if (!world.map[index].Wrapped()) {
+    if (target.HasKey(index)) {
       Action a(d.Get());
       world.Apply(a);
       Update();
