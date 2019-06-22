@@ -50,6 +50,9 @@ void Worker::Move(const Direction& d, Map& map, bool drill_enabled) {
     case Item::TELEPORT:
       ++unused_teleporters;
       break;
+    case Item::CLONE:
+      ++unused_clones;
+      break;
     case Item::NONE:
     case Item::BEACON:
     case Item::CODEX:
@@ -131,6 +134,9 @@ void Worker::Apply(unsigned time, Map& map, const Action& action) {
       x = action.x;
       y = action.y;
       Wrap(map);
+      break;
+    case ActionType::CLONE:
+      assert(false);
       break;
     default:
       assert(false);

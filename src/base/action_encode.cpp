@@ -29,6 +29,8 @@ std::ostream& operator<<(std::ostream& os, const Action& a) {
       return os << "R";
     case ActionType::SHIFT:
       return os << "T(" << a.x << "," << a.y << ")";
+    case ActionType::CLONE:
+      return os << "C";
   }
   assert(false);
   return os;

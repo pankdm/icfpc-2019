@@ -43,6 +43,9 @@ void World::Init(const std::string& desc) {
       case 'R':
         item = Item::TELEPORT;
         break;
+      case 'C':
+        item = Item::CLONE;
+        break;
     }
     assert(item != Item::UNKNOWN);
     // std::cerr << "\tAddItem(" << pboost.x << ", " << pboost.y << ", "

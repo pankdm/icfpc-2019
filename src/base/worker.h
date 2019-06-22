@@ -6,6 +6,8 @@
 #include "base/map.h"
 #include <vector>
 
+// TODO:
+//   Clones are not supported yet.
 class Worker {
  public:
   int x;
@@ -18,6 +20,7 @@ class Worker {
   unsigned unused_fast_wheels = 0;
   unsigned unused_drills = 0;
   unsigned unused_teleporters = 0;
+  unsigned unused_clones = 0;
   unsigned time_fast_wheels = 0;
   unsigned time_drill = 0;
 

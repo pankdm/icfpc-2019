@@ -13,5 +13,6 @@ enum class ActionType {
   USING_DRILL,
   SET_BEACON,
   SHIFT,
+  CLONE,
   END
 };

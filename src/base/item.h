@@ -10,6 +10,7 @@ enum class Item : uint8_t {
   TELEPORT,
   BEACON,
   CODEX,
+  CLONE,
   UNKNOWN
 };
 
