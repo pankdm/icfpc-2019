@@ -27,6 +27,7 @@ class Item:
     DRILL = 'L'
     MYSTERY = 'X'
     TELEPORT = 'R'
+    CLONE = 'C'
 
 class Desc:
     def init_box(self, contour):
@@ -208,7 +209,7 @@ def parse_boosters(s):
 
 def is_valid_booster(s):
     assert(len(s) == 1)
-    return (s in ['B', 'F', 'L', 'R', 'X'])
+    return (s in ['B', 'F', 'L', 'R', 'X', 'C'])
 
 
 def parse_problem(s):

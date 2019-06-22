@@ -79,6 +79,7 @@ class World:
         self.num_drills = 0
         self.num_manipulators = 0
         self.num_teleports = 0
+        self.num_clones = 0
 
         self._wrap()
 
@@ -143,6 +144,8 @@ class World:
             self.num_drills += 1
         elif item == Item.TELEPORT:
             self.num_teleports += 1
+        elif item == Item.CLONE:
+            self.num_clones += 1
         else:
             assert False, "Unsupported item: {}".format(item)
 
