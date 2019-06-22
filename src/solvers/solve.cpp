@@ -1,7 +1,7 @@
 #include "solvers/solve.h"
 
 #include "base/action_encode.h"
-#include "solvers/base_greedy.h"
+#include "solvers/base_greedy2.h"
 #include "solvers/test.h"
 #include "common/timer.h"
 #include <cassert>
@@ -17,7 +17,7 @@ bool Solve(const std::string& input_file, const std::string& output_file) {
   std::string task_index = input_file.substr(input_file.size() - 8, 3);
   std::cout << "Solving task " << task_index << " ...";
   Timer t;
-  BaseGreedy s;
+  BaseGreedy2 s;
   auto actions = s.Solve(task);
   std::cout << " Done. Time = " << t.GetMilliseconds() << std::endl;
   if (Test(task, actions)) {

@@ -21,6 +21,11 @@ class Map {
   void AddBlock(const std::string& desc);
   void Init(const std::string& desc);
 
+  int Size() const;
+  int Index(int x, int y) const;
+  Square& operator[](int index);
+  const Square& operator[](int index) const;
+
   bool Inside(int x, int y) const;
   Square& Get(int x, int y);
   const Square& Get(int x, int y) const;

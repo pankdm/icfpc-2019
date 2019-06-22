@@ -77,9 +77,16 @@ void Map::Init(const std::string& desc) {
   }
 }
 
+int Map::Size() const { return xsize * ysize; }
+
+int Map::Index(int x, int y) const { return x * ysize + y; }
+
 bool Map::Inside(int x, int y) const {
   return (x >= 0) && (x < xsize) && (y >= 0) && (y < ysize);
 }
+
+Square& Map::operator[](int index) { return map[index]; }
+const Square& Map::operator[](int index) const { return map[index]; }
 
 Square& Map::Get(int x, int y) { return map[x * ysize + y]; }
 const Square& Map::Get(int x, int y) const { return map[x * ysize + y]; }
