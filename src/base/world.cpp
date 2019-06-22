@@ -5,12 +5,13 @@
 #include "base/point.h"
 #include "base/worker.h"
 #include "utils/split.h"
+#include "common/always_assert.h"
 #include <cassert>
 
 void World::Init(const std::string& desc) {
   time = 0;
   auto vs = Split(desc, '#');
-  assert(vs.size() == 4);
+  ALWAYS_ASSERT(vs.size() == 4);
   map.Init(vs[0]);
   for (auto& block_desc : Split(vs[2], ';')) map.AddBlock(block_desc);
   for (auto& boost_desc : Split(vs[3], ';')) {
