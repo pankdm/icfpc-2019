@@ -6,8 +6,9 @@
 #include "base/point.h"
 #include "common/graph/graph/distance.h"
 #include <algorithm>
-
-#include <iostream>
+#include <unordered_map>
+#include <unordered_set>
+#include <utility>
 
 namespace solvers {
 void BaseClones::Init(const std::string& task) {
@@ -35,6 +36,11 @@ void BaseClones::Init(const std::string& task) {
     }
   }
   poi_assigned.Resize(poi.size());
+  ds_rebuid_required.Resize(size);
+  ds_rebuid.Resize(size);
+  acw1.Resize(size);
+  acw2.Resize(size);
+  BuildDS();
 }
 
 void BaseClones::CleanPOI() {
@@ -49,14 +55,105 @@ void BaseClones::CleanPOI() {
   }
 }
 
-ActionsList BaseClones::NextMove() {
-  //   std::cerr << "BaseClones::NextMove()" << std::endl;
-  //   std::cerr << "\tT = " << world.time << "\tL = " << world.WCount()
-  //             << std::endl;
+void BaseClones::BuildDSUnsignedSet() {
+  for (unsigned u : ds_rebuid.List()) {
+    for (unsigned t : g.Edges(u)) {
+      if ((t > u) && unwrapped.HasKey(t)) {
+        ds.Union(u, t);
+      }
+    }
+  }
+}
+
+void BaseClones::BuildDS() {
+  ds.Init(world.map.Size());
+  ds_rebuid = unwrapped;
+  BuildDSUnsignedSet();
+  UpdateTarget();
+}
+
+void BaseClones::RebuildDS() {
+  ds_rebuid.Clear();
+  for (unsigned u : unwrapped.List()) {
+    if (ds_rebuid_required.HasKey(ds.Find(u))) ds_rebuid.Insert(u);
+  }
+  ds.unions -= (ds_rebuid.Size() - ds_rebuid_required.Size());
+  for (unsigned u : ds_rebuid.List()) {
+    ds.p[u] = u;
+    ds.rank[u] = 0;
+    ds.vsize[u] = 1;
+  }
+  BuildDSUnsignedSet();
+}
+
+void BaseClones::UpdateTarget() {
+  thread_local std::unordered_set<unsigned> s;
+  s.clear();
+  target.clear();
+  for (unsigned u : unwrapped.List()) {
+    unsigned p = ds.Find(u);
+    if (s.find(p) == s.end()) {
+      s.insert(p);
+      target.emplace_back(std::make_pair(ds.GetSize(p), p));
+    }
+  }
+  sort(target.begin(), target.end());
+}
+
+bool BaseClones::AssignClosestWorker(unsigned r, ActionsList& al) {
+  struct S {
+    unsigned distance;
+    unsigned index;
+    unsigned from;
+  };
+  thread_local std::queue<S> q;
+  thread_local std::unordered_map<unsigned, unsigned> m;
+  for (; !q.empty();) q.pop();
+  acw1.Clear();
+  acw2.Clear();
+  for (unsigned u : unwrapped.List()) {
+    if (ds.Find(u) == r) {
+      q.push({0, u, 0});
+      acw1.Insert(u);
+    }
+  }
+  m.clear();
+  for (unsigned i = 0; i < world.WCount(); ++i) {
+    auto& w = world.GetWorker(i);
+    unsigned index = world.map.Index(w.x, w.y);
+    acw2.Insert(index);
+    m[index] = i;
+  }
+  unsigned best_distance = unsigned(-1);
+  for (; !q.empty(); q.pop()) {
+    unsigned d = q.front().distance;
+    unsigned u = q.front().index;
+    unsigned f = q.front().from;
+    if (d > best_distance) break;
+    if (acw2.HasKey(u)) {
+      best_distance = d;
+      unsigned wi = m[u];
+      assert(wi < al.size());
+      if (al[wi].type == ActionType::DO_NOTHING) {
+        al[wi].type = GetDirection(world.map, u, f).Get();
+        return true;
+      }
+    }
+    if (d < best_distance) {
+      for (unsigned v : g.Edges(u)) {
+        if (!acw1.HasKey(v)) {
+          acw1.Insert(v);
+          q.push({d + 1, v, u});
+        }
+      }
+    }
+  }
+  return false;
+}
+
+void BaseClones::NextMove_Clone(ActionsList& al) {
+  unsigned l = al.size();
   CleanPOI();
-  unsigned l = world.WCount();
-  ActionsList al(l, Action(ActionType::DO_NOTHING));
-  // Check if we can create new worker
   unsigned new_workers = 0;
   if (world.boosters.unused_clones > 0) {
     for (unsigned i = 0; i < l; ++i) {
@@ -64,15 +161,12 @@ ActionsList BaseClones::NextMove() {
       if (world.map(w.x, w.y).CheckItem() == Item::CODEX) {
         al[i].type = ActionType::CLONE;
         new_workers += 1;
-        // std::cerr << "\tCloning worker " << i << " @ (" << w.x << ", " << w.y
-        //           << ")" << std::endl;
         break;
       }
     }
   }
   bool unused_boosters = (world.boosters.unused_clones > new_workers);
   poi_assigned.Clear();
-  //   std::cerr << "\tPOI size = " << poi.size() << std::endl;
   for (bool assigned = true; assigned;) {
     assigned = false;
     unsigned best_distance = unsigned(-1);
@@ -113,38 +207,67 @@ ActionsList BaseClones::NextMove() {
       }
       assert((best_distance == 0) ||
              (al[windex].type != ActionType::DO_NOTHING));
-      //   std::cerr << "\tWorker " << windex << " @ (" << w.x << ", " << w.y
-      //             << ") assigned to poi " << pindex << " @ " <<
-      //             poi[pindex].index
-      //             << std::endl;
     }
   }
-  bool stop = true;
-  for (Action& a : al) {
-    if (a.type != ActionType::DO_NOTHING) {
-      stop = false;
-      break;
-    }
-  }
-  if (!stop) {
-    world.ApplyC(al);
-    return al;
-  }
-  return {};
 }
+
+void BaseClones::NextMove_Wrap(ActionsList& al) {
+  unsigned l = al.size();
+  unsigned waiting_workers = 0;
+  for (auto& action : al) {
+    if (action.type == ActionType::DO_NOTHING) waiting_workers += 1;
+  }
+  if (waiting_workers == 0) return;
+  if (!ds_rebuid_required.Empty()) {
+    RebuildDS();
+    ds_rebuid_required.Clear();
+    UpdateTarget();
+  }
+  for (auto& tp : target) {
+    if (waiting_workers == 0) break;
+    if (AssignClosestWorker(tp.second, al)) waiting_workers -= 1;
+  }
+  // Do something with remaining workers
+}
+
+ActionsList BaseClones::NextMove() {
+  unsigned l = world.WCount();
+  ActionsList al(l, Action(ActionType::DO_NOTHING));
+  NextMove_Clone(al);
+  NextMove_Wrap(al);
+  world.ApplyC(al);
+  Update();
+  return al;
+}
+
+void BaseClones::Update() {
+  auto& q = world.map.wraps_history;
+  for (; !q.empty(); q.pop()) {
+    int index = q.front();
+    if (unwrapped.HasKey(index)) {
+      unwrapped.Remove(index);
+      ds_rebuid_required.Insert(ds.Find(index));
+    }
+  }
+}
+
+bool BaseClones::Wrapped() { return unwrapped.Empty(); }
 
 ActionsClones BaseClones::Solve(const std::string& task) {
   Init(task);
   ActionsClones actions;
-  for (;;) {
+  for (; !Wrapped();) {
     auto al = NextMove();
     if (al.size() == 0) break;
     if (actions.size() < al.size()) {
       actions.resize(al.size());
     }
+    bool do_nothing = true;
     for (unsigned i = 0; i < al.size(); ++i) {
+      if (al[i].type != ActionType::DO_NOTHING) do_nothing = false;
       actions[i].emplace_back(al[i]);
     }
+    if (do_nothing) break;
   }
   if (actions.size() < world.WCount()) actions.resize(world.WCount());
   //   std::cerr << "Solver finished" << std::endl;
