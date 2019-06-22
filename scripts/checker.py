@@ -9,6 +9,25 @@ PT_UNKNOWN = 0
 PT_EMPTY = 1
 PT_BLOCK = 2
 
+PT_WRAPPED = 3
+
+def cell_to_string(color):
+    if color == PT_UNKNOWN:
+        return "?"
+    if color == PT_EMPTY:
+        return "."
+    if color == PT_BLOCK:
+        return "#"
+    if color == PT_WRAPPED:
+        return " "
+
+class Item:
+    MANIPULATOR = 'B'
+    WHEEL = 'F'
+    DRILL = 'L'
+    MYSTERY = 'X'
+    TELEPORT = 'R'
+
 class Desc:
     def init_box(self, contour):
         # init the bounding box
@@ -21,17 +40,61 @@ class Desc:
             self.ymax = max(self.ymax, y)
         self.field = [[PT_UNKNOWN] * self.ymax for i in range(self.xmax)]
 
+    def return_view(self):
+        res = [['z'] * self.ymax for i in range(self.xmax)]
+        for x in range(0, self.xmax):
+            for y in range(0, self.ymax):
+                res[x][y] = cell_to_string(self.get_color((x, y)))
+        return res
+
+
+    def all_wrapped(self):
+        for x in range(self.xmin, self.xmax):
+            for y in range(self.ymin, self.ymax):
+                if self.get_color((x, y)) == PT_EMPTY:
+                    return False
+        return True
+
     def get_color(self, pt):
         return self.field[pt[0]][pt[1]]
 
     def set_color(self, pt, color):
         self.field[pt[0]][pt[1]] = color
 
+    def is_in_bounds(self, pt):
+        return (0 <= pt[0] < self.xmax and 0 <= pt[1] < self.ymax)
+
+    def is_drillable(self, pt):
+        return (self.xmin <= pt[0] < self.xmax and self.ymin <= pt[1] < self.ymax)
+
+    def drill(self, pt):
+        assert self.is_drillable(pt)
+        # drill as wrapped
+        self.set_color(pt, PT_WRAPPED)
+
+    def is_walkable(self, pt):
+        if not self.is_in_bounds(pt):
+            return False
+        return self.get_color(pt) in [PT_EMPTY, PT_WRAPPED]
+
+    def wrap(self, pt):
+        if not self.is_in_bounds(pt):
+            return False
+        if self.get_color(pt) == PT_EMPTY:
+            self.set_color(pt, PT_WRAPPED)
+
+    def get_item(self, pt):
+        return self.boosters.get(pt, None)
+
+    def take_item(self, pt):
+        assert pt in self.boosters
+        assert self.boosters[pt] != Item.MYSTERY
+        del self.boosters[pt]
 
     # for large maps fails with
     # RecursionError: maximum recursion depth exceeded
     def dfs(self, pt, fill_color, visited):
-        if not (0 <= pt[0] < self.xmax and 0 <= pt[1] < self.ymax):
+        if not self.is_in_bounds(pt):
             return
         if self.get_color(pt) not in (PT_UNKNOWN, fill_color):
             return
@@ -159,4 +222,3 @@ def parse_problem(s):
     boosters = parse_boosters(parts[3])
     desc = Desc(contour, obstacles, location, boosters)
     return desc
-
