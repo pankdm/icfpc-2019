@@ -104,7 +104,10 @@ void Map::Drill(int x, int y) {
 }
 
 void Map::Wrap(int x, int y) {
-  if (Inside(x, y)) Get(x, y).Wrap();
+  if (Inside(x, y)) {
+    Get(x, y).Wrap();
+    if (save_wraps) wraps_history.push(Index(x, y));
+  }
 }
 
 bool Map::HasBeacon(int x, int y) const {

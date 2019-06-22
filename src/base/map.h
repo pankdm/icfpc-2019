@@ -2,6 +2,7 @@
 
 #include "base/item.h"
 #include "base/square.h"
+#include <queue>
 #include <string>
 #include <vector>
 
@@ -9,6 +10,11 @@ class Map {
  public:
   int xsize, ysize;
   std::vector<Square> map;
+
+ public:
+  // For solvers
+  bool save_wraps = false;
+  std::queue<int> wraps_history;
 
  protected:
   void Resize(int _xsize, int _ysize);

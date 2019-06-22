@@ -15,6 +15,7 @@ class UnsignedSet {
   unsigned Size() const { return unsigned(vlist.size()); }
   unsigned HasKey(unsigned key) const { return vset[key]; }
   unsigned Last() const { return vlist.back(); }
+  const std::vector<unsigned>& List() const { return vlist; }
 
   void Resize(unsigned new_size) {
     vset.resize(0);

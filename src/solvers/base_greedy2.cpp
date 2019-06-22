@@ -15,7 +15,7 @@ void BaseGreedy2::Init(const std::string& task) {
   world.Init(task);
   unsigned size = unsigned(world.map.Size());
   auto& map = world.map;
-  // map.save_wraps = true;
+  map.save_wraps = true;
   g.Resize(size);
   unwrapped.Clear();
   unwrapped.Resize(size);
@@ -62,27 +62,19 @@ Action BaseGreedy2::NextMove() {
       }
     }
   }
+  world.map.Print();
   assert(false);
   return Action(ActionType::END);
 }
 
 void BaseGreedy2::Update() {
-  //   auto& q = world.map.wraps_history;
-  //   for (; !q.empty(); q.pop()) {
-  //     unwrapped.Remove(q.front());
-  //   }
+  auto& q = world.map.wraps_history;
+  for (; !q.empty(); q.pop()) {
+    unwrapped.Remove(q.front());
+  }
 }
 
-bool BaseGreedy2::Wrapped() {
-  for (; !unwrapped.Empty();) {
-    if (world.map[unwrapped.Last()].Wrapped()) {
-      unwrapped.RemoveLast();
-    } else {
-      break;
-    }
-  }
-  return unwrapped.Empty();
-}
+bool BaseGreedy2::Wrapped() { return unwrapped.Empty(); }
 
 ActionsList BaseGreedy2::Solve(const std::string& task) {
   Init(task);
