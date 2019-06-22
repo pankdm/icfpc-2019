@@ -48,7 +48,7 @@ class Manipulators:
                 break
 
         if ok:
-            self.arms.append(arm)
+            self.arms.append(new_arm)
 
 
 class Action:
@@ -79,6 +79,8 @@ class World:
         self.num_drills = 0
         self.num_manipulators = 0
         self.num_teleports = 0
+
+        self._wrap()
 
     def _on_step_finish(self):
         self._wrap();
@@ -189,7 +191,8 @@ class World:
         for arm in self.manipulators.arms:
             x = self.x + arm.x
             y = self.y + arm.y
-            view[x][y] = 'x'
+            if 0 <= x < len(view) and 0 <= y <= len(view[x]):
+                view[x][y] = 'x'
         view[self.x][self.y] = '/'
 
         for pt, booster in self.desc.boosters.items():
@@ -198,8 +201,8 @@ class World:
 
         for y in reversed(range(0, len(view[0]))):
             for x in range(0, len(view)):
-                print view[x][y],
-            print ""
+                print (view[x][y],)
+            print ("")
 
 
 
@@ -289,10 +292,10 @@ def verify_solution(problem_file, solution_file):
 
     actions = parse_solution(solution)
     for action in actions:
-        print 'applying action', action.type, action.pt
+        # print 'applying action', action.type, action.pt
         apply_action(world, action)
-        world.debug_print()
-        raw_input(">")
+        # world.debug_print()
+        # raw_input(">")
 
     assert world.steps == len(actions)
     assert world.all_wrapped()
