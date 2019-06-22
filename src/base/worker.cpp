@@ -8,26 +8,81 @@
 #include "base/map.h"
 #include <cassert>
 #include <cmath>
+#include <iostream>
+#include <set>
 
-void Worker::AddManipulatorI(const Manipulator& m) {
-  manipulators.emplace_back(m);
+void Worker::AddManipulatorI(int x, int y) {
+  manipulators.emplace_back(Manipulator(x, y));
 }
 
 void Worker::Init(Map& map, int _x, int _y) {
   x = _x;
   y = _y;
-  AddManipulatorI({0, 0});
-  AddManipulatorI({1, 1});
-  AddManipulatorI({1, 0});
-  AddManipulatorI({1, -1});
+  AddManipulatorI(0, 0);
+  AddManipulatorI(1, 1);
+  AddManipulatorI(1, 0);
+  AddManipulatorI(1, -1);
   Wrap(map);
 }
 
+std::pair<int, int> Worker::GetNextManipulatorPositionNaive() const {
+  assert(unused_extensions);
+  std::set<std::pair<int, int>> ms;
+  for (const Manipulator& cm : manipulators) {
+    ms.insert(std::make_pair(cm.X(), cm.Y()));
+  }
+  for (int i = -1; i <= 1; i++) {
+    for (int j = -1; j <= 1; j++) {
+      if ((i == 0 && j == 0) || i * j != 0) {
+        continue;
+      }
+      if (ms.find(std::make_pair(i, j)) == ms.end()) {
+        continue;
+      }
+      if (i == 0) {
+        while (true) {
+          for (int sign = -1; sign <= 1; sign += 2) {
+            auto p = std::make_pair(i * sign, j);
+            if (ms.count(p) == 0) {
+              return p;
+            }
+          }
+          i++;
+        }
+      } else if (j == 0) {
+        while (true) {
+          for (int sign = -1; sign <= 1; sign += 2) {
+            auto p = std::make_pair(i, j * sign);
+            if (ms.count(p) == 0) {
+              return p;
+            }
+          }
+          j++;
+        }
+      } else {
+        assert(false);
+      }
+    }
+  }
+  assert(false);
+}
 // TODO:
 //   Add reachability check.
 void Worker::Wrap(Map& map) {
   for (Manipulator& m : manipulators) {
-    map.Wrap(x + m.x, y + m.y);
+    bool ok = true;
+    for (auto xy : m.CellsToCheck()) {
+      if (map.Get(xy.first + x, xy.second + y).Blocked()) {
+        ok = false;
+        break;
+      }
+    }
+    if (ok) {
+      map.Wrap(x + m.X(), y + m.Y());
+    } else {
+      map.Print();
+      std::cout << x << " " << y << std::endl;
+    }
   }
 }
 
@@ -74,14 +129,14 @@ void Worker::AddManipulator(const Manipulator& m) {
   assert(unused_extensions > 0);
   bool valid = false;
   for (const Manipulator& cm : manipulators) {
-    if (std::abs(cm.x - m.x) + std::abs(cm.y - m.y) == 1) {
+    if (std::abs(cm.X() - m.X()) + std::abs(cm.Y() - m.Y()) == 1) {
       valid = true;
       break;
     }
   }
   assert(valid);
   --unused_extensions;
-  AddManipulatorI(m);
+  AddManipulatorI(m.X(), m.Y());
 }
 
 void Worker::Apply(unsigned time, Map& map, const Action& action) {

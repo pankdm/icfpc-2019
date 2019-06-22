@@ -12,6 +12,7 @@ class Action {
  public:
   Action();
   Action(ActionType _type);
+  Action(ActionType _type, int _x, int _y);
 };
 
 using ActionsList = std::vector<Action>;
