@@ -36,6 +36,8 @@ if __name__ == "__main__":
     parser.add_argument("-t", "--token", help="Team private ID")
     parser.add_argument("-v", "--verify", action='store_true',
                         help="Enable submission verification")
+    parser.add_argument("-b", "--best", action='store_true',
+                        help="Submit best solution known (requires solution parsing)")
     args = parser.parse_args()
 
     yaml_config.update(vars(args))
@@ -93,7 +95,7 @@ if __name__ == "__main__":
                 if config.verify and not verify_solution(problem_content, solution_content):
                     print(
                         f"Evaluated solution for {problem_name} is incorrect")
-                elif os.path.exists(gold):
+                elif config.best and os.path.exists(gold):
                     gold_metadata = {}
                     if os.path.exists(gold_metadata_name):
                         with open(gold_metadata_name, "r") as gold_metadata_file:
