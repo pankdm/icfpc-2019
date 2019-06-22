@@ -15,11 +15,10 @@ bool Solve(const std::string& input_file, const std::string& output_file) {
   std::string task;
   assert(std::getline(input, task));
   std::string task_index = input_file.substr(input_file.size() - 8, 3);
-  std::cout << "Solving task " << task_index << " ...";
   Timer t;
   BaseGreedy2 s;
   auto actions = s.Solve(task);
-  std::cout << " Done. Time = " << t.GetMilliseconds()
+  std::cout << "Task " << task_index << " Done. Time = " << t.GetMilliseconds()
             << "\tScore = " << actions.size() << std::endl;
   if (Test(task, actions)) {
     std::ofstream output(output_file);
