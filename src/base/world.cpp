@@ -63,7 +63,15 @@ void World::Apply(const ActionsList& actions) {
 bool World::Solved() const { return map.Wrapped(); }
 
 void World::ApplyC(unsigned index, const Action& action) {
-  GetWorker(index).Apply(time, map, action);
+  if (action.type == ActionType::CLONE) {
+    auto& worker = GetWorker(index);
+    assert(boosters.unused_clones > 0);
+    assert(map.Get(worker.x, worker.y).CheckItem() == Item::CODEX);
+    boosters.unused_clones -= 1;
+    workers.emplace_back(worker);
+  } else {
+    GetWorker(index).Apply(time, map, action);
+  }
 }
 
 void World::ApplyC(const ActionsClones& actions) {
