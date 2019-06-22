@@ -2,9 +2,10 @@
 
 #include "base/action_encode.h"
 #include "solvers/base_greedy2.h"
+#include "solvers/base_greedy3.h"
 #include "solvers/test.h"
-#include "common/timer.h"
 #include "common/always_assert.h"
+#include "common/timer.h"
 #include <cassert>
 #include <fstream>
 #include <iostream>
@@ -17,7 +18,7 @@ bool Solve(const std::string& input_file, const std::string& output_file) {
   ALWAYS_ASSERT(std::getline(input, task));
   std::string task_index = input_file.substr(input_file.size() - 8, 3);
   Timer t;
-  BaseGreedy2 s;
+  BaseGreedy3 s;
   auto actions = s.Solve(task);
   std::cout << "Task " << task_index << " Done. Time = " << t.GetMilliseconds()
             << "\tScore = " << actions.size() << std::endl;

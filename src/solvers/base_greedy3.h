@@ -1,29 +1,10 @@
 #pragma once
 
-#include "base/world.h"
-#include "solvers/solver.h"
-#include "common/disjoint_set.h"
-#include "common/graph/graph.h"
-#include "common/unsigned_set.h"
-#include <vector>
+#include "solvers/base_greedy2.h"
 
 namespace solvers {
-class BaseGreedy2 : public Solver {
- protected:
-  World world;
-
-  UndirectedGraph g;
-  UnsignedSet unwrapped;
-  DisjointSet ds;
-  UnsignedSet target;
-
- protected:
-  void Init(const std::string& task);
-  void BuildDS(const std::vector<unsigned>& v);
-  void SetTarget();
+class BaseGreedy3 : public BaseGreedy2 {
   Action NextMove();
-  void Update();
-  bool Wrapped();
 
  public:
   ActionsList Solve(const std::string& task);

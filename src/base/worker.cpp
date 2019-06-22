@@ -80,9 +80,6 @@ void Worker::Wrap(Map& map) {
     }
     if (ok) {
       map.Wrap(x + m.X(), y + m.Y());
-    } else {
-      map.Print();
-      std::cout << x << " " << y << std::endl;
     }
   }
 }
