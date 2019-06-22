@@ -28,6 +28,8 @@ class Worker {
   void Init(Boosters& b, Map& map, int _x, int _y);
 
   void Wrap(Map& map);
+  std::vector<std::pair<int, int>> CellsToWrap(Map& map, int dx = 0,
+                                               int dy = 0);
   void Move(const Direction& d, Map& map, bool drill_enabled);
   void RotateClockwise();
   void RotateCounterClockwise();

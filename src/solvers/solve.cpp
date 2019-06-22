@@ -12,7 +12,7 @@
 #include <string>
 
 namespace solvers {
-bool Solve(const std::string& input_file, const std::string& output_file) {
+int Solve(const std::string& input_file, const std::string& output_file) {
   std::ifstream input(input_file);
   std::string task;
   ALWAYS_ASSERT(std::getline(input, task));
@@ -25,11 +25,11 @@ bool Solve(const std::string& input_file, const std::string& output_file) {
   if (Test(task, actions)) {
     std::ofstream output(output_file);
     output << actions;
-    return true;
+    return actions.size();
   } else {
     std::cerr << "Solution for problem " << task_index << " is incorrect."
               << std::endl;
-    return false;
+    return 0;
   }
 }
 }  // namespace solvers

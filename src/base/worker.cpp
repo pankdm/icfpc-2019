@@ -67,9 +67,10 @@ std::pair<int, int> Worker::GetNextManipulatorPositionNaive() const {
   }
   assert(false);
 }
-// TODO:
-//   Add reachability check.
-void Worker::Wrap(Map& map) {
+
+// What cells will be wrapped if we move by dx, dy?
+std::vector<std::pair<int, int>> Worker::CellsToWrap(Map& map, int dx, int dy) {
+  std::vector<std::pair<int, int>> cells;
   for (Manipulator& m : manipulators) {
     bool ok = true;
     for (auto xy : m.CellsToCheck()) {
@@ -79,8 +80,15 @@ void Worker::Wrap(Map& map) {
       }
     }
     if (ok) {
-      map.Wrap(x + m.X(), y + m.Y());
+      cells.push_back(std::make_pair(x + m.X(), y + m.Y()));
     }
+  }
+  return cells;
+}
+
+void Worker::Wrap(Map& map) {
+  for (auto p : CellsToWrap(map)) {
+    map.Wrap(p.first, p.second);
   }
 }
 
