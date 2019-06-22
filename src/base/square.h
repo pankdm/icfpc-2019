@@ -1,7 +1,7 @@
 #pragma once
 
 #include "base/item.h"
-#include <cassert>
+#include <assert.h>
 #include <cstdint>
 
 class Square {

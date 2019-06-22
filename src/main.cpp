@@ -2,12 +2,15 @@
 #include <iostream>
 #include <string>
 
+#include "common/always_assert.h"
 #include "common/pool.h"
 #include "common/timer.h"
 
 #include "solvers/solve.h"
 
 int main() {
+  // ALWAYS_ASSERTF(2 != 3, "%d %s\n", 3, "str");
+
   Timer t;
   ThreadPool p(8);
   std::atomic<bool> all_ok(true);
