@@ -48,7 +48,8 @@
         "optional": "cpp",
         "algorithm": "cpp",
         "string": "cpp",
-        "cstdarg": "cpp"
+        "cstdarg": "cpp",
+        "future": "cpp"
     },
     "python.pythonPath": "/source/icfpc/2019/scripts/bin/python3"
 }
