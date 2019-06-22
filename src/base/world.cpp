@@ -42,7 +42,7 @@ void World::Init(const std::string& desc) {
     map(pboost.x, pboost.y).AddItem(item);
   }
   Point pworker(vs[1]);
-  worker.Init(map, pworker.x, pworker.y);
+  worker.Init(boosters, map, pworker.x, pworker.y);
 }
 
 void World::Apply(const Action& action) { worker.Apply(++time, map, action); }

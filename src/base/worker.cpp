@@ -13,7 +13,8 @@ void Worker::AddManipulatorI(const Manipulator& m) {
   manipulators.emplace_back(m);
 }
 
-void Worker::Init(Map& map, int _x, int _y) {
+void Worker::Init(Boosters& b, Map& map, int _x, int _y) {
+  pboosters = &b;
   x = _x;
   y = _y;
   AddManipulatorI({0, 0});
@@ -39,19 +40,19 @@ void Worker::Move(const Direction& d, Map& map, bool drill_enabled) {
   Item item = map(x, y).GetItem();
   switch (item) {
     case Item::EXTENSION:
-      ++unused_extensions;
+      pboosters->unused_extensions += 1;
       break;
     case Item::FAST_WHEELS:
-      ++unused_fast_wheels;
+      pboosters->unused_fast_wheels += 1;
       break;
     case Item::DRILL:
-      ++unused_drills;
+      pboosters->unused_drills += 1;
       break;
     case Item::TELEPORT:
-      ++unused_teleporters;
+      pboosters->unused_teleporters += 1;
       break;
     case Item::CLONE:
-      ++unused_clones;
+      pboosters->unused_clones += 1;
       break;
     case Item::NONE:
     case Item::BEACON:
@@ -71,7 +72,7 @@ void Worker::RotateCounterClockwise() {
 }
 
 void Worker::AddManipulator(const Manipulator& m) {
-  assert(unused_extensions > 0);
+  assert(pboosters->unused_extensions > 0);
   bool valid = false;
   for (const Manipulator& cm : manipulators) {
     if (std::abs(cm.x - m.x) + std::abs(cm.y - m.y) == 1) {
@@ -80,7 +81,7 @@ void Worker::AddManipulator(const Manipulator& m) {
     }
   }
   assert(valid);
-  --unused_extensions;
+  pboosters->unused_extensions -= 1;
   AddManipulatorI(m);
 }
 
@@ -115,18 +116,18 @@ void Worker::Apply(unsigned time, Map& map, const Action& action) {
       Wrap(map);
       break;
     case ActionType::ATTACH_FAST_WHEELS:
-      assert(unused_fast_wheels > 0);
-      --unused_fast_wheels;
+      assert(pboosters->unused_fast_wheels > 0);
+      pboosters->unused_fast_wheels -= 1;
       time_fast_wheels = time + TIME_FAST_WHEELS + 1;
       break;
     case ActionType::USING_DRILL:
-      assert(unused_fast_wheels > 0);
-      --unused_fast_wheels;
+      assert(pboosters->unused_fast_wheels > 0);
+      pboosters->unused_fast_wheels -= 1;
       time_drill = time + TIME_DRILL + 1;
       break;
     case ActionType::SET_BEACON:
-      assert(unused_teleporters > 0);
-      --unused_teleporters;
+      assert(pboosters->unused_teleporters > 0);
+      pboosters->unused_teleporters -= 1;
       map.SetBeacon(x, y);
       break;
     case ActionType::SHIFT:
