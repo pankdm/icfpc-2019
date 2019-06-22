@@ -34,6 +34,8 @@ if __name__ == "__main__":
     parser.add_argument("-s", "--submission",
                         help="Directory with all existing submissions")
     parser.add_argument("-t", "--token", help="Team private ID")
+    parser.add_argument("-v", "--verify", action='store_true',
+                        help="Enable submission verification")
     args = parser.parse_args()
 
     yaml_config.update(vars(args))
@@ -87,7 +89,7 @@ if __name__ == "__main__":
             if os.path.exists(evaluate):
                 problem_content = read_file(problem)
                 solution_content = read_file(evaluate)
-                if not verify_solution(problem_content, solution_content):
+                if config.verify and not verify_solution(problem_content, solution_content):
                     print(
                         f"Evaluated solution for {problem_name} is incorrect")
                 elif os.path.exists(gold):
@@ -144,7 +146,7 @@ if __name__ == "__main__":
             result_folder = result_search.group(1)
             result_url = f"{SERVER}{remote_folder}{result_folder}/score.csv"
             print(f"Awaiting for result at {result_url}")
-            for _ in trange(40):
+            for _ in trange(60):
                 # Busy loop here, it takes time to produce solution anyway
                 time.sleep(3)
                 scores_data = requests.get(result_url)
