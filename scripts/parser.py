@@ -6,6 +6,13 @@ from world import (
     Boosters
 )
 
+def read_file(file_name):
+    f = open(file_name)
+    s = f.read()
+    f.close()
+    return s
+
+
 def parse_point(s):
     assert(s[0] == '(')
     assert(s[-1] == ')')
