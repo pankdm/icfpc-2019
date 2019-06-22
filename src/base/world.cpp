@@ -90,7 +90,7 @@ void World::ApplyC(const ActionsClones& actions) {
   for (bool last = false; !last;) {
     ++time;
     last = true;
-    unsigned l = workers.size();
+    unsigned l = WCount();
     for (unsigned i = 0; i < l; ++i) {
       if (vindex[i] < actions[i].size()) {
         ApplyC(i, actions[i][vindex[i]++]);
