@@ -19,4 +19,8 @@ class World {
   void Apply(const Action& action);
   void Apply(const ActionsList& actions);
   bool Solved() const;
+
+  // Clone versions
+  void ApplyC(unsigned index, const Action& action);
+  void ApplyC(const ActionsClones& actions);
 };

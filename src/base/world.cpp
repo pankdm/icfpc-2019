@@ -7,6 +7,7 @@
 #include "utils/split.h"
 #include "common/always_assert.h"
 #include <cassert>
+#include <vector>
 
 void World::Init(const std::string& desc) {
   time = 0;
@@ -60,3 +61,23 @@ void World::Apply(const ActionsList& actions) {
 }
 
 bool World::Solved() const { return map.Wrapped(); }
+
+void World::ApplyC(unsigned index, const Action& action) {
+  GetWorker(index).Apply(time, map, action);
+}
+
+void World::ApplyC(const ActionsClones& actions) {
+  unsigned max_workers = actions.size();
+  std::vector<unsigned> vindex(max_workers, 0);
+  for (bool last = false; !last;) {
+    ++time;
+    last = true;
+    unsigned l = workers.size();
+    for (unsigned i = 0; i < l; ++i) {
+      if (vindex[i] < actions[i].size()) {
+        ApplyC(i, actions[i][vindex[i]++]);
+        last = false;
+      }
+    }
+  }
+}
