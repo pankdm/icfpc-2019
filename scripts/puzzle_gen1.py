@@ -18,5 +18,5 @@ s = read_file(fIn)
 spec = PuzzleSpec(s)
 
 world = parse_problem(read_file("problems/chain-puzzle-examples/task.desc"))
-pformat(world)
+print(world.__dict__)
 write_problem(fOut, world)
