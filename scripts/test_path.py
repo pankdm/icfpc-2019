@@ -1,6 +1,7 @@
 import unittest
 
 from path import (
+    verify_solution,
     parse_token,
     parse_solution,
     Action,
@@ -61,6 +62,27 @@ class TestPath(unittest.TestCase):
     def assertActionEqual(self, a, b):
         self.assertEqual(a.type, b.type)
         self.assertEqual(a.pt, b.pt)
+
+
+PART1_DIRECTORY = "../problems/part-1-examples/"
+PART2_DIRECTORY = "../problems/part-2-teleports-examples/"
+PART3_DIRECTORY = "../problems/part-3-clones-examples/"
+
+class TestSolutionScore(unittest.TestCase):
+    def test_example1_1(self):
+        problem = PART1_DIRECTORY + 'example-01.desc'
+        solution1 = PART1_DIRECTORY + 'example-01-1.sol'
+        verify_solution(problem, solution1)
+
+    def test_example1_2(self):
+        problem = PART1_DIRECTORY + 'example-01.desc'
+        solution2 = PART1_DIRECTORY + 'example-01-2.sol'
+        verify_solution(problem, solution2)
+
+    def test_example1_3(self):
+        problem = PART1_DIRECTORY + 'example-01.desc'
+        solution3 = PART1_DIRECTORY + 'example-01-3.sol'
+        verify_solution(problem, solution3)
 
 
 if __name__ == '__main__':

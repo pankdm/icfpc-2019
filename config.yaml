@@ -4,7 +4,7 @@ problems:
   - problems/part-2-teleports
   - problems/part-3-clones
 # directory with known to be best solutions, safe to be submitted manually
-gold: solutions
+gold: solutions_gold
 # directory with solutions to evaluate
 evaluate: evaluate
 # directory with all existing submissions
