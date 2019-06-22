@@ -30,7 +30,7 @@ class Square {
 
   Item GetItem() {
     Item t = CheckItem();
-    if (t != Item::BEACON) value &= ~mask;
+    if ((t != Item::BEACON) && (t != Item::CODEX)) value &= ~mask;
     return t;
   }
 
