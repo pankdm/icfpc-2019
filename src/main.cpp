@@ -1,16 +1,24 @@
-#include "solvers/solve.h"
-#include "common/timer.h"
+#include <future>
 #include <iostream>
 #include <string>
 
+#include "common/pool.h"
+#include "common/timer.h"
+
+#include "solvers/solve.h"
+
 int main() {
-  bool all_ok = true;
   Timer t;
+  ThreadPool p(8);
+  std::atomic<bool> all_ok(true);
   for (unsigned i = 1; i <= 300; ++i) {
-    std::string si = std::to_string(i + 1000).substr(1);
-    bool b = solvers::Solve("../problems/all/prob-" + si + ".desc",
-                            "../solutions_cpp/prob-" + si + ".sol");
-    all_ok = all_ok && b;
+    auto t = std::make_shared<std::packaged_task<void()>>([&, i]() {
+      std::string si = std::to_string(i + 1000).substr(1);
+      bool b = solvers::Solve("../problems/all/prob-" + si + ".desc",
+                              "../solutions_cpp/prob-" + si + ".sol");
+      all_ok = all_ok && b;
+    });
+    p.enqueueTask(std::move(t));
   }
   std::cout << "Total time = " << t.GetMilliseconds() << std::endl;
   if (!all_ok) {
