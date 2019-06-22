@@ -5,9 +5,10 @@
 #include "base/direction.h"
 #include "base/point.h"
 #include "base/worker.h"
+#include "common/unsigned_set.h"
 #include <cassert>
+#include <iostream>
 #include <queue>
-#include <unordered_set>
 #include <utility>
 
 namespace solvers {
@@ -32,9 +33,13 @@ void BaseGreedy2::Init(const std::string& task) {
 }
 
 Action BaseGreedy2::NextMove() {
-  thread_local std::unordered_set<int> s;
+  thread_local UnsignedSet s;
   thread_local std::queue<std::pair<int, Direction>> q;
-  s.clear();
+  if (s.Size() < world.map.Size()) {
+    s.Resize(world.map.Size());
+  } else {
+    s.Clear();
+  }
   for (; !q.empty();) q.pop();
   Point pw(world.worker.x, world.worker.y);
   for (unsigned _d = 0; _d < 4; ++_d) {
@@ -43,7 +48,7 @@ Action BaseGreedy2::NextMove() {
     if (world.map.ValidToMove(pd.x, pd.y)) {
       int index = world.map.Index(pd.x, pd.y);
       q.push(std::make_pair(index, d));
-      s.insert(index);
+      s.Insert(index);
     }
   }
   for (; !q.empty(); q.pop()) {
@@ -56,12 +61,13 @@ Action BaseGreedy2::NextMove() {
       return a;
     }
     for (int inext : g.Edges(index)) {
-      if (s.find(inext) == s.end()) {
+      if (!s.HasKey(inext)) {
         q.push(std::make_pair(inext, d));
-        s.insert(inext);
+        s.Insert(inext);
       }
     }
   }
+  std::cout << std::endl;
   world.map.Print();
   assert(false);
   return Action(ActionType::END);
