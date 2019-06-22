@@ -77,9 +77,16 @@ void Map::Init(const std::string& desc) {
   }
 }
 
+int Map::Size() const { return xsize * ysize; }
+
+int Map::Index(int x, int y) const { return x * ysize + y; }
+
 bool Map::Inside(int x, int y) const {
   return (x >= 0) && (x < xsize) && (y >= 0) && (y < ysize);
 }
+
+Square& Map::operator[](int index) { return map[index]; }
+const Square& Map::operator[](int index) const { return map[index]; }
 
 Square& Map::Get(int x, int y) { return map[x * ysize + y]; }
 const Square& Map::Get(int x, int y) const { return map[x * ysize + y]; }
@@ -97,7 +104,10 @@ void Map::Drill(int x, int y) {
 }
 
 void Map::Wrap(int x, int y) {
-  if (Inside(x, y)) Get(x, y).Wrap();
+  if (Inside(x, y)) {
+    Get(x, y).Wrap();
+    if (save_wraps) wraps_history.push(Index(x, y));
+  }
 }
 
 bool Map::HasBeacon(int x, int y) const {
