@@ -18,6 +18,9 @@ class Boosters:
             else:
                 self.items[pt] = item
 
+    def add_booster(self, ch, p):
+        self.items[p] = ch
+
     def get_item(self, pt):
         return self.items.get(pt, None)
 

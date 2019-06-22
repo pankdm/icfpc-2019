@@ -2,13 +2,17 @@
 from PIL import Image
 
 from puzzle_parser import PuzzleSpec
-from parser import read_file
+from parser import read_file, write_problem
+from puzzle_validator import puzzle_valid
 
 import sys
 
 
 from copy import deepcopy
 from collections import deque
+from random import randint
+
+from world import World
 
 
 class State:
@@ -46,6 +50,9 @@ class PuzzleSolver:
         for pt in spec.excluded:
             x, y = pt
             self.field[x][y] = State.BAD
+
+        self.world = None
+        self.used_for_boosters = set()
 
     def get_points_order(self):
         pts = [pt for pt in spec.excluded]
@@ -98,6 +105,19 @@ class PuzzleSolver:
         x, y = pt
         self.field[x][y] = state
 
+    def gen_booster_point(self):
+        while True:
+            x = randint(0, self.spec.tSize)
+            y = randint(0, self.spec.tSize)
+            res = (x, y)
+            if not res in self.used_for_boosters and self.world.inside(res):
+                self.used_for_boosters.add(res)
+            return res
+        
+    def gen_boosters(self, ch, count):
+        for i in range(count):
+            world.boosters.add_booster(ch, self.gen_booster_point())
+
     def solve(self):
         # create ostov tree for red
         size = self.size
@@ -114,9 +134,14 @@ class PuzzleSolver:
             self.bfs_to_filled(pt)
             # input(">")
 
+        contour = []
+
+        self.world = World(contour, [], self.gen_booster_point())
+        spec = self.spec
+        for ch, count in [('M', spec.mNum), ('F', spec.fNum), ('L', spec.dNum), ('R', spec.rNum), ('C', spec.cNum), ('X', spec.xNum)]:
+            self.gen_boosters(ch, count)
+
         self.show()
-
-
 
     def show(self):
         img = Image.new('RGB', (self.size, self.size))
@@ -134,3 +159,7 @@ spec = PuzzleSpec(s)
 
 solver = PuzzleSolver(spec)
 solver.solve()
+
+world = solver.world
+print(puzzle_valid(spec, world))
+write_problem(fOut, world)
