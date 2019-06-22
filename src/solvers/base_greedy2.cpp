@@ -15,13 +15,17 @@ void BaseGreedy2::Init(const std::string& task) {
   world.Init(task);
   unsigned size = unsigned(world.map.Size());
   auto& map = world.map;
+  // map.save_wraps = true;
   g.Resize(size);
+  unwrapped.Clear();
+  unwrapped.Resize(size);
   for (int x = 0; x < map.xsize; ++x) {
     for (int y = 0; y < map.ysize; ++y) {
       if (map.ValidToMove(x, y)) {
         int index = map.Index(x, y);
         if (map.ValidToMove(x + 1, y)) g.AddEdge(index, map.Index(x + 1, y));
         if (map.ValidToMove(x, y + 1)) g.AddEdge(index, map.Index(x, y + 1));
+        if (!map[index].Wrapped()) unwrapped.Insert(index);
       }
     }
   }
@@ -48,6 +52,7 @@ Action BaseGreedy2::NextMove() {
     if (!world.map[index].Wrapped()) {
       Action a(d.Get());
       world.Apply(a);
+      Update();
       return a;
     }
     for (int inext : g.Edges(index)) {
@@ -59,12 +64,30 @@ Action BaseGreedy2::NextMove() {
   }
   assert(false);
   return Action(ActionType::END);
-}  // namespace solvers
+}
+
+void BaseGreedy2::Update() {
+  //   auto& q = world.map.wraps_history;
+  //   for (; !q.empty(); q.pop()) {
+  //     unwrapped.Remove(q.front());
+  //   }
+}
+
+bool BaseGreedy2::Wrapped() {
+  for (; !unwrapped.Empty();) {
+    if (world.map[unwrapped.Last()].Wrapped()) {
+      unwrapped.RemoveLast();
+    } else {
+      break;
+    }
+  }
+  return unwrapped.Empty();
+}
 
 ActionsList BaseGreedy2::Solve(const std::string& task) {
   Init(task);
   ActionsList actions;
-  for (; !world.Solved();) {
+  for (; !Wrapped();) {
     Action a = NextMove();
     if (a.type == ActionType::END) return actions;
     actions.emplace_back(a);
