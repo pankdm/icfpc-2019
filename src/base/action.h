@@ -16,3 +16,4 @@ class Action {
 };
 
 using ActionsList = std::vector<Action>;
+using ActionsClones = std::vector<ActionsList>;

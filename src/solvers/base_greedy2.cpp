@@ -95,7 +95,7 @@ Action BaseGreedy2::NextMove() {
     ds_rebuid_required.Clear();
     SetTarget();
   }
-  Point pw(world.worker.x, world.worker.y);
+  Point pw(world.GetWorker().x, world.GetWorker().y);
   for (unsigned _d = 0; _d < 4; ++_d) {
     Direction d(_d);
     Point pd = pw + d;

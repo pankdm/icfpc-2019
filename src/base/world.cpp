@@ -42,10 +42,18 @@ void World::Init(const std::string& desc) {
     map(pboost.x, pboost.y).AddItem(item);
   }
   Point pworker(vs[1]);
-  worker.Init(boosters, map, pworker.x, pworker.y);
+  workers.resize(1);
+  GetWorker().Init(boosters, map, pworker.x, pworker.y);
 }
 
-void World::Apply(const Action& action) { worker.Apply(++time, map, action); }
+Worker& World::GetWorker(unsigned index) {
+  assert(index < workers.size());
+  return workers[index];
+}
+
+void World::Apply(const Action& action) {
+  GetWorker().Apply(++time, map, action);
+}
 
 void World::Apply(const ActionsList& actions) {
   for (const Action& action : actions) Apply(action);

@@ -14,7 +14,7 @@ ActionsList BaseGreedy::Solve(const std::string& task) {
   ActionsList actions;
   for (; !world.Solved();) {
     std::unordered_set<int> s;
-    Point pw(world.worker.x, world.worker.y);
+    Point pw(world.GetWorker().x, world.GetWorker().y);
     std::queue<std::pair<Point, Direction>> q;
     for (unsigned _d = 0; _d < 4; ++_d) {
       Direction d(_d);
