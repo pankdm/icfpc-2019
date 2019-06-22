@@ -1,15 +1,20 @@
 #!/usr/bin/env python3
 
 from argparse import ArgumentParser, SUPPRESS
+import csv
 import os
+import re
 import sys
 import time
 from types import SimpleNamespace
 from zipfile import ZipFile, ZIP_DEFLATED
 
-from requests import post
-from tqdm import tqdm
+from bs4 import BeautifulSoup
+import requests
+from tqdm import tqdm, trange
 from yaml import safe_load
+
+SERVER = "https://monadic-lab.org"
 
 if __name__ == "__main__":
     with open("config.yaml", "r") as config_file:
@@ -70,8 +75,8 @@ if __name__ == "__main__":
             submissions.append(evaluate)
 
     print(f"Submitting {len(submissions)} new solutions")
-    timestamp = time.strftime("%Y-%m-%d_%H-%M-%S.zip")
-    archive = os.path.join(config.submission, timestamp)
+    timestamp = time.strftime("%Y-%m-%d_%H-%M-%S")
+    archive = os.path.join(config.submission, timestamp + ".zip")
     with ZipFile(archive, mode="w", compression=ZIP_DEFLATED, compresslevel=9) as zipfile:
         for submission in tqdm(submissions, desc="Archiving new solutions"):
             zipname = os.path.basename(submission)
@@ -80,9 +85,45 @@ if __name__ == "__main__":
     if config.token:
         with open(archive, mode="rb") as zipfile:
             data = {"private_id": config.token}
-            response = post("https://monadic-lab.org/submit",
-                            data=data, files={"file": zipfile})
-            print(response.text)
+            response = requests.post(f"{SERVER}/submit",
+                                     data=data, files={"file": zipfile})
+            if response.status_code != 200:
+                sys.exit("Error while submitting solutions")
+
+        soup = BeautifulSoup(response.text, "html.parser")
+        li1, li2, li3 = soup.html.body.ul.find_all("li")
+        remote_zip = li1.samp.string
+        remote_hash = li2.samp.string
+        remote_folder = li3.a.string
+
+        result_search = re.search(
+            "^team_[\d]+_(.*)\.zip$", remote_zip, re.IGNORECASE)
+        if result_search:
+            result_folder = result_search.group(1)
+            result_url = f"{SERVER}{remote_folder}{result_folder}/score.csv"
+            print(f"Awaiting for result at {result_url}")
+
+            for _ in trange(20):
+                # Busy loop here, it takes time to produce solution anyway
+                time.sleep(3)
+                scores_data = requests.get(result_url)
+                if scores_data.status_code == 200:
+                    break
+
+            if (scores_data.status_code == 200):
+                scores_path = os.path.join(
+                    config.submission, timestamp + ".csv")
+                with open(scores_path, "w") as scores_file:
+                    scores_file.write(scores_data.text)
+
+                scores = [row for row in csv.reader(
+                    scores_data.text.split("\n")) if row]
+
+                for (problem, score, status) in scores:
+                    print(f"Problem {problem}: {score}")
+
+            else:
+                sys.exit("Submission evaluation timed out")
     else:
         sys.exit(f"Private id is not set, you can submit {archive} manually")
 
