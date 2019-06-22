@@ -2,7 +2,7 @@ import unittest
 
 from path import (
     parse_token,
-    parse_path,
+    parse_solution,
     Action,
     Arm
 )
@@ -22,7 +22,7 @@ class TestPath(unittest.TestCase):
         self.assertEqual(path[index:], 'WA')
 
     def test_parse_path(self):
-        result = parse_path('SB(-1,0)WA')
+        result = parse_solution('SB(-1,0)WA\n')
         self.assertEqual(len(result), 4)
         self.assertActionEqual(result[0], Action('S'))
         self.assertActionEqual(result[1], Action('B', (-1, 0)))

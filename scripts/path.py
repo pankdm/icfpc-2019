@@ -1,4 +1,5 @@
 
+from checker import (parse_problem)
 
 class Arm:
     def __init__(self, x, y):
@@ -33,9 +34,20 @@ class Action:
         self.pt = pt
 
 class World:
-    def __init__(self):
+    def __init__(self, desc):
         self.step = 0
-        self.manipulators = None
+        self.field = desc
+
+        self.x, self.y = desc.loc
+        arms = [
+            Arm(1, 0),
+            Arm(1, 1),
+            Arm(1, -1),
+            # for simplicity,
+            # consider the robot itself to be arm
+            Arm(0, 0)
+        ]
+        self.manipulators = Manipulators(arms)
 
     # public API:
     def do_nothing(self):
@@ -68,6 +80,9 @@ class World:
 
     def shift(self, x, y):
         pass
+
+    # private API:
+    
 
 def apply_action(world, action):
     t = action.type
@@ -126,7 +141,8 @@ def parse_token(path, index):
         return action, index2 + 1
     assert False, 'Unknown action: {}'.format(path[index])
 
-def parse_path(path):
+def parse_solution(solution):
+    path = solution.strip('\n')
     index = 0
     res = []
     while True:
@@ -137,3 +153,24 @@ def parse_path(path):
         res.append(action)
         if index >= len(path):
             return res
+
+
+def read_file(file_name):
+    f = open(file_name)
+    return f.read()
+
+def evaluate_solution(problem_file, solution_file):
+    problem = read_file(problem_file)
+    solution = read_file(solution_file)
+
+    desc = parse_problem(problem)
+    world = World(desc)
+
+    actions = parse_solution(solution)
+    for action in actions:
+        apply_action(world, action)
+
+
+if __name__ == "__main__":
+    directory = "../problems/part-1-examples/"
+    evaluate_solution(directory + "example-01.desc", directory + "example-01-1.sol")
