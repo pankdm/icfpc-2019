@@ -83,7 +83,7 @@ def write_boosters(boosters):
         return ""
 
 def write_problem(fname, world):
-    s = "#".join([write_map(world.mappa), write_point((world.x, world.y)), write_obstacles(world.mappa.obstacles), write_boosters(world.boosters)])
+    s = "#".join([write_map(world.mappa), write_point(world.get_location()), write_obstacles(world.mappa.obstacles), write_boosters(world.boosters)])
 
     with open(fname, "w") as fOut:
         fOut.write(s)

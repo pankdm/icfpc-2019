@@ -70,6 +70,21 @@ class Mappa:
                 if self.get_color((x, y)) == Cell.UNKNOWN:
                     self.set_color((x, y), Cell.BLOCK)
 
+    def inside(self, point):
+        c = self.get_color(point)
+        return c == Cell.EMPTY or c == Cell.WRAPPED
+
+    def area(self):
+        result = 0
+        for x in range(self.xmin, self.xmax + 1):
+            for y in range(self.ymin, self.ymax + 1):
+                if self.inside((x, y)):
+                    result += 1
+        return result
+
+    def get_box(self):
+        return ((self.xmin, self.xmax), (self.ymin, self.ymax))
+
     def init_box(self, contour):
         # init the bounding box
         self.xmin = self.xmax = contour[0][0]
@@ -79,7 +94,7 @@ class Mappa:
             self.ymin = min(self.ymin, y)
             self.xmax = max(self.xmax, x)
             self.ymax = max(self.ymax, y)
-        self.field = [[Cell.UNKNOWN] * self.ymax for i in range(self.xmax)]
+        self.field = [[Cell.UNKNOWN] * (self.ymax + 1) for i in range(self.xmax + 1)]
 
     def return_view(self):
         res = [['z'] * self.ymax for i in range(self.xmax)]
@@ -259,6 +274,9 @@ class World:
         self.num_clones = 0
 
         self._wrap()
+
+    def get_location(self):
+        return (self.x, self.y)
 
     def _on_step_finish(self):
         self._wrap();
