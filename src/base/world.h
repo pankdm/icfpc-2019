@@ -10,11 +10,12 @@ class World {
  public:
   Map map;
   Boosters boosters;
-  Worker worker;
+  std::vector<Worker> workers;
   unsigned time = 0;
 
  public:
   void Init(const std::string& desc);
+  Worker& GetWorker(unsigned index = 0);
   void Apply(const Action& action);
   void Apply(const ActionsList& actions);
   bool Solved() const;
