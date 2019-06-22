@@ -15,3 +15,6 @@ class Direction {
   ActionType Get() const;
   void Set(ActionType t);
 };
+
+class Map;
+Direction GetDirection(const Map& map, int from, int to);

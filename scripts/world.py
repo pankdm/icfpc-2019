@@ -36,6 +36,8 @@ class Boosters:
 
 class Mappa:
     def __init__(self, contour, obstacles, location):
+        self.contour = contour
+        self.obstacles = obstacles
         self.init_box(contour)
         self.draw_contour(contour, Cell.EMPTY)
         for ob in obstacles:

@@ -62,6 +62,8 @@ void World::Apply(const ActionsList& actions) {
 
 bool World::Solved() const { return map.Wrapped(); }
 
+unsigned World::WCount() const { return workers.size(); }
+
 void World::ApplyC(unsigned index, const Action& action) {
   if (action.type == ActionType::CLONE) {
     auto& worker = GetWorker(index);
@@ -74,13 +76,21 @@ void World::ApplyC(unsigned index, const Action& action) {
   }
 }
 
+void World::ApplyC(const ActionsList& actions) {
+  assert(actions.size() == WCount());
+  ++time;
+  for (unsigned i = 0; i < actions.size(); ++i) {
+    ApplyC(i, actions[i]);
+  }
+}
+
 void World::ApplyC(const ActionsClones& actions) {
   unsigned max_workers = actions.size();
   std::vector<unsigned> vindex(max_workers, 0);
   for (bool last = false; !last;) {
     ++time;
     last = true;
-    unsigned l = workers.size();
+    unsigned l = WCount();
     for (unsigned i = 0; i < l; ++i) {
       if (vindex[i] < actions[i].size()) {
         ApplyC(i, actions[i][vindex[i]++]);

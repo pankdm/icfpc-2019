@@ -21,6 +21,8 @@ class World {
   bool Solved() const;
 
   // Clone versions
+  unsigned WCount() const;
   void ApplyC(unsigned index, const Action& action);
+  void ApplyC(const ActionsList& actions);
   void ApplyC(const ActionsClones& actions);
 };

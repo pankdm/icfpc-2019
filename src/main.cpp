@@ -3,6 +3,7 @@
 #include <string>
 
 #include "common/always_assert.h"
+#include "common/command_line.h"
 #include "common/pool.h"
 #include "common/timer.h"
 
@@ -19,11 +20,11 @@
 //   return 0;
 // }
 
-int main() {
-  // ALWAYS_ASSERTF(2 != 3, "%d %s\n", 3, "str");
+int main(int argc, char* argv[]) {
+  cmd.Parse(argc, argv);
 
   Timer t;
-  ThreadPool p(4);
+  ThreadPool p(cmd.int_args["threads"]);
   std::atomic<bool> all_ok(true);
   std::vector<std::future<int>> futures;
   for (unsigned i = 1; i <= 300; ++i) {

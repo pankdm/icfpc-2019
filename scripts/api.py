@@ -1,6 +1,7 @@
 from parser import (
     parse_problem,
     parse_solution,
+    read_file
 )
 
 from world import (
@@ -8,12 +9,6 @@ from world import (
     apply_action,
 )
 
-
-def read_file(file_name):
-    f = open(file_name)
-    s = f.read()
-    f.close()
-    return s
 
 
 def verify_solution_file(problem_file, solution_file):

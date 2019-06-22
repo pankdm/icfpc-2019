@@ -1,6 +1,8 @@
 #include "base/direction.h"
 
+#include "base/map.h"
 #include <cassert>
+#include <cmath>
 #include <vector>
 
 Direction::Direction(unsigned _d) : direction(_d & 3) {}
@@ -40,4 +42,18 @@ void Direction::Set(ActionType t) {
     default:
       assert(false);
   }
+}
+
+Direction GetDirection(const Map& map, int from, int to) {
+  int d = from - to;
+  int dabs = std::abs(d);
+  assert((dabs == 1) || (dabs == map.ysize));
+  if (to == from + 1)
+    return 1;
+  else if (to == from - 1)
+    return 3;
+  else if (to > from)
+    return 0;
+  else
+    return 2;
 }

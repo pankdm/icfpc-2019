@@ -6,6 +6,13 @@ from world import (
     Boosters
 )
 
+def read_file(file_name):
+    f = open(file_name)
+    s = f.read()
+    f.close()
+    return s
+
+
 def parse_point(s):
     assert(s[0] == '(')
     assert(s[-1] == ')')
@@ -53,6 +60,27 @@ def parse_problem(s):
     world = World(location, mappa, boosters)
 
     return world
+
+def write_point(point):
+    return "(%d, %d)" % (point[0], point[1])
+
+def write_map(mappa):
+    return ",".join(map(write_point, mappa.contour))
+
+def write_obstacles(obstacles):
+    return ";".join(map(write_map, obstacles))
+
+def write_booster(booster):
+    return booster[0] + write_point(booster[1])
+
+def write_boosters(boosters):
+    return ";".join(map(write_booster, boosters))
+
+def write_problem(fname, world):
+    s = "#".join(write_map(world.mappa), write_point((world.x, world.y), write_obstacles(world.mappa.obstacles), write_boosters(world.boosters)))
+
+    with open(fname, "w") as fOut:
+        fOut.write(s)
 
 
 # returns pair of next index, result
