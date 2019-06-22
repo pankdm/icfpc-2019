@@ -58,7 +58,7 @@ def parse_problem(s):
 # returns pair of next index, result
 def parse_token(path, index):
     assert index < len(path)
-    single = set(['W', 'S', 'A', 'D', 'Z', 'E', 'Q', 'F', 'L'])
+    single = set(['W', 'S', 'A', 'D', 'Z', 'E', 'Q', 'F', 'L', 'R'])
     with_pt = set(['B', 'T'])
     if path[index] in single:
         action = Action(path[index])

@@ -341,7 +341,7 @@ class World:
         self._on_step_finish()
 
     def shift(self, x, y):
-        self.booster.assert_has_beacon((x, y))
+        self.boosters.assert_has_beacon((x, y))
         self.x = x
         self.y = y
         self._on_step_finish()
