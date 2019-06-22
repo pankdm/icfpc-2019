@@ -38,7 +38,7 @@ class Worker {
   void RotateCounterClockwise();
   void AddManipulator(const Manipulator& m);
   void PrintNeighborhood(Map& map, int sz);
-  std::pair<int, int> GetNextManipulatorPositionNaive() const;
+  std::pair<int, int> GetNextManipulatorPositionNaive(int strategy) const;
 
   void Apply(unsigned time, Map& map, const Action& action);
 };

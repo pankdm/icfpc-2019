@@ -26,7 +26,8 @@ void Worker::Init(Boosters& b, Map& map, int _x, int _y) {
   Wrap(map);
 }
 
-std::pair<int, int> Worker::GetNextManipulatorPositionNaive() const {
+std::pair<int, int> Worker::GetNextManipulatorPositionNaive(
+    int strategy) const {
   assert(unused_extensions);
   std::set<std::pair<int, int>> ms;
   for (const Manipulator& cm : manipulators) {
@@ -40,6 +41,18 @@ std::pair<int, int> Worker::GetNextManipulatorPositionNaive() const {
       if (ms.find(std::make_pair(i, j)) == ms.end()) {
         continue;
       }
+      if (strategy == 1) {
+        int ni = 0;
+        int nj = 0;
+        while (true) {
+          auto p = std::make_pair(ni, nj);
+          if (ms.count(p) == 0) {
+            return p;
+          }
+          ni = ni + i;
+          nj = nj + j;
+        }
+      }
       if (i == 0) {
         while (true) {
           for (int sign = -1; sign <= 1; sign += 2) {
@@ -50,7 +63,8 @@ std::pair<int, int> Worker::GetNextManipulatorPositionNaive() const {
           }
           i++;
         }
-      } else if (j == 0) {
+      }
+      if (j == 0) {
         while (true) {
           for (int sign = -1; sign <= 1; sign += 2) {
             auto p = std::make_pair(i, j * sign);
