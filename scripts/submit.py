@@ -133,8 +133,13 @@ if __name__ == "__main__":
             data = {"private_id": config.token}
             response = requests.post(f"{SERVER}/submit",
                                      data=data, files={"file": zipfile})
-            if response.status_code != 200:
-                sys.exit("Error while submitting solutions")
+            if response.status_code == 429:
+                soup = BeautifulSoup(response.text, "html.parser")
+                error = soup.html.body.ul.li.span
+                sys.exit(error)
+            elif response.status_code != 200:
+                sys.exit(
+                    f"Error {response.status_code} while submitting solutions")
 
         soup = BeautifulSoup(response.text, "html.parser")
         li1, li2, li3 = soup.html.body.ul.find_all("li")
