@@ -8,10 +8,10 @@
 
 #include "solvers/solve.h"
 
-
 // int main() {
-//   bool b = solvers::Solve("../problems/part-2-teleports-examples/example-02.desc", "2.sol");
-//   if (b) {
+//   bool b =
+//   solvers::Solve("../problems/part-2-teleports-examples/example-02.desc",
+//   "2.sol"); if (b) {
 //     std::cerr << "Success!" << std::endl;
 //   } else {
 //     std::cerr << "Fail!" << std::endl;
@@ -19,19 +19,18 @@
 //   return 0;
 // }
 
-
 int main() {
   // ALWAYS_ASSERTF(2 != 3, "%d %s\n", 3, "str");
 
   Timer t;
-  ThreadPool p(30);
+  ThreadPool p(5);
   std::atomic<bool> all_ok(true);
   std::vector<std::future<int>> futures;
   for (unsigned i = 1; i <= 300; ++i) {
     auto t = std::make_shared<std::packaged_task<int()>>([&, i]() {
       std::string si = std::to_string(i + 1000).substr(1);
       int num_steps = solvers::Solve("../problems/all/prob-" + si + ".desc",
-                              "../solutions_cpp/prob-" + si + ".sol");
+                                     "../solutions_cpp/prob-" + si + ".sol");
       all_ok = all_ok && num_steps;
       return num_steps;
     });

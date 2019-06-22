@@ -31,10 +31,13 @@ class Worker {
   void Wrap(Map& map);
   std::vector<std::pair<int, int>> CellsToWrap(Map& map, int dx = 0,
                                                int dy = 0);
+  std::vector<std::pair<int, int>> CellsToNewlyWrap(Map& map, int dx = 0,
+                                                    int dy = 0);
   void Move(const Direction& d, Map& map, bool drill_enabled);
   void RotateClockwise();
   void RotateCounterClockwise();
   void AddManipulator(const Manipulator& m);
+  void PrintNeighborhood(Map& map, int sz);
   std::pair<int, int> GetNextManipulatorPositionNaive() const;
 
   void Apply(unsigned time, Map& map, const Action& action);
