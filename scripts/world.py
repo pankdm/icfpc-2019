@@ -8,15 +8,30 @@ from common import (
 
 class Boosters:
     def __init__(self, boosters):
-        self.boosters = boosters
+        self.items = {}
+        self.mistery = set()
+        self.teleports = set()
+
+        for pt, item in boosters.items():
+            if item == Item.MYSTERY:
+                self.mistery.add(pt)
+            else:
+                self.items[pt] = item
 
     def get_item(self, pt):
-        return self.boosters.get(pt, None)
+        return self.items.get(pt, None)
 
     def take_item(self, pt):
-        assert pt in self.boosters
-        assert self.boosters[pt] != Item.MYSTERY
-        del self.boosters[pt]
+        assert pt in self.items
+        del self.items[pt]
+
+    def set_teleport(self, pt):
+        assert pt not in self.teleports
+        assert pt not in self.mistery
+        self.teleports.add(pt)
+
+    def assert_has_teleport(self, pt):
+        assert pt in self.teleports
 
 
 class Mappa:
@@ -226,6 +241,7 @@ class World:
         self.remaining_fast_wheels = 0
         self.remaining_drill = 0
 
+        # count boosters
         self.num_fast_wheels = 0
         self.num_drills = 0
         self.num_manipulators = 0
@@ -321,11 +337,13 @@ class World:
         self._on_step_finish()
 
     def set_teleport(self):
-        assert False
+        self.boosters.set_teleport((self.x, self.y))
         self._on_step_finish()
 
     def shift(self, x, y):
-        assert False
+        self.booster.assert_has_teleport((x, y))
+        self.x = x
+        self.y = y
         self._on_step_finish()
 
     # private API:
