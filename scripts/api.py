@@ -19,9 +19,7 @@ def verify_solution(problem_file, solution_file):
     problem = read_file(problem_file)
     solution = read_file(solution_file)
 
-    desc = parse_problem(problem)
-    world = World(desc)
-
+    world = parse_problem(problem)
     actions = parse_solution(solution)
     for action in actions:
         # print 'applying action', action.type, action.pt

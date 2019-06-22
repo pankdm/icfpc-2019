@@ -6,7 +6,45 @@ from common import (
     DRILL_STEPS,
 )
 
-class Desc:
+class Boosters:
+    def __init__(self, boosters):
+        self.boosters = boosters
+
+    def get_item(self, pt):
+        return self.boosters.get(pt, None)
+
+    def take_item(self, pt):
+        assert pt in self.boosters
+        assert self.boosters[pt] != Item.MYSTERY
+        del self.boosters[pt]
+
+
+class Mappa:
+    def __init__(self, contour, obstacles, location):
+        self.init_box(contour)
+        self.draw_contour(contour, Cell.EMPTY)
+        for ob in obstacles:
+            self.draw_contour(ob, Cell.BLOCK)
+
+        for x in range(0, self.xmax):
+            if self.get_color((x, 0)) == Cell.UNKNOWN:
+                self.dfs_iter((x,0), Cell.BLOCK)
+            if self.get_color((x, self.ymax-1)) == Cell.UNKNOWN:
+                self.dfs_iter((x, self.ymax-1), Cell.BLOCK)
+
+        for y in range(0, self.ymax):
+            if self.get_color((0, y)) == Cell.UNKNOWN:
+                self.dfs_iter((0, y), Cell.BLOCK)
+            if self.get_color((self.xmax-1, y)) == Cell.UNKNOWN:
+                self.dfs_iter((self.xmax-1, y), Cell.BLOCK)
+
+        self.dfs_iter(location, Cell.EMPTY)
+
+        for x in range(0, self.xmax):
+            for y in range(0, self.ymax):
+                if self.get_color((x, y)) == Cell.UNKNOWN:
+                    self.set_color((x, y), Cell.BLOCK)
+
     def init_box(self, contour):
         # init the bounding box
         self.xmin = self.xmax = contour[0][0]
@@ -60,14 +98,6 @@ class Desc:
             return False
         if self.get_color(pt) == Cell.EMPTY:
             self.set_color(pt, Cell.WRAPPED)
-
-    def get_item(self, pt):
-        return self.boosters.get(pt, None)
-
-    def take_item(self, pt):
-        assert pt in self.boosters
-        assert self.boosters[pt] != Item.MYSTERY
-        del self.boosters[pt]
 
     # for large maps fails with
     # RecursionError: maximum recursion depth exceeded
@@ -125,33 +155,6 @@ class Desc:
             prev = pt
 
 
-    def __init__(self, contour, obstacles, location, boosters):
-        self.loc = location
-        self.boosters = boosters
-        self.init_box(contour)
-        self.draw_contour(contour, Cell.EMPTY)
-        for ob in obstacles:
-            self.draw_contour(ob, Cell.BLOCK)
-
-        for x in range(0, self.xmax):
-            if self.get_color((x, 0)) == Cell.UNKNOWN:
-                self.dfs_iter((x,0), Cell.BLOCK)
-            if self.get_color((x, self.ymax-1)) == Cell.UNKNOWN:
-                self.dfs_iter((x, self.ymax-1), Cell.BLOCK)
-
-        for y in range(0, self.ymax):
-            if self.get_color((0, y)) == Cell.UNKNOWN:
-                self.dfs_iter((0, y), Cell.BLOCK)
-            if self.get_color((self.xmax-1, y)) == Cell.UNKNOWN:
-                self.dfs_iter((self.xmax-1, y), Cell.BLOCK)
-
-        self.dfs_iter(self.loc, Cell.EMPTY)
-
-        for x in range(0, self.xmax):
-            for y in range(0, self.ymax):
-                if self.get_color((x, y)) == Cell.UNKNOWN:
-                    self.set_color((x, y), Cell.BLOCK)
-
 class Arm:
     def __init__(self, x, y):
         # x and y are relative
@@ -191,10 +194,8 @@ class Manipulators:
             if abs(arm.x - new_arm.x) + abs(arm.y - new_arm.y) == 1:
                 ok = True
                 break
-
         if ok:
             self.arms.append(new_arm)
-
 
 class Action:
     def __init__(self, type, pt = None):
@@ -202,11 +203,16 @@ class Action:
         self.pt = pt
 
 class World:
-    def __init__(self, desc):
+    # location: type Point
+    # mappa: type Mappa
+    # boosters: type Boosters
+    def __init__(self, location, mappa, boosters):
         self.steps = 0
-        self.desc = desc
+        self.mappa = mappa
 
-        self.x, self.y = desc.loc
+        self.boosters = boosters
+
+        self.x, self.y = location
         arms = [
             Arm(1, 0),
             Arm(1, 1),
@@ -257,30 +263,29 @@ class World:
         pt = (x, y)
         move_ok = False
 
-        if self.desc.is_walkable(pt):
+        if self.mappa.is_walkable(pt):
             move_ok = True
         elif self.remaining_drill > 0:
-            if self.desc.is_drillable(pt):
+            if self.mappa.is_drillable(pt):
                 move_ok = True
 
         if not move_ok:
             return
 
         # drill anyway
-        self.desc.drill(pt)
+        self.mappa.drill(pt)
         self.x = x
         self.y = y
 
-        item = self.desc.get_item(pt)
+        item = self.boosters.get_item(pt)
         if item:
             self._handle_item(x, y, item)
-
 
     def _handle_item(self, x, y, item):
         if item == Item.MYSTERY:
             # nothing happens
             return
-        self.desc.take_item((x, y))
+        self.boosters.take_item((x, y))
         if item == Item.MANIPULATOR:
             self.num_manipulators += 1
         elif item == Item.WHEEL:
@@ -329,13 +334,13 @@ class World:
             x = self.x + arm.x
             y = self.y + arm.y
             # TODO: check visibility
-            self.desc.wrap((x, y))
+            self.mappa.wrap((x, y))
 
     def all_wrapped(self):
-        return self.desc.all_wrapped()
+        return self.mappa.all_wrapped()
 
     def debug_print(self):
-        view = self.desc.return_view()
+        view = self.mappa.return_view()
         for arm in self.manipulators.arms:
             x = self.x + arm.x
             y = self.y + arm.y
@@ -343,7 +348,7 @@ class World:
                 view[x][y] = 'x'
         view[self.x][self.y] = '/'
 
-        for pt, booster in self.desc.boosters.items():
+        for pt, booster in self.boosters.items():
             x, y = pt
             view[x][y] = booster
 
