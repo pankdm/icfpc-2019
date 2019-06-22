@@ -5,6 +5,7 @@
 #include "base/point.h"
 #include "base/worker.h"
 #include "utils/split.h"
+#include "common/always_assert.h"
 #include <cassert>
 
 #include <iostream>
@@ -15,7 +16,7 @@ void World::Init(const std::string& desc) {
   //   std::cerr << "World: [" << desc << "]" << std::endl;
   //   std::cerr << "VS size = " << vs.size() << std::endl;
   //   for (auto& s : vs) std::cerr << "\t[" << s << "]" << std::endl;
-  assert(vs.size() == 4);
+  ALWAYS_ASSERT(vs.size() == 4);
   map.Init(vs[0]);
   //   std::cerr << "Map inititalized 1" << std::endl;
   // map.Print();

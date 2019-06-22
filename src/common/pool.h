@@ -17,7 +17,7 @@ class ThreadPool {
   auto enqueue(F&& f, Args&&... args)
       -> std::future<typename std::result_of<F(Args...)>::type>;
   template <class T>
-  auto enqueueTask(std::shared_ptr<std::packaged_task<T()>> task)
+  auto enqueueTask(std::shared_ptr<std::packaged_task<T()>>&& task)
       -> std::future<T>;
   ~ThreadPool();
 
@@ -69,7 +69,7 @@ auto ThreadPool::enqueue(F&& f, Args&&... args)
 
 // add new work item to the pool
 template <typename T>
-auto ThreadPool::enqueueTask(std::shared_ptr<std::packaged_task<T()>> task)
+auto ThreadPool::enqueueTask(std::shared_ptr<std::packaged_task<T()>>&& task)
     -> std::future<T> {
   std::future<T> res = task->get_future();
   {

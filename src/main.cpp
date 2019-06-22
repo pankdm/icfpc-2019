@@ -14,7 +14,7 @@ int main() {
   Timer t;
   ThreadPool p(6);
   std::atomic<bool> all_ok(true);
-  std::vector<std::future<void>> futuress;
+  std::vector<std::future<void>> futures;
   for (unsigned i = 1; i <= 300; ++i) {
     auto t = std::make_shared<std::packaged_task<void()>>([&, i]() {
       std::string si = std::to_string(i + 1000).substr(1);
@@ -22,9 +22,9 @@ int main() {
                               "../solutions_cpp/prob-" + si + ".sol");
       all_ok = all_ok && b;
     });
-    futuress.emplace_back(p.enqueueTask(std::move(t)));
+    futures.emplace_back(p.enqueueTask(std::move(t)));
   }
-  for (auto& f : futuress) {
+  for (auto& f : futures) {
     f.get();
   }
   std::cout << "Total time = " << t.GetMilliseconds() << std::endl;
