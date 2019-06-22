@@ -34,6 +34,7 @@ void BaseClones::Init(const std::string& task) {
       poi.emplace_back(POI{item, index, DistanceFromSource(g, index)});
     }
   }
+  poi_assigned.Resize(poi.size());
 }
 
 void BaseClones::CleanPOI() {
@@ -70,14 +71,15 @@ ActionsList BaseClones::NextMove() {
     }
   }
   bool unused_boosters = (world.boosters.unused_clones > new_workers);
-  std::vector<unsigned> vassgined(poi.size(), 0);  // Use UnsignedSet later
+  poi_assigned.Clear();
   //   std::cerr << "\tPOI size = " << poi.size() << std::endl;
   for (bool assigned = true; assigned;) {
     assigned = false;
     unsigned best_distance = unsigned(-1);
     unsigned pindex = 0, windex = 0;
     for (unsigned i = 0; i < poi.size(); ++i) {
-      if (vassgined[i] || (!unused_boosters && (poi[i].item == Item::CODEX)))
+      if (poi_assigned.HasKey(i) ||
+          (!unused_boosters && (poi[i].item == Item::CODEX)))
         continue;
       for (unsigned j = 0; j < l; ++j) {
         if (al[j].type != ActionType::DO_NOTHING) continue;
@@ -93,7 +95,7 @@ ActionsList BaseClones::NextMove() {
     }
     if (best_distance != unsigned(-1)) {
       assigned = true;
-      vassgined[pindex] = 1;
+      poi_assigned.Insert(pindex);
       if (best_distance > 0) {
         auto& w = world.GetWorker(windex);
         Point pw(w.x, w.y);

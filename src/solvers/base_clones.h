@@ -22,6 +22,7 @@ class BaseClones : public Solver {
   UndirectedGraph g;
   UnsignedSet unwrapped;
   std::vector<POI> poi;
+  UnsignedSet poi_assigned;
 
  protected:
   void Init(const std::string& task);
