@@ -28,5 +28,7 @@ for pt in spec.included:
 for pt in spec.excluded:
     img.putpixel(pt, RED)
 
-img.show()
-img.save('image.png')
+tn_image = img.resize((1024, 1024))
+
+tn_image.show()
+tn_image.save('image.png')
