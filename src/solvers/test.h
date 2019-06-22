@@ -4,5 +4,6 @@
 #include <string>
 
 namespace solvers {
-bool Test(const std::string& task, const ActionsList& actions);
+unsigned Test(const std::string& task, const ActionsList& actions);
+unsigned Test(const std::string& task, const ActionsClones& actions);
 }  // namespace solvers
