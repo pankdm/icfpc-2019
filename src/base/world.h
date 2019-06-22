@@ -1,6 +1,7 @@
 #pragma once
 
 #include "base/action.h"
+#include "base/boosters.h"
 #include "base/map.h"
 #include "base/worker.h"
 #include <string>
@@ -8,6 +9,7 @@
 class World {
  public:
   Map map;
+  Boosters boosters;
   Worker worker;
   unsigned time = 0;
 

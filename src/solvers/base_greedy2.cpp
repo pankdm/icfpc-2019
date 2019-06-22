@@ -5,7 +5,9 @@
 #include "base/direction.h"
 #include "base/point.h"
 #include "base/worker.h"
+#include "common/always_assert.h"
 #include "common/unsigned_set.h"
+#include "common/vector/write.h"
 #include <algorithm>
 #include <cassert>
 #include <iostream>
@@ -22,6 +24,8 @@ void BaseGreedy2::Init(const std::string& task) {
   unwrapped.Clear();
   unwrapped.Resize(size);
   target.Resize(size);
+  ds_rebuid_required.Resize(size);
+  ds_rebuid.Resize(size);
   for (int x = 0; x < map.xsize; ++x) {
     for (int y = 0; y < map.ysize; ++y) {
       if (map.ValidToMove(x, y)) {
@@ -32,17 +36,38 @@ void BaseGreedy2::Init(const std::string& task) {
       }
     }
   }
+  BuildDS();
 }
 
-void BaseGreedy2::BuildDS(const std::vector<unsigned>& v) {
-  ds.Init(world.map.Size());
-  for (unsigned u : v) {
+void BaseGreedy2::BuildDSUnsignedSet() {
+  for (unsigned u : ds_rebuid.List()) {
     for (unsigned t : g.Edges(u)) {
       if ((t > u) && unwrapped.HasKey(t)) {
         ds.Union(u, t);
       }
     }
   }
+}
+
+void BaseGreedy2::BuildDS() {
+  ds.Init(world.map.Size());
+  ds_rebuid = unwrapped;
+  BuildDSUnsignedSet();
+  SetTarget();
+}
+
+void BaseGreedy2::RebuildDS() {
+  ds_rebuid.Clear();
+  for (unsigned u : unwrapped.List()) {
+    if (ds_rebuid_required.HasKey(ds.Find(u))) ds_rebuid.Insert(u);
+  }
+  ds.unions -= (ds_rebuid.Size() - ds_rebuid_required.Size());
+  for (unsigned u : ds_rebuid.List()) {
+    ds.p[u] = u;
+    ds.rank[u] = 0;
+    ds.vsize[u] = 1;
+  }
+  BuildDSUnsignedSet();
 }
 
 void BaseGreedy2::SetTarget() {
@@ -65,8 +90,11 @@ Action BaseGreedy2::NextMove() {
     s.Clear();
   }
   for (; !q.empty();) q.pop();
-  BuildDS(unwrapped.List());
-  SetTarget();
+  if (!ds_rebuid_required.Empty()) {
+    RebuildDS();
+    ds_rebuid_required.Clear();
+    SetTarget();
+  }
   Point pw(world.worker.x, world.worker.y);
   for (unsigned _d = 0; _d < 4; ++_d) {
     Direction d(_d);
@@ -102,7 +130,11 @@ Action BaseGreedy2::NextMove() {
 void BaseGreedy2::Update() {
   auto& q = world.map.wraps_history;
   for (; !q.empty(); q.pop()) {
-    unwrapped.Remove(q.front());
+    int index = q.front();
+    if (unwrapped.HasKey(index)) {
+      unwrapped.Remove(index);
+      ds_rebuid_required.Insert(ds.Find(index));
+    }
   }
 }
 

@@ -4,7 +4,7 @@
 #include <vector>
 
 class DisjointSet {
- protected:
+ public:
   unsigned n;
   std::vector<unsigned> p;
   std::vector<unsigned> rank;

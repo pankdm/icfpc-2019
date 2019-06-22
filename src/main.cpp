@@ -2,15 +2,19 @@
 #include <iostream>
 #include <string>
 
+#include "common/always_assert.h"
 #include "common/pool.h"
 #include "common/timer.h"
 
 #include "solvers/solve.h"
 
 int main() {
+  // ALWAYS_ASSERTF(2 != 3, "%d %s\n", 3, "str");
+
   Timer t;
-  ThreadPool p(8);
+  ThreadPool p(6);
   std::atomic<bool> all_ok(true);
+  std::vector<std::future<void>> futures;
   for (unsigned i = 1; i <= 300; ++i) {
     auto t = std::make_shared<std::packaged_task<void()>>([&, i]() {
       std::string si = std::to_string(i + 1000).substr(1);
@@ -18,7 +22,10 @@ int main() {
                               "../solutions_cpp/prob-" + si + ".sol");
       all_ok = all_ok && b;
     });
-    p.enqueueTask(std::move(t));
+    futures.emplace_back(p.enqueueTask(std::move(t)));
+  }
+  for (auto& f : futures) {
+    f.get();
   }
   std::cout << "Total time = " << t.GetMilliseconds() << std::endl;
   if (!all_ok) {

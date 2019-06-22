@@ -16,10 +16,14 @@ class BaseGreedy2 : public Solver {
   UnsignedSet unwrapped;
   DisjointSet ds;
   UnsignedSet target;
+  UnsignedSet ds_rebuid_required;
+  UnsignedSet ds_rebuid;
 
  protected:
   void Init(const std::string& task);
-  void BuildDS(const std::vector<unsigned>& v);
+  void BuildDSUnsignedSet();
+  void BuildDS();
+  void RebuildDS();
   void SetTarget();
   Action NextMove();
   void Update();

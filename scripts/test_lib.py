@@ -1,15 +1,31 @@
 import unittest
 
-from path import (
-    verify_solution,
+from parser import (
     parse_token,
     parse_solution,
-    Action,
-    Arm
+    parse_point,
+    parse_problem,
 )
 
+from world import (
+    Action,
+    Arm,
+)
 
-class TestPath(unittest.TestCase):
+from api import (
+    verify_solution
+)
+
+class TestParse(unittest.TestCase):
+    def test_parse_problem(self):
+        path = "../problems/part-1-initial/prob-111.desc"
+        with open(path) as f:
+            s = f.read()
+            return parse_problem(s)
+
+    def test_parse_point(self):
+        self.assertEqual(parse_point("(1,1)"), (1, 1))
+
     def test_parse_simple_token(self):
         action, index = parse_token('WASD', 0)
         self.assertEqual(action.type, 'W')

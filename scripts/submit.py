@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 
+import sys
+
 from argparse import ArgumentParser, SUPPRESS
 import csv
 import hashlib
 import os
 import re
-import sys
 import time
 from types import SimpleNamespace
 from zipfile import ZipFile, ZIP_DEFLATED
@@ -14,6 +15,7 @@ from bs4 import BeautifulSoup
 import requests
 from tqdm import tqdm, trange
 from yaml import safe_load, dump
+
 
 SERVER = "https://monadic-lab.org"
 

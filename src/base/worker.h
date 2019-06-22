@@ -1,6 +1,7 @@
 #pragma once
 
 #include "base/action.h"
+#include "base/boosters.h"
 #include "base/direction.h"
 #include "base/manipulator.h"
 #include "base/map.h"
@@ -16,11 +17,7 @@ class Worker {
   std::vector<Manipulator> manipulators;
 
   // boosters
-  unsigned unused_extensions = 0;
-  unsigned unused_fast_wheels = 0;
-  unsigned unused_drills = 0;
-  unsigned unused_teleporters = 0;
-  unsigned unused_clones = 0;
+  Boosters* pboosters = nullptr;
   unsigned time_fast_wheels = 0;
   unsigned time_drill = 0;
 
@@ -28,7 +25,7 @@ class Worker {
   void AddManipulatorI(int x, int y);
 
  public:
-  void Init(Map& map, int _x, int _y);
+  void Init(Boosters& b, Map& map, int _x, int _y);
 
   void Wrap(Map& map);
   void Move(const Direction& d, Map& map, bool drill_enabled);
