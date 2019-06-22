@@ -66,9 +66,9 @@ std::pair<int, int> Worker::GetNextManipulatorPositionNaive() const {
     }
   }
   assert(false);
+  return {0, 0};
 }
-// TODO:
-//   Add reachability check.
+
 void Worker::Wrap(Map& map) {
   for (Manipulator& m : manipulators) {
     bool ok = true;

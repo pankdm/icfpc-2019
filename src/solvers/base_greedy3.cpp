@@ -4,7 +4,7 @@ namespace solvers {
 
 Action BaseGreedy3::NextMove() {
   if (world.boosters.unused_extensions) {
-    auto p = world.worker.GetNextManipulatorPositionNaive();
+    auto p = world.GetWorker().GetNextManipulatorPositionNaive();
     Action a(ActionType::ATTACH_MANIPULATOR, p.first, p.second);
     world.Apply(a);
     Update();
