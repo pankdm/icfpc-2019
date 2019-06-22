@@ -16,6 +16,8 @@ import requests
 from tqdm import tqdm, trange
 from yaml import safe_load, dump
 
+from parser import parse_problem, parse_solution
+from api import read_file, verify_solution
 
 SERVER = "https://monadic-lab.org"
 
@@ -47,6 +49,8 @@ if __name__ == "__main__":
             files = os.listdir(dir)
             descriptions = filter(
                 lambda f: os.path.splitext(f)[-1] == ".desc", files)
+            descriptions = map(
+                lambda f: os.path.join(dir, f), descriptions)
             problems.extend(descriptions)
 
     if not problems:
@@ -68,18 +72,49 @@ if __name__ == "__main__":
         sys.exit("No submission directory exists, and unable to create")
 
     submissions = []
-    for problem in tqdm(problems, desc="Comparing solutions"):
-        problem_name = os.path.basename(problem)
-        solution_name = os.path.splitext(problem_name)[0] + ".sol"
-        gold = os.path.join(config.gold, solution_name)
-        evaluate = os.path.join(config.evaluate, solution_name)
-        # TODO: proper evaluation
-        if os.path.exists(evaluate):
-            submissions.append(evaluate)
-        elif os.path.exists(gold):
-            submissions.append(gold)
-        else:
-            print(f"No solution for {problem_name}")
+    with tqdm(problems, desc="Comparing solutions") as progress:
+        for problem in progress:
+            problem_name = os.path.basename(problem)
+            progress.set_description(problem_name)
+            problem_prefix = os.path.splitext(problem_name)[0]
+            solution_name = problem_prefix + ".sol"
+            gold = os.path.join(config.gold, solution_name)
+            gold_metadata_name = os.path.join(
+                config.gold, problem_prefix + ".meta.yaml")
+            evaluate = os.path.join(config.evaluate, solution_name)
+
+            submission = None
+            if os.path.exists(evaluate):
+                problem_content = read_file(problem)
+                solution_content = read_file(evaluate)
+                if not verify_solution(problem_content, solution_content):
+                    print(
+                        f"Evaluated solution for {problem_name} is incorrect")
+                elif os.path.exists(gold):
+                    gold_metadata = {}
+                    if os.path.exists(gold_metadata_name):
+                        with open(gold_metadata_name, "r") as gold_metadata_file:
+                            gold_metadata = safe_load(gold_metadata_file)
+
+                    if "time" in gold_metadata:
+                        gold_time = gold_metadata["time"]
+                    else:
+                        gold_content = read_file(gold)
+                        gold_time = len(parse_solution(gold_content))
+
+                    new_time = len(parse_solution(solution_content))
+
+                    if new_time < gold_time:
+                        submission = evaluate
+                else:
+                    submission = evaluate
+
+            if submission:
+                submissions.append(submission)
+            elif os.path.exists(gold):
+                submissions.append(gold)
+            else:
+                print(f"No solution for {problem_name}")
 
     print(f"Submitting {len(submissions)} new solutions")
     timestamp = time.strftime("%Y-%m-%d_%H-%M-%S")
@@ -125,9 +160,9 @@ if __name__ == "__main__":
             scores = [row for row in csv.reader(
                 scores_data.text.split("\n"), skipinitialspace=True) if row]
 
-            for (problem, time, status) in scores:
+            for (problem, score, status) in scores:
                 problem = int(problem)
-                time = int(time)
+                score = int(score)
                 solution_name = f"prob-{problem:03}.sol"
                 gold = os.path.join(config.gold, solution_name)
                 evaluate = os.path.join(config.evaluate, solution_name)
@@ -144,7 +179,7 @@ if __name__ == "__main__":
                     with open(gold_metadata_name, "r") as gold_metadata_file:
                         gold_metadata = safe_load(gold_metadata_file)
 
-                if "time" not in gold_metadata or gold_metadata["time"] > time:
+                if "time" not in gold_metadata or gold_metadata["time"] > score:
                     print(f"Problem {problem} solution improved")
                     with open(evaluate, "rb") as src, open(gold, "wb") as dst:
                         data = src.read()
@@ -152,7 +187,7 @@ if __name__ == "__main__":
                         dst.write(data)
                     with open(gold_metadata_name, "w") as gold_metadata_file:
                         metadata = {
-                            "time": time,
+                            "time": score,
                             "hash": md5
                         }
                         dump(metadata, gold_metadata_file)
