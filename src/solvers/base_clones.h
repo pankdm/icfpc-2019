@@ -40,6 +40,7 @@ class BaseClones : public Solver {
   void RebuildDS();
   void UpdateTarget();
   bool AssignClosestWorker(unsigned r, ActionsList& al);
+  ActionType SendToNearestUnwrapped(unsigned windex);
   void NextMove_Clone(ActionsList& al);
   void NextMove_Wrap(ActionsList& al);
   ActionsList NextMove();
