@@ -19,7 +19,8 @@ bool Solve(const std::string& input_file, const std::string& output_file) {
   Timer t;
   BaseGreedy2 s;
   auto actions = s.Solve(task);
-  std::cout << " Done. Time = " << t.GetMilliseconds() << std::endl;
+  std::cout << " Done. Time = " << t.GetMilliseconds()
+            << "\tScore = " << actions.size() << std::endl;
   if (Test(task, actions)) {
     std::ofstream output(output_file);
     output << actions;
