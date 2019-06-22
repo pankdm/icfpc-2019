@@ -62,7 +62,7 @@ def parse_problem(s):
     return world
 
 def write_point(point):
-    return "(%d, %d)" % (point[0], point[1])
+    return "(%d,%d)" % (point[0], point[1])
 
 def write_map(mappa):
     if mappa:

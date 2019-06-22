@@ -37,6 +37,8 @@ class Boosters:
         result = []
         for k, v in self.items.items():
             result.append((v, k))
+        for k in self.mistery:
+            result.append(('X', k))
         return result
 
 
