@@ -1,11 +1,156 @@
 
-from checker import (
-    parse_problem,
-    Item
+from common import (
+    Item,
+    Cell,
+    FAST_WHEEL_STEPS,
+    DRILL_STEPS,
 )
 
-FAST_WHEEL_STEPS = 50
-DRILL_STEPS = 30
+class Desc:
+    def init_box(self, contour):
+        # init the bounding box
+        self.xmin = self.xmax = contour[0][0]
+        self.ymin = self.ymax = contour[0][1]
+        for (x, y) in contour:
+            self.xmin = min(self.xmin, x)
+            self.ymin = min(self.ymin, y)
+            self.xmax = max(self.xmax, x)
+            self.ymax = max(self.ymax, y)
+        self.field = [[Cell.UNKNOWN] * self.ymax for i in range(self.xmax)]
+
+    def return_view(self):
+        res = [['z'] * self.ymax for i in range(self.xmax)]
+        for x in range(0, self.xmax):
+            for y in range(0, self.ymax):
+                res[x][y] = cell_to_string(self.get_color((x, y)))
+        return res
+
+
+    def all_wrapped(self):
+        for x in range(self.xmin, self.xmax):
+            for y in range(self.ymin, self.ymax):
+                if self.get_color((x, y)) == Cell.EMPTY:
+                    return False
+        return True
+
+    def get_color(self, pt):
+        return self.field[pt[0]][pt[1]]
+
+    def set_color(self, pt, color):
+        self.field[pt[0]][pt[1]] = color
+
+    def is_in_bounds(self, pt):
+        return (0 <= pt[0] < self.xmax and 0 <= pt[1] < self.ymax)
+
+    def is_drillable(self, pt):
+        return (self.xmin <= pt[0] < self.xmax and self.ymin <= pt[1] < self.ymax)
+
+    def drill(self, pt):
+        assert self.is_drillable(pt)
+        # drill as wrapped
+        self.set_color(pt, Cell.WRAPPED)
+
+    def is_walkable(self, pt):
+        if not self.is_in_bounds(pt):
+            return False
+        return self.get_color(pt) in [Cell.EMPTY, Cell.WRAPPED]
+
+    def wrap(self, pt):
+        if not self.is_in_bounds(pt):
+            return False
+        if self.get_color(pt) == Cell.EMPTY:
+            self.set_color(pt, Cell.WRAPPED)
+
+    def get_item(self, pt):
+        return self.boosters.get(pt, None)
+
+    def take_item(self, pt):
+        assert pt in self.boosters
+        assert self.boosters[pt] != Item.MYSTERY
+        del self.boosters[pt]
+
+    # for large maps fails with
+    # RecursionError: maximum recursion depth exceeded
+    def dfs(self, pt, fill_color, visited):
+        if not self.is_in_bounds(pt):
+            return
+        if self.get_color(pt) not in (Cell.UNKNOWN, fill_color):
+            return
+        if pt in visited:
+            return
+
+        self.set_color(pt, fill_color)
+        visited.add(pt)
+        for (dx, dy) in ((0, 1), (0, -1), (1, 0), (-1, 0)):
+            self.dfs((pt[0]+dx, pt[1]+dy), fill_color, visited)
+
+    def dfs_iter(self, pt, fill_color):
+        stack = [pt]
+        visited = set()
+        while len(stack) > 0:
+            pt = stack.pop()
+            if not (0 <= pt[0] < self.xmax and 0 <= pt[1] < self.ymax):
+                continue
+            if self.get_color(pt) not in (Cell.UNKNOWN, fill_color):
+                continue
+            if pt in visited:
+                continue
+
+            self.set_color(pt, fill_color)
+            visited.add(pt)
+            for (dx, dy) in ((0, 1), (0, -1), (1, 0), (-1, 0)):
+                stack.append((pt[0]+dx, pt[1]+dy))
+            visited.add(pt)
+
+    def draw_contour(self, contour, inside_color):
+        if contour is None:
+            return
+        assert(len(contour) >= 4)
+        prev = contour[0]
+        for pt in contour[1:] + [prev]:
+            assert(prev != pt)
+            assert(prev[0] == pt[0] or prev[1] == pt[1])
+            if prev[0] < pt[0]:
+                for i in range(prev[0], pt[0]):
+                    self.field[i][prev[1]] = inside_color
+            elif prev[0] > pt[0]:
+                for i in range(pt[0], prev[0]):
+                    self.field[i][prev[1]-1] = inside_color
+            elif prev[1] < pt[1]:
+                for i in range(prev[1], pt[1]):
+                    self.field[prev[0]-1][i] = inside_color
+            else: # prev[1] > pt[1]:
+                for i in range(pt[1], prev[1]):
+                    self.field[prev[0]][i] = inside_color
+            prev = pt
+
+
+    def __init__(self, contour, obstacles, location, boosters):
+        self.loc = location
+        self.boosters = boosters
+        self.init_box(contour)
+        self.draw_contour(contour, Cell.EMPTY)
+        for ob in obstacles:
+            self.draw_contour(ob, Cell.BLOCK)
+
+        for x in range(0, self.xmax):
+            if self.get_color((x, 0)) == Cell.UNKNOWN:
+                self.dfs_iter((x,0), Cell.BLOCK)
+            if self.get_color((x, self.ymax-1)) == Cell.UNKNOWN:
+                self.dfs_iter((x, self.ymax-1), Cell.BLOCK)
+
+        for y in range(0, self.ymax):
+            if self.get_color((0, y)) == Cell.UNKNOWN:
+                self.dfs_iter((0, y), Cell.BLOCK)
+            if self.get_color((self.xmax-1, y)) == Cell.UNKNOWN:
+                self.dfs_iter((self.xmax-1, y), Cell.BLOCK)
+
+        self.dfs_iter(self.loc, Cell.EMPTY)
+
+        for x in range(0, self.xmax):
+            for y in range(0, self.ymax):
+                if self.get_color((x, y)) == Cell.UNKNOWN:
+                    self.set_color((x, y), Cell.BLOCK)
 
 class Arm:
     def __init__(self, x, y):
@@ -208,7 +353,6 @@ class World:
             print ("")
 
 
-
 def apply_action(world, action):
     t = action.type
     if t == 'W':
@@ -240,72 +384,8 @@ def apply_action(world, action):
     else:
         assert False, "Unknown action: {}".format(t)
 
-# returns pair of next index, result
-def parse_token(path, index):
-    assert index < len(path)
-    single = set(['W', 'S', 'A', 'D', 'Z', 'E', 'Q', 'F', 'L'])
-    with_pt = set(['B', 'T'])
-    if path[index] in single:
-        action = Action(path[index])
-        return (action, index + 1)
-    if path[index] in with_pt:
-        assert path[index + 1] == '('
-
-        index1 = path.find(',', index + 1)
-        assert index1 > 0
-        assert path[index1] == ','
-        x = int(path[index + 2 : index1])
-
-        index2 = path.find(')', index1 + 1)
-        assert index2 > 0
-        assert path[index2] == ')'
-        y = int(path[index1 + 1 : index2])
-
-        action = Action(path[index])
-        action.pt = (x, y)
-        return action, index2 + 1
-    assert False, 'Unknown action: {}'.format(path[index])
-
-def parse_solution(solution):
-    path = solution.strip('\n')
-    index = 0
-    res = []
-    while True:
-        action, new_index = parse_token(path, index)
-
-        assert new_index > index
-        index = new_index
-        res.append(action)
-        if index >= len(path):
-            return res
-
-
-def read_file(file_name):
-    f = open(file_name)
-    s = f.read()
-    f.close()
-    return s
-
-def verify_solution(problem_file, solution_file):
-    problem = read_file(problem_file)
-    solution = read_file(solution_file)
-
-    desc = parse_problem(problem)
-    world = World(desc)
-
-    actions = parse_solution(solution)
-    for action in actions:
-        # print 'applying action', action.type, action.pt
-        apply_action(world, action)
-        # world.debug_print()
-        # raw_input(">")
-
-    assert world.steps == len(actions)
-    assert world.all_wrapped()
-
-
-if __name__ == "__main__":
-    PART1_DIRECTORY = "../problems/part-1-examples/"
-    problem = PART1_DIRECTORY + 'example-01.desc'
-    solution1 = PART1_DIRECTORY + 'example-01-1.sol'
-    verify_solution(problem, solution1)
+# if __name__ == "__main__":
+#     PART1_DIRECTORY = "../problems/part-1-examples/"
+#     problem = PART1_DIRECTORY + 'example-01.desc'
+#     solution1 = PART1_DIRECTORY + 'example-01-1.sol'
+#     verify_solution(problem, solution1)
