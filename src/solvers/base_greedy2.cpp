@@ -53,6 +53,7 @@ void BaseGreedy2::BuildDS() {
   ds.Init(world.map.Size());
   ds_rebuid = unwrapped;
   BuildDSUnsignedSet();
+  SetTarget();
 }
 
 void BaseGreedy2::RebuildDS() {
@@ -66,12 +67,10 @@ void BaseGreedy2::RebuildDS() {
     ds.rank[u] = 0;
     ds.vsize[u] = 1;
   }
-  ds_rebuid_required.Clear();
   BuildDSUnsignedSet();
 }
 
 void BaseGreedy2::SetTarget() {
-  // if (ds_rebuid.Empty()) return;
   unsigned min_ds_size = ds.Size();
   for (unsigned u : unwrapped.List()) {
     min_ds_size = std::min(min_ds_size, ds.GetSize(u));
@@ -91,8 +90,11 @@ Action BaseGreedy2::NextMove() {
     s.Clear();
   }
   for (; !q.empty();) q.pop();
-  RebuildDS();
-  SetTarget();
+  if (!ds_rebuid_required.Empty()) {
+    RebuildDS();
+    ds_rebuid_required.Clear();
+    SetTarget();
+  }
   Point pw(world.worker.x, world.worker.y);
   for (unsigned _d = 0; _d < 4; ++_d) {
     Direction d(_d);

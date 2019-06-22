@@ -1,7 +1,9 @@
 
 from world import (
-    Desc,
+    World,
+    Mappa,
     Action,
+    Boosters
 )
 
 def parse_point(s):
@@ -30,7 +32,7 @@ def parse_boosters(s):
         assert(pt not in res)
         res[pt] = boo[0]
 
-    return res
+    return Boosters(res)
 
 def is_valid_booster(s):
     assert(len(s) == 1)
@@ -46,8 +48,11 @@ def parse_problem(s):
     location = parse_point(parts[1])
     obstacles = parse_obstacles(parts[2])
     boosters = parse_boosters(parts[3])
-    desc = Desc(contour, obstacles, location, boosters)
-    return desc
+
+    mappa = Mappa(contour, obstacles, location)
+    world = World(location, mappa, boosters)
+
+    return world
 
 
 # returns pair of next index, result

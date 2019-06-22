@@ -1,4 +1,4 @@
-from path import verify_solution
+from api import verify_solution
 
 
 PROBLEMS_DIR = "../problems/all/"
