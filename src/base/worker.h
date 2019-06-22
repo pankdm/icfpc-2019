@@ -20,6 +20,7 @@ class Worker {
   Boosters* pboosters = nullptr;
   unsigned time_fast_wheels = 0;
   unsigned time_drill = 0;
+  Direction direction = 0;
 
  protected:
   void AddManipulatorI(int x, int y);

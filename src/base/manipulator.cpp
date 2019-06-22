@@ -36,12 +36,12 @@ std::vector<std::pair<int, int>> Manipulator::CellsToCheck() {
 
 void Manipulator::RotateClockwise() {
   int t = x;
-  x = -y;
-  y = t;
+  x = y;
+  y = -t;
   auto new_to_check = to_check;
   new_to_check.clear();
   for (auto p : to_check) {
-    new_to_check.push_back(std::make_pair(-p.second, p.first));
+    new_to_check.push_back(std::make_pair(p.second, -p.first));
   }
   to_check = new_to_check;
 }
@@ -51,12 +51,12 @@ int Manipulator::Y() const { return y; }
 
 void Manipulator::RotateCounterClockwise() {
   int t = x;
-  x = y;
-  y = -t;
+  x = -y;
+  y = t;
   auto new_to_check = to_check;
   new_to_check.clear();
   for (auto p : to_check) {
-    new_to_check.push_back(std::make_pair(p.second, -p.first));
+    new_to_check.push_back(std::make_pair(-p.second, p.first));
   }
   to_check = new_to_check;
 }

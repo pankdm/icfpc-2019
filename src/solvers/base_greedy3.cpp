@@ -12,15 +12,6 @@ Action BaseGreedy3::NextMove() {
     Update();
     return a;
   }
-  auto p = std::make_pair(world.GetWorker().x, world.GetWorker().y);
-  if (bonuses.count(p) != 0) {
-    bonuses.erase(p);
-  }
-  for (auto p : world.GetWorker().CellsToWrap(world.map)) {
-    if (world.map.HasExtension(p.first, p.second)) {
-      bonuses.insert(p);
-    }
-  }
   thread_local UnsignedSet s;
   thread_local std::queue<std::pair<int, Direction>> q;
   if (s.Size() < world.map.Size()) {
@@ -36,7 +27,7 @@ Action BaseGreedy3::NextMove() {
   }
   Point pw(world.GetWorker().x, world.GetWorker().y);
   for (unsigned _d = 0; _d < 4; ++_d) {
-    Direction d(_d);
+    Direction d((_d + world.GetWorker().direction.direction) % 4);
     Point pd = pw + d;
     if (world.map.ValidToMove(pd.x, pd.y)) {
       int index = world.map.Index(pd.x, pd.y);
@@ -48,6 +39,31 @@ Action BaseGreedy3::NextMove() {
     int index = q.front().first;
     Direction d = q.front().second;
     if (target.HasKey(index) || world.map.HasExtension(index)) {
+      // first turn
+      if (d.direction % 2 != world.GetWorker().direction.direction % 2) {
+        bool need_turn = true;
+        Point next = pw + d;
+        for (int i = 0; i < 5; i++) {
+          if (world.map.Inside(next.x, next.y) &&
+              world.map.Get(next.x, next.y).WrappedOrBlocked()) {
+            need_turn = false;
+          }
+          next = next + d;
+        }
+        if (need_turn) {
+          if (d.direction == world.GetWorker().direction.direction - 1) {
+            Action a(ActionType::ROTATE_CLOCKWISE);
+            world.Apply(a);
+            Update();
+            return a;
+          } else {
+            Action a(ActionType::ROTATE_COUNTERCLOCKWISE);
+            world.Apply(a);
+            Update();
+            return a;
+          }
+        }
+      }
       Action a(d.Get());
       world.Apply(a);
       Update();

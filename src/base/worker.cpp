@@ -75,6 +75,10 @@ std::vector<std::pair<int, int>> Worker::CellsToWrap(Map& map, int dx, int dy) {
   for (Manipulator& m : manipulators) {
     bool ok = true;
     for (auto xy : m.CellsToCheck()) {
+      if (!map.Inside(xy.first + x, xy.second + y)) {
+        ok = false;
+        break;
+      }
       if (map.Get(xy.first + x, xy.second + y).Blocked()) {
         ok = false;
         break;
@@ -126,10 +130,12 @@ void Worker::Move(const Direction& d, Map& map, bool drill_enabled) {
 
 void Worker::RotateClockwise() {
   for (Manipulator& m : manipulators) m.RotateClockwise();
+  direction = Direction((direction.direction + 3) % 4);
 }
 
 void Worker::RotateCounterClockwise() {
   for (Manipulator& m : manipulators) m.RotateCounterClockwise();
+  direction = Direction((direction.direction + 1) % 4);
 }
 
 void Worker::AddManipulator(const Manipulator& m) {
