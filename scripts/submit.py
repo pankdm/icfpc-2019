@@ -2,6 +2,7 @@
 
 from argparse import ArgumentParser, SUPPRESS
 import csv
+import hashlib
 import os
 import re
 import sys
@@ -12,7 +13,7 @@ from zipfile import ZipFile, ZIP_DEFLATED
 from bs4 import BeautifulSoup
 import requests
 from tqdm import tqdm, trange
-from yaml import safe_load
+from yaml import safe_load, dump
 
 SERVER = "https://monadic-lab.org"
 
@@ -71,8 +72,12 @@ if __name__ == "__main__":
         gold = os.path.join(config.gold, solution_name)
         evaluate = os.path.join(config.evaluate, solution_name)
         # TODO: proper evaluation
-        if os.path.exists(evaluate) and not os.path.exists(gold):
+        if os.path.exists(evaluate):
             submissions.append(evaluate)
+        elif os.path.exists(gold):
+            submissions.append(gold)
+        else:
+            print(f"No solution for {problem_name}")
 
     print(f"Submitting {len(submissions)} new solutions")
     timestamp = time.strftime("%Y-%m-%d_%H-%M-%S")
@@ -102,29 +107,52 @@ if __name__ == "__main__":
             result_folder = result_search.group(1)
             result_url = f"{SERVER}{remote_folder}{result_folder}/score.csv"
             print(f"Awaiting for result at {result_url}")
-
-            for _ in trange(20):
+            for _ in trange(40):
                 # Busy loop here, it takes time to produce solution anyway
                 time.sleep(3)
                 scores_data = requests.get(result_url)
                 if scores_data.status_code == 200:
                     break
 
-            if (scores_data.status_code == 200):
-                scores_path = os.path.join(
-                    config.submission, timestamp + ".csv")
-                with open(scores_path, "w") as scores_file:
-                    scores_file.write(scores_data.text)
+            if (scores_data.status_code != 200):
+                sys.exit("Awaiting for results timed out, please update manually")
+            scores_path = os.path.join(config.submission, timestamp + ".csv")
+            with open(scores_path, "w") as scores_file:
+                scores_file.write(scores_data.text)
 
-                scores = [row for row in csv.reader(
-                    scores_data.text.split("\n")) if row]
+            scores = [row for row in csv.reader(
+                scores_data.text.split("\n"), skipinitialspace=True) if row]
 
-                for (problem, score, status) in scores:
-                    print(f"Problem {problem}: {score}")
+            for (problem, time, status) in scores:
+                problem = int(problem)
+                time = int(time)
+                solution_name = f"prob-{problem:03}.sol"
+                gold = os.path.join(config.gold, solution_name)
+                evaluate = os.path.join(config.evaluate, solution_name)
+                if evaluate not in submissions:
+                    # This solution was skipped, ignore the submission
+                    continue
+                if status != "Ok":
+                    print(f"Problem {problem} failed with status {status}")
+                    continue
+                metadata_name = f"prob-{problem:03}.meta.yaml"
+                gold_metadata_name = os.path.join(config.gold, metadata_name)
+                gold_metadata = {}
+                if os.path.exists(gold_metadata_name):
+                    with open(gold_metadata_name, "r") as gold_metadata_file:
+                        gold_metadata = safe_load(gold_metadata_file)
 
-            else:
-                sys.exit("Submission evaluation timed out")
+                if "time" not in gold_metadata or gold_metadata["time"] > time:
+                    print(f"Problem {problem} solution improved")
+                    with open(evaluate, "rb") as src, open(gold, "wb") as dst:
+                        data = src.read()
+                        md5 = hashlib.md5(data).hexdigest()
+                        dst.write(data)
+                    with open(gold_metadata_name, "w") as gold_metadata_file:
+                        metadata = {
+                            "time": time,
+                            "hash": md5
+                        }
+                        dump(metadata, gold_metadata_file)
     else:
         sys.exit(f"Private id is not set, you can submit {archive} manually")
-
-    # TODO: merge gold solutions
