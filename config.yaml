@@ -11,3 +11,5 @@ evaluate: evaluate
 submission: submissions
 # do we need to verify solutions
 verify: false
+# do we need to use gold solution if it's known to be better
+best: false

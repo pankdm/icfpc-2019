@@ -6,7 +6,7 @@ namespace solvers {
 
 Action BaseGreedy3::NextMove() {
   if (world.boosters.unused_extensions) {
-    auto p = world.GetWorker().GetNextManipulatorPositionNaive();
+    auto p = world.GetWorker().GetNextManipulatorPositionNaive(1);
     Action a(ActionType::ATTACH_MANIPULATOR, p.first, p.second);
     world.Apply(a);
     Update();
@@ -28,8 +28,23 @@ Action BaseGreedy3::NextMove() {
     SetTarget();
   }
 
+  int best_sz = -1;
+  int d_best = -1;
   for (unsigned _d = 0; _d < 4; ++_d) {
     Direction d((_d + world.GetWorker().direction.direction) % 4);
+    Point pd = pw + d;
+    if (world.map.ValidToMove(pd.x, pd.y)) {
+      int index = world.map.Index(pd.x, pd.y);
+      int new_sz =
+          world.GetWorker().CellsToNewlyWrap(world.map, d.DX(), d.DY()).size();
+      if (new_sz > best_sz) {
+        d_best = d.direction;
+        best_sz = new_sz;
+      }
+    }
+  }
+  for (int i = 0; i < 4; i++) {
+    Direction d((d_best + i) % 4);
     Point pd = pw + d;
     if (world.map.ValidToMove(pd.x, pd.y)) {
       int index = world.map.Index(pd.x, pd.y);
@@ -99,15 +114,6 @@ Action BaseGreedy3::NextMove() {
           }
         }
         if (score == 4) {
-          // world.GetWorker().PrintNeighborhood(world.map, 6);
-          // std::cout << d.DX() << " " << d.DY() << std::endl;
-          // std::cout << world.GetWorker().x << " " << world.GetWorker().y
-          //           << std::endl;
-          // for (auto p :
-          //      world.GetWorker().CellsToNewlyWrap(world.map, d.DX(), d.DY()))
-          //      {
-          //   std::cout << p.first << " " << p.second << std::endl;
-          // }
           Action a(d.Get());
           world.Apply(a);
           Update();
