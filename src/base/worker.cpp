@@ -27,7 +27,7 @@ void Worker::Init(Boosters& b, Map& map, int _x, int _y) {
 }
 
 std::pair<int, int> Worker::GetNextManipulatorPositionNaive() const {
-  assert(pboosters->unused_extensions);
+  assert(pboosters->unused_extensions > 0);
   std::set<std::pair<int, int>> ms;
   for (const Manipulator& cm : manipulators) {
     ms.insert(std::make_pair(cm.X(), cm.Y()));

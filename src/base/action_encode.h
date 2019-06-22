@@ -5,3 +5,4 @@
 
 std::ostream& operator<<(std::ostream& os, const Action& a);
 std::ostream& operator<<(std::ostream& os, const ActionsList& al);
+std::ostream& operator<<(std::ostream& os, const ActionsClones& al);

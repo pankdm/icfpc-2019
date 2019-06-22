@@ -40,3 +40,10 @@ std::ostream& operator<<(std::ostream& os, const ActionsList& al) {
   for (auto a : al) os << a;
   return os;
 }
+
+std::ostream& operator<<(std::ostream& os, const ActionsClones& al) {
+  assert(al.size() > 0);
+  os << al[0];
+  for (unsigned i = 1; i < al.size(); ++i) os << "#" << al[i];
+  return os;
+}

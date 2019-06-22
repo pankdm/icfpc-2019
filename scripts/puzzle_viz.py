@@ -9,7 +9,6 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLACK = (0, 0, 0)
 
-
 file = sys.argv[1]
 s = read_file(file)
 
