@@ -22,15 +22,15 @@ int Solve(const std::string& input_file, const std::string& output_file) {
   BaseGreedy3 s;
   auto actions = s.Solve(task);
 
-  Timer t2;
-  TeleportOptimization opt;
-  auto new_actions = opt.apply(task, actions);
-  if (new_actions.size() < actions.size()) {
-    std::cout << "Task " << task_index << " was optimized from "
-              << actions.size() << " to " << new_actions.size() << ", opt time = "
-              << t2.GetMilliseconds() << std::endl;
-    std::swap(actions, new_actions);
-  }
+  // Timer t2;
+  // TeleportOptimization opt;
+  // auto new_actions = opt.apply(task, actions);
+  // if (new_actions.size() < actions.size()) {
+  //   std::cout << "Task " << task_index << " was optimized from "
+  //             << actions.size() << " to " << new_actions.size() << ", opt time = "
+  //             << t2.GetMilliseconds() << std::endl;
+  //   std::swap(actions, new_actions);
+  // }
 
   unsigned score = Test(task, actions);
   std::cout << "Task " << task_index << " Done. Time = " << t.GetMilliseconds()
