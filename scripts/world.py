@@ -33,6 +33,12 @@ class Boosters:
     def assert_has_beacon(self, pt):
         assert pt in self.beacons
 
+    def toList(self):
+        result = []
+        for k, v in self.items.items():
+            result.append((v, k))
+        return result
+
 
 class Mappa:
     def __init__(self, contour, obstacles, location):
