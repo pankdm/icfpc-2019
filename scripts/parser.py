@@ -6,6 +6,13 @@ from world import (
     Boosters
 )
 
+def read_file(file_name):
+    f = open(file_name)
+    s = f.read()
+    f.close()
+    return s
+
+
 def parse_point(s):
     assert(s[0] == '(')
     assert(s[-1] == ')')
@@ -58,7 +65,7 @@ def parse_problem(s):
 # returns pair of next index, result
 def parse_token(path, index):
     assert index < len(path)
-    single = set(['W', 'S', 'A', 'D', 'Z', 'E', 'Q', 'F', 'L'])
+    single = set(['W', 'S', 'A', 'D', 'Z', 'E', 'Q', 'F', 'L', 'R'])
     with_pt = set(['B', 'T'])
     if path[index] in single:
         action = Action(path[index])

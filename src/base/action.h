@@ -7,7 +7,8 @@
 class Action {
  public:
   ActionType type;
-  int16_t x, y;
+  int16_t x;
+  int16_t y;
 
  public:
   Action();

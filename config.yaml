@@ -9,3 +9,5 @@ gold: solutions_gold
 evaluate: evaluate
 # directory with all existing submissions
 submission: submissions
+# do we need to verify solutions
+verify: false

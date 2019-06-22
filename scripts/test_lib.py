@@ -13,8 +13,9 @@ from world import (
 )
 
 from api import (
-    verify_solution
+    verify_solution_file
 )
+
 
 class TestParse(unittest.TestCase):
     def test_parse_problem(self):
@@ -62,7 +63,6 @@ class TestParse(unittest.TestCase):
         arm.rotate_clockwise()
         self.assertEqual(arm, Arm(0, 1))
 
-
     def test_rotate_counter(self):
         arm = Arm(1, 0)
 
@@ -84,21 +84,22 @@ PART1_DIRECTORY = "../problems/part-1-examples/"
 PART2_DIRECTORY = "../problems/part-2-teleports-examples/"
 PART3_DIRECTORY = "../problems/part-3-clones-examples/"
 
+
 class TestSolutionScore(unittest.TestCase):
     def test_example1_1(self):
         problem = PART1_DIRECTORY + 'example-01.desc'
         solution1 = PART1_DIRECTORY + 'example-01-1.sol'
-        verify_solution(problem, solution1)
+        assert verify_solution_file(problem, solution1)
 
     def test_example1_2(self):
         problem = PART1_DIRECTORY + 'example-01.desc'
         solution2 = PART1_DIRECTORY + 'example-01-2.sol'
-        verify_solution(problem, solution2)
+        assert verify_solution_file(problem, solution2)
 
     def test_example1_3(self):
         problem = PART1_DIRECTORY + 'example-01.desc'
         solution3 = PART1_DIRECTORY + 'example-01-3.sol'
-        verify_solution(problem, solution3)
+        assert verify_solution_file(problem, solution3)
 
 
 if __name__ == '__main__':

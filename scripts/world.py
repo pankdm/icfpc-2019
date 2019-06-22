@@ -341,7 +341,7 @@ class World:
         self._on_step_finish()
 
     def shift(self, x, y):
-        self.booster.assert_has_beacon((x, y))
+        self.boosters.assert_has_beacon((x, y))
         self.x = x
         self.y = y
         self._on_step_finish()
@@ -411,4 +411,4 @@ def apply_action(world, action):
 #     PART1_DIRECTORY = "../problems/part-1-examples/"
 #     problem = PART1_DIRECTORY + 'example-01.desc'
 #     solution1 = PART1_DIRECTORY + 'example-01-1.sol'
-#     verify_solution(problem, solution1)
+#     assert verify_solution_file(problem, solution1)

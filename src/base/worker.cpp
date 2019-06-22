@@ -69,18 +69,68 @@ std::pair<int, int> Worker::GetNextManipulatorPositionNaive() const {
   return {0, 0};
 }
 
-void Worker::Wrap(Map& map) {
+// What cells will be wrapped if we move by dx, dy?
+std::vector<std::pair<int, int>> Worker::CellsToWrap(Map& map, int dx, int dy) {
+  std::vector<std::pair<int, int>> cells;
   for (Manipulator& m : manipulators) {
+    if (!map.Inside(x + dx + m.X(), y + dy + m.Y())) {
+      continue;
+    }
     bool ok = true;
     for (auto xy : m.CellsToCheck()) {
-      if (map.Get(xy.first + x, xy.second + y).Blocked()) {
+      if (map.Get(xy.first + x + dx, xy.second + y + dy).Blocked()) {
         ok = false;
         break;
       }
     }
     if (ok) {
-      map.Wrap(x + m.X(), y + m.Y());
+      cells.push_back(std::make_pair(x + dx + m.X(), y + dy + m.Y()));
     }
+  }
+  return cells;
+}
+
+void Worker::PrintNeighborhood(Map& map, int sz) {
+  std::set<std::pair<int, int>> ms;
+  for (auto p : CellsToWrap(map)) {
+    ms.insert(p);
+  }
+  for (int j = y + sz; j >= y - sz; --j) {
+    for (int i = x - sz; i <= x + sz; ++i) {
+      if (!map.Inside(i, j)) {
+        continue;
+      }
+      auto& s = map.Get(i, j);
+      if (i == x && j == y)
+        std::cout << "X";
+      else if (s.Blocked())
+        std::cout << "#";
+      else if (ms.count(std::make_pair(i, j)) != 0)
+        std::cout << "H";
+      else if (s.Wrapped())
+        std::cout << "~";
+      else
+        std::cout << ".";
+    }
+    std::cout << std::endl;
+  }
+  std::cout << std::endl;
+}
+
+std::vector<std::pair<int, int>> Worker::CellsToNewlyWrap(Map& map, int dx,
+                                                          int dy) {
+  std::vector<std::pair<int, int>> cells;
+  for (auto p : CellsToWrap(map, dx, dy)) {
+    if (!map.Get(p.first, p.second).WrappedOrBlocked()) {
+      cells.push_back(p);
+    }
+  }
+  return cells;
+}
+
+void Worker::Wrap(Map& map) {
+  for (auto p : CellsToWrap(map)) {
+    map.Wrap(p.first, p.second);
   }
 }
 
@@ -117,10 +167,12 @@ void Worker::Move(const Direction& d, Map& map, bool drill_enabled) {
 
 void Worker::RotateClockwise() {
   for (Manipulator& m : manipulators) m.RotateClockwise();
+  direction = Direction((direction.direction + 3) % 4);
 }
 
 void Worker::RotateCounterClockwise() {
   for (Manipulator& m : manipulators) m.RotateCounterClockwise();
+  direction = Direction((direction.direction + 1) % 4);
 }
 
 void Worker::AddManipulator(const Manipulator& m) {
