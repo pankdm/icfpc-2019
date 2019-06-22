@@ -151,6 +151,35 @@ bool BaseClones::AssignClosestWorker(unsigned r, ActionsList& al) {
   return false;
 }
 
+ActionType BaseClones::SendToNearestUnwrapped(unsigned windex) {
+  thread_local std::queue<std::pair<int, Direction>> q;
+  for (; !q.empty();) q.pop();
+  acw1.Clear();
+  auto& w = world.GetWorker(windex);
+  Point pw(w.x, w.y);
+  for (unsigned _d = 0; _d < 4; ++_d) {
+    Direction d(_d);
+    Point pd = pw + d;
+    if (world.map.ValidToMove(pd.x, pd.y)) {
+      int index = world.map.Index(pd.x, pd.y);
+      q.push(std::make_pair(index, d));
+      acw1.Insert(index);
+    }
+  }
+  for (; !q.empty(); q.pop()) {
+    int index = q.front().first;
+    Direction d = q.front().second;
+    if (unwrapped.HasKey(index)) return d.Get();
+    for (int inext : g.Edges(index)) {
+      if (!acw1.HasKey(inext)) {
+        q.push(std::make_pair(inext, d));
+        acw1.Insert(inext);
+      }
+    }
+  }
+  return ActionType::DO_NOTHING;
+}
+
 void BaseClones::NextMove_Clone(ActionsList& al) {
   unsigned l = al.size();
   CleanPOI();
@@ -228,6 +257,10 @@ void BaseClones::NextMove_Wrap(ActionsList& al) {
     if (AssignClosestWorker(tp.second, al)) waiting_workers -= 1;
   }
   // Do something with remaining workers
+  for (unsigned i = 0; i < l; ++i) {
+    if (al[i].type == ActionType::DO_NOTHING)
+      al[i].type = SendToNearestUnwrapped(i);
+  }
 }
 
 ActionsList BaseClones::NextMove() {
