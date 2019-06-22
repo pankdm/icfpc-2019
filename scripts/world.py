@@ -10,7 +10,7 @@ class Boosters:
     def __init__(self, boosters):
         self.items = {}
         self.mistery = set()
-        self.teleports = set()
+        self.beacons = set()
 
         for pt, item in boosters.items():
             if item == Item.MYSTERY:
@@ -25,13 +25,13 @@ class Boosters:
         assert pt in self.items
         del self.items[pt]
 
-    def set_teleport(self, pt):
-        assert pt not in self.teleports
+    def set_beacon(self, pt):
+        assert pt not in self.beacons
         assert pt not in self.mistery
-        self.teleports.add(pt)
+        self.beacons.add(pt)
 
-    def assert_has_teleport(self, pt):
-        assert pt in self.teleports
+    def assert_has_beacon(self, pt):
+        assert pt in self.beacons
 
 
 class Mappa:
@@ -336,12 +336,12 @@ class World:
         self.remaining_drill = DRILL_STEPS
         self._on_step_finish()
 
-    def set_teleport(self):
-        self.boosters.set_teleport((self.x, self.y))
+    def set_beacon(self):
+        self.boosters.set_beacon((self.x, self.y))
         self._on_step_finish()
 
     def shift(self, x, y):
-        self.booster.assert_has_teleport((x, y))
+        self.booster.assert_has_beacon((x, y))
         self.x = x
         self.y = y
         self._on_step_finish()
@@ -400,7 +400,7 @@ def apply_action(world, action):
     elif t == 'L':
         world.start_drill()
     elif t == 'R':
-        world.set_teleport()
+        world.set_beacon()
     elif t == 'T':
         x, y = action.pt
         world.shift(x, y)
