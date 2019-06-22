@@ -8,11 +8,23 @@
 
 #include "solvers/solve.h"
 
+
+// int main() {
+//   bool b = solvers::Solve("../problems/part-2-teleports-examples/example-02.desc", "2.sol");
+//   if (b) {
+//     std::cerr << "Success!" << std::endl;
+//   } else {
+//     std::cerr << "Fail!" << std::endl;
+//   }
+//   return 0;
+// }
+
+
 int main() {
   // ALWAYS_ASSERTF(2 != 3, "%d %s\n", 3, "str");
 
   Timer t;
-  ThreadPool p(6);
+  ThreadPool p(30);
   std::atomic<bool> all_ok(true);
   std::vector<std::future<int>> futures;
   for (unsigned i = 1; i <= 300; ++i) {

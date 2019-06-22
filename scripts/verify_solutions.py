@@ -1,12 +1,11 @@
-from api import verify_solution
+from api import verify_solution_file
 
 
 PROBLEMS_DIR = "../problems/all/"
-SOLUTIONS_DIR = "../solutions_gold/"
+SOLUTIONS_DIR = "../solutions_cpp/"
 
-
-for i in range(1, 301):
+for i in range(163, 164):
     problem_file = f"{PROBLEMS_DIR}prob-{i:03}.desc"
     solution_file = f"{SOLUTIONS_DIR}prob-{i:03}.sol"
-    print (f"Verifying problem {i}")
-    verify_solution(problem_file, solution_file)
+    print(f"Verifying problem {i}")
+    assert verify_solution_file(problem_file, solution_file)

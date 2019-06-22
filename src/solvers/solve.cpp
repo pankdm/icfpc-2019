@@ -3,6 +3,7 @@
 #include "base/action_encode.h"
 #include "solvers/base_greedy2.h"
 #include "solvers/base_greedy3.h"
+#include "solvers/optimization_teleport.h"
 #include "solvers/test.h"
 #include "common/always_assert.h"
 #include "common/timer.h"
@@ -20,9 +21,21 @@ int Solve(const std::string& input_file, const std::string& output_file) {
   Timer t;
   BaseGreedy3 s;
   auto actions = s.Solve(task);
+
+  Timer t2;
+  TeleportOptimization opt;
+  auto new_actions = opt.apply(task, actions);
+  if (new_actions.size() < actions.size()) {
+    std::cout << "Task " << task_index << " was optimized from "
+              << actions.size() << " to " << new_actions.size() << ", opt time = "
+              << t2.GetMilliseconds() << std::endl;
+    std::swap(actions, new_actions);
+  }
+
+  unsigned score = Test(task, actions);
   std::cout << "Task " << task_index << " Done. Time = " << t.GetMilliseconds()
-            << "\tScore = " << actions.size() << std::endl;
-  if (Test(task, actions)) {
+            << "\tScore = " << score << std::endl;
+  if (score) {
     std::ofstream output(output_file);
     output << actions;
     return actions.size();

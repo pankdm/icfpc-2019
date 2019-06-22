@@ -66,6 +66,7 @@ std::pair<int, int> Worker::GetNextManipulatorPositionNaive() const {
     }
   }
   assert(false);
+  return {0, 0};
 }
 
 // What cells will be wrapped if we move by dx, dy?
