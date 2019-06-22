@@ -74,6 +74,7 @@ if __name__ == "__main__":
         sys.exit("No submission directory exists, and unable to create")
 
     submissions = []
+    new_submissions = 0
     with tqdm(problems, desc="Comparing solutions") as progress:
         for problem in progress:
             problem_name = os.path.basename(problem)
@@ -113,12 +114,13 @@ if __name__ == "__main__":
 
             if submission:
                 submissions.append(submission)
+                new_submissions += 1
             elif os.path.exists(gold):
                 submissions.append(gold)
             else:
                 print(f"No solution for {problem_name}")
 
-    print(f"Submitting {len(submissions)} new solutions")
+    print(f"Submitting {new_submissions} new solutions")
     timestamp = time.strftime("%Y-%m-%d_%H-%M-%S")
     archive = os.path.join(config.submission, timestamp + ".zip")
     with ZipFile(archive, mode="w", compression=ZIP_DEFLATED, compresslevel=9) as zipfile:
