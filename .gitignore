@@ -33,6 +33,8 @@
 
 # VS code
 .vscode/ipch/
+.gitignore
+.vscode/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -161,3 +163,4 @@ dmypy.json
 
 # DS_STORE
 .DS_Store
+*.sol

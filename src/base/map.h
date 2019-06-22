@@ -33,6 +33,10 @@ class Map {
   const Square& operator[](int index) const;
 
   bool Inside(int x, int y) const;
+  int X(int index) const;
+  int Y(int index) const;
+  bool HasExtension(int index) const;
+  bool HasExtension(int x, int y) const;
   Square& Get(int x, int y);
   const Square& Get(int x, int y) const;
   Square& operator()(int x, int y);

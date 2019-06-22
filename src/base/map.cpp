@@ -80,6 +80,9 @@ void Map::Init(const std::string& desc) {
 
 int Map::Size() const { return xsize * ysize; }
 
+int Map::X(int index) const { return index / ysize; }
+int Map::Y(int index) const { return index % ysize; }
+
 int Map::Index(int x, int y) const { return x * ysize + y; }
 
 bool Map::Inside(int x, int y) const {
@@ -118,6 +121,15 @@ void Map::Wrap(int x, int y) {
 bool Map::HasBeacon(int x, int y) const {
   assert(Inside(x, y));
   return Get(x, y).CheckItem() == Item::BEACON;
+}
+
+bool Map::HasExtension(int index) const {
+  return HasExtension(X(index), Y(index));
+}
+
+bool Map::HasExtension(int x, int y) const {
+  assert(Inside(x, y));
+  return Get(x, y).CheckItem() == Item::EXTENSION;
 }
 
 void Map::SetBeacon(int x, int y) {

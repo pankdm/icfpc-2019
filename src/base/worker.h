@@ -22,7 +22,7 @@ class Worker {
   unsigned time_drill = 0;
 
  protected:
-  void AddManipulatorI(const Manipulator& m);
+  void AddManipulatorI(int x, int y);
 
  public:
   void Init(Boosters& b, Map& map, int _x, int _y);
@@ -32,6 +32,7 @@ class Worker {
   void RotateClockwise();
   void RotateCounterClockwise();
   void AddManipulator(const Manipulator& m);
+  std::pair<int, int> GetNextManipulatorPositionNaive() const;
 
   void Apply(unsigned time, Map& map, const Action& action);
 };
