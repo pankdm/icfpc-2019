@@ -24,7 +24,7 @@ int main() {
   // ALWAYS_ASSERTF(2 != 3, "%d %s\n", 3, "str");
 
   Timer t;
-  ThreadPool p(6);
+  ThreadPool p(30);
   std::atomic<bool> all_ok(true);
   std::vector<std::future<void>> futures;
   for (unsigned i = 1; i <= 300; ++i) {

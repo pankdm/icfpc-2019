@@ -3,6 +3,7 @@
 #include "common/always_assert.h"
 
 #include <iostream>
+#include <algorithm>
 
 namespace solvers {
 
