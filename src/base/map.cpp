@@ -38,7 +38,7 @@ void Map::Init(const std::string& desc) {
   int maxx = 0, maxy = 0;
   std::vector<Point> v;
   auto vst = Split(desc, ',');
-  std::vector<std::string>  vs;
+  std::vector<std::string> vs;
   for (unsigned i = 0; i < vst.size(); i += 2)
     vs.emplace_back(vst[i] + "," + vst[i + 1]);
   for (const std::string& st : vs) {
@@ -106,8 +106,12 @@ void Map::Drill(int x, int y) {
 
 void Map::Wrap(int x, int y) {
   if (Inside(x, y)) {
-    Get(x, y).Wrap();
-    if (save_wraps) wraps_history.push(Index(x, y));
+    int index = Index(x, y);
+    Square& s = map[index];
+    if (!s.WrappedOrBlocked()) {
+      s.Wrap();
+      if (save_wraps) wraps_history.push(index);
+    }
   }
 }
 
