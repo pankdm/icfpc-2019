@@ -2,6 +2,7 @@
 problems:
   - problems/part-1-initial
   - problems/part-2-teleports
+  - problems/part-3-clones
 # directory with known to be best solutions, safe to be submitted manually
 gold: solutions
 # directory with solutions to evaluate
