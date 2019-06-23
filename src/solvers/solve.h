@@ -4,5 +4,5 @@
 
 namespace solvers {
 unsigned Solve(const std::string& input_file, const std::string& output_file,
-               const std::string& task_name);
+               const std::string& bonus_file, const std::string& task_name);
 }  // namespace solvers

@@ -12,15 +12,14 @@
 #include "solvers/merger.h"
 
 namespace solvers {
-
-ActionsClones Auto::Solve(const std::string& task,
-                          const std::string& task_name) {
+ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
+                          const std::string& bonuses) {
   static std::shared_ptr<ThreadPool> tp;
   if (!tp) {
     tp = std::make_shared<ThreadPool>(cmd.int_args["threads"]);
   }
 
-  Merger m(task, task_name);
+  Merger m(task, task_name, bonuses);
   if (task_name == "ext") {
     using Result = std::pair<std::string, ActionsClones>;
 
@@ -52,7 +51,7 @@ ActionsClones Auto::Solve(const std::string& task,
     futures.emplace_back(tp->enqueueTask<Result>(
         std::make_shared<std::packaged_task<Result()>>([&]() {
           BaseClones bc0;
-          return Result("bc0", bc0.Solve(task));
+          return Result("bc0", bc0.Solve(task, bonuses));
         })));
 
     futures.emplace_back(tp->enqueueTask<Result>(
@@ -63,9 +62,9 @@ ActionsClones Auto::Solve(const std::string& task,
 
     for (unsigned i = 0; i < 2; ++i) {
       futures.emplace_back(tp->enqueueTask<Result>(
-          std::make_shared<std::packaged_task<Result()>>([&]() {
+          std::make_shared<std::packaged_task<Result()>>([&, i]() {
             ClonesGreedy cg0;
-            return Result("cg0", cg0.Solve(task, i));
+            return Result("cg0", cg0.Solve(task, i, bonuses));
           })));
     }
 

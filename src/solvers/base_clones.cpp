@@ -286,7 +286,9 @@ void BaseClones::Update() {
 
 bool BaseClones::Wrapped() { return unwrapped.Empty(); }
 
-ActionsClones BaseClones::Solve(const std::string& task) {
+ActionsClones BaseClones::Solve(const std::string& task,
+                                const std::string& bonuses) {
+  world.InitBonuses(bonuses);
   Init(task);
   ActionsClones actions;
   for (; !Wrapped();) {
