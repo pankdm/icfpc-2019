@@ -164,5 +164,4 @@ dmypy.json
 # DS_STORE
 .DS_Store
 
-lambda.conf
-
+blocks
