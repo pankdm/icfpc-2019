@@ -352,6 +352,7 @@ class PuzzleSolver:
         return task_spec
 
     def show(self, task_spec=None):
+        return
         img = Image.new('RGB', (self.size, self.size))
         for x in range(0, self.size):
             for y in range(0, self.size):
@@ -360,7 +361,7 @@ class PuzzleSolver:
 
         if task_spec:
             for b in task_spec.boosters:
-                img.putpixel((b[0], self.size - 1 - b[1]), (255, 255, 255))
+                img.putpixel((b[1][0], self.size - 1 - b[1][1]), (255, 255, 255))
 
         img = img.resize((1000, 1000), Image.BILINEAR)
         img.show()
