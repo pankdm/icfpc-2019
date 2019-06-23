@@ -27,6 +27,7 @@ void ClonesGreedy::Init(const std::string& task) {
   poi_assigned.Resize(poi.size());
   acw1.Resize(size);
   acw2.Resize(size);
+  UpdateTarget();
 }
 
 void ClonesGreedy::CleanPOI() {
