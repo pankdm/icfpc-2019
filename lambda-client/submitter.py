@@ -28,7 +28,7 @@ while True:
     with open() as fTask:
         fTask.write(blockinfo["task"])
 
-    subprocess.check_call(["../src/build/cpp_solver", "-solve", taskIn, taskOut])
+    subprocess.check_call(["../src/build/cpp_solver", "-solve", "1", "-in", taskIn, "-out", taskOut])
 
     subprocess.check_call([python, "./lambda-cli.py", "submit", "-block", blockId, "-puzzle_sol_path", puzzleOut, "-task_sol_path", taskOut])
 
