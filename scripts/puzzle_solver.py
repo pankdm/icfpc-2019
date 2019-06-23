@@ -97,11 +97,6 @@ class PuzzleSolver:
 
         for pt in spec.included:
             x, y = pt
-            # we don't support greens on border yet
-            assert x != 0
-            assert x != self.size - 1
-            assert y != 0
-            assert y != self.size - 1
             self.field[x][y] = State.GOOD
 
         shuffle(spec.excluded)
@@ -139,11 +134,11 @@ class PuzzleSolver:
                 x = x0 + dx
                 y = y0 + dy
                 next = (x, y)
-                if self.field[x][y] in [State.FILLED]:
+                if self.get_state((x, y)) in [State.FILLED]:
                     target = now
                     break
 
-                if self.field[x][y] == State.UNKNOWN:
+                if self.get_state((x, y)) == State.UNKNOWN:
                     if next not in dist:
                         dist[next] = d + 1
                         back[next] = now
@@ -155,7 +150,7 @@ class PuzzleSolver:
         # do backwards pass
         while target != start:
             x, y = target
-            assert self.field[x][y] == State.UNKNOWN
+            assert self.get_state((x, y)) == State.UNKNOWN
             self.field[x][y] = State.FILLED
             target = back.get(target, None)
 
@@ -167,6 +162,11 @@ class PuzzleSolver:
 
     def get_state(self, pt):
         x, y = pt
+        # virtual border of FILLED around
+        if x < 0: return State.FILLED
+        if y < 0: return State.FILLED
+        if x >= self.size: return State.FILLED
+        if y >= self.size: return State.FILLED
         return self.field[x][y]
 
     def rand_point(self):
@@ -196,17 +196,18 @@ class PuzzleSolver:
 
     def is_good(self, pt):
         x, y = pt
-        return (self.field[x][y] in [State.UNKNOWN, State.GOOD, State.CONTOUR])
+        state = self.get_state(pt)
+        return (state in [State.UNKNOWN, State.GOOD, State.CONTOUR])
 
     def is_very_good(self, pt):
         x, y = pt
-        return (self.field[x][y] in [State.GOOD])
+        return (self.get_state(pt) in [State.GOOD])
 
     def find_lowest_left(self):
         size = self.size
-        for y in range(1, size):
-            for x in range(1, size):
-                if self.field[x][y] in [State.UNKNOWN, State.GOOD, State.CONTOUR]:
+        for y in range(0, size):
+            for x in range(0, size):
+                if self.get_state((x, y)) in [State.UNKNOWN, State.GOOD, State.CONTOUR]:
                     return (x, y)
 
     def get_row_req(self, pt, forward, state):
@@ -331,12 +332,14 @@ class PuzzleSolver:
     def solve(self):
         # create ostov tree for red
         size = self.size
-        for x in range(0, size):
-            for y in range(0, size):
-                self.field[x][0] = State.FILLED
-                self.field[x][size - 1] = State.FILLED
-                self.field[0][y] = State.FILLED
-                self.field[size - 1][y] = State.FILLED
+
+        # virtual border no longer needed
+        # for x in range(0, size):
+        #     for y in range(0, size):
+        #         self.field[x][0] = State.FILLED
+        #         self.field[x][size - 1] = State.FILLED
+        #         self.field[0][y] = State.FILLED
+        #         self.field[size - 1][y] = State.FILLED
 
         pts = self.get_points_order()
         for pt in pts:
@@ -344,8 +347,11 @@ class PuzzleSolver:
             self.bfs_to_filled(pt)
             # input(">")
 
+
         contour = self.generate_contour()
         num_turns = len(contour)
+        # self.show()
+
         if num_turns < self.spec.vMin:
             to_fill = self.spec.vMin - num_turns
             # print("filling turns: ", to_fill)
@@ -390,8 +396,8 @@ class PuzzleSolver:
         def pp(x, y, color):
             img.putpixel((x, self.size - 1 - y), color)
 
-        for x in range(0, mappa.xmax + 1):
-            for y in range(0, mappa.ymax + 1):
+        for x in range(0, self.size):
+            for y in range(0, self.size):
                 pp(x, y, (255, 255, 255) if mappa.inside((x, y)) else (0, 0, 0))
 
         for p in spec.included:
@@ -412,8 +418,9 @@ class PuzzleSolver:
         img = Image.new('RGB', (self.size, self.size))
         for x in range(0, self.size):
             for y in range(0, self.size):
+                state = self.get_state((x, y))
                 img.putpixel((x, self.size - 1 - y),
-                             get_color(self.field[x][y]))
+                             get_color(state))
 
         if task_spec:
             for b in task_spec.boosters:

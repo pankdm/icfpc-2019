@@ -5,7 +5,7 @@ from parser import parse_map
 class PuzzleSpec:
     # s is input string data
     def __init__(self, s):
-        parts = s.split('#')
+        parts = s.strip('\n').split('#')
         cc = [int(x) for x in parts[0].split(',')]
 
         self.bNum = cc[0]
