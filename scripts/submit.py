@@ -171,6 +171,7 @@ if __name__ == "__main__":
             scores = [row for row in csv.reader(
                 scores_data.text.split("\n"), skipinitialspace=True) if row]
 
+            update_archive = False
             for (problem, score, status) in scores:
                 problem = int(problem)
                 score = int(score)
@@ -192,6 +193,7 @@ if __name__ == "__main__":
 
                 if "time" not in gold_metadata or gold_metadata["time"] > score:
                     print(f"Problem {problem} solution improved")
+                    archive = True
                     with open(evaluate, "rb") as src, open(gold, "wb") as dst:
                         data = src.read()
                         md5 = hashlib.md5(data).hexdigest()
@@ -202,5 +204,14 @@ if __name__ == "__main__":
                             "hash": md5
                         }
                         dump(metadata, gold_metadata_file)
+            if update_archive:
+                archive_path = os.path.join(config.gold, "gold.zip")
+                gold_files = os.listdir(config.gold)
+                gold_solutions = filter(
+                    lambda f: os.path.splitext(f)[-1] == ".sol", gold_files)
+                with ZipFile(archive_path, mode="w", compression=ZIP_DEFLATED, compresslevel=9) as zipfile:
+                    for solution in tqdm(gold_solutions, desc="Archiving gold solutions"):
+                        zipname = os.path.basename(solution)
+                        zipfile.write(solution, arcname=zipname)
     else:
         sys.exit(f"Private id is not set, you can submit {archive} manually")
