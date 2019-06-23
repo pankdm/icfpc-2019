@@ -8,7 +8,7 @@
 namespace solvers {
 class BaseGreedy2 : public Solver {
  protected:
-  WorldExt world;
+  // WorldExt world;
   UnsignedSet target;
 
  protected:
