@@ -16,6 +16,7 @@ class BaseClones1Settings {
   size_t strategy;
   size_t ext_dist;
   bool use_shifts;
+  bool even_mops;
 };
 
 class BaseClones1 : public Solver {
