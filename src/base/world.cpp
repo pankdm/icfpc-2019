@@ -41,6 +41,10 @@ void World::Init(const std::string& desc) {
     }
     assert(item != Item::UNKNOWN);
     map(pboost.x, pboost.y).AddItem(item);
+    if (map.items_coords.count(item) == 0) {
+      map.items_coords[item] = std::set<std::pair<int, int>>();
+    }
+    map.items_coords[item].insert(std::make_pair(pboost.x, pboost.y));
   }
   Point pworker(vs[1]);
   workers.resize(1);
