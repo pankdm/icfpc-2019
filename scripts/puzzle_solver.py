@@ -38,6 +38,28 @@ def prev_point(pt, vec):
     return (x - dx, y - dy)
 
 
+def next_corner(pt, vec, new_vec):
+    x, y = pt
+    dx, dy = 0, 0
+    if vec == (1, 0) and new_vec == (0, 1):
+        dx, dy = 1, 0
+    elif vec == (1, 0) and new_vec == (0, -1):
+        dx, dy = 0, 0
+    elif vec == (0, 1) and new_vec == (1, 0):
+        dx, dy = 1, 0
+    elif vec == (0, 1) and new_vec == (0, -1):
+        dx, dy = 1, 1
+    elif vec == (-1, 0) and new_vec == (0, 1):
+        dx, dy = 0, 0
+    elif vec == (-1, 0) and new_vec == (0, -1):
+        dx, dy = 1, 0
+    elif vec == (0, -1) and new_vec == (1, 0):
+        dx, dy = 0, 0
+    elif vec == (0, -1) and new_vec == (0, -1):
+        dx, dy = 0, 1
+    return (x + dx, y + dy)
+
+
 class State:
     UNKNOWN = 0
     GOOD = 1
@@ -172,8 +194,8 @@ class PuzzleSolver:
 
     def find_lowest_left(self):
         size = self.size
-        for x in range(1, size):
-            for y in range(1, size):
+        for y in range(1, size):
+            for x in range(1, size):
                 if self.field[x][y] in [State.UNKNOWN, State.GOOD, State.CONTOUR]:
                     return (x, y)
 
@@ -200,11 +222,11 @@ class PuzzleSolver:
     def fill_corners(self, num_corners):
         start = self.find_lowest_left()
         forward = (1, 0)
+        right = rotate_clockwise(forward)
+        left = rotate_counter_clockwise(forward)
         now = start
 
         while True:
-            print('at ', now, forward)
-            # self.set_state(now, State.CONTOUR)
             if self.is_fillable(now, forward):
                 print('filling ', now)
                 self.set_state(now, State.FILLED)
@@ -213,57 +235,70 @@ class PuzzleSolver:
                     break
 
             x, y = now
-            right = rotate_clockwise(forward)
-            right_pt = next_point(now, right)
-            if self.is_good(right_pt):
-                forward = right
-                now = right_pt
-                continue
-
+            left_pt = next_point(now, left)
             forward_pt = next_point(now, forward)
-            if self.is_good(forward_pt):
-                now = forward_pt
-                continue
+            right_pt = next_point(now, right)
 
-            left = rotate_counter_clockwise(forward)
-            forward = left
+            if self.is_good(right_pt):
+                left = forward
+                forward = right
+                right = rotate_clockwise(right)
+                now = right_pt
+            elif self.is_good(forward_pt):
+                now = forward_pt
+            elif self.is_good(left_pt):
+                right = forward
+                forward = left
+                left = rotate_counter_clockwise(left)
+                now = left_pt
+            else:
+                # same as right, but stay on the spot
+                left = forward
+                forward = right
+                right = rotate_clockwise(right)
 
     def generate_contour(self):
         start = self.find_lowest_left()
         forward = (1, 0)
+        right = rotate_clockwise(forward)
+        left = rotate_counter_clockwise(forward)
         points = list()
         points.append(start)
         now = start
-        num_turns = 0
         while True:
-            if now == start and forward == (1, 0) and num_turns > 0:
+            if now == start and len(points) > 1:
                 break
-            # print ('at ', now, forward)
+            # print('at ', now, forward)
             self.set_state(now, State.CONTOUR)
             x, y = now
-            right = rotate_clockwise(forward)
-            right_pt = next_point(now, right)
-            if self.is_good(right_pt):
-                num_turns += 1
-                points.append(now)
-                forward = right
-                now = right_pt
-                continue
-
+            left_pt = next_point(now, left)
             forward_pt = next_point(now, forward)
-            if self.is_good(forward_pt):
+            right_pt = next_point(now, right)
+
+            if self.is_good(right_pt):
+                points.append(next_corner(now, forward, right))
+                left = forward
+                forward = right
+                right = rotate_clockwise(right)
+                now = right_pt
+            elif self.is_good(forward_pt):
                 now = forward_pt
-                continue
+            elif self.is_good(left_pt):
+                points.append(next_corner(now, forward, left))
+                right = forward
+                forward = left
+                left = rotate_counter_clockwise(left)
+                now = left_pt
+            else:
+                # same as right, but stay on the spot
+                points.append(next_corner(now, forward, right))
+                left = forward
+                forward = right
+                right = rotate_clockwise(right)
 
-            left = rotate_counter_clockwise(forward)
-            num_turns += 1
-            points.append(now)
-            forward = left
-
-        print('num turns = ', num_turns)
-        print(points[:5])
-        print(points[-5:])
-        return points, num_turns
+        self.show()
+        print('num turns = ', len(points))
+        return points
 
     def solve(self):
         # create ostov tree for red
@@ -281,15 +316,16 @@ class PuzzleSolver:
             self.bfs_to_filled(pt)
             # input(">")
 
-        contour, num_turns = self.generate_contour()
+        contour = self.generate_contour()
+        num_turns = len(contour)
         if num_turns < self.spec.vMin:
             to_fill = self.spec.vMin - num_turns
             print("filling turns: ", to_fill)
             self.fill_corners(to_fill)
             self.show()
-            contour, num_turns = self.generate_contour()
+            contour = self.generate_contour()
             self.show()
-            assert num_turns >= self.spec.vMin
+            assert len(contour) >= self.spec.vMin
 
         task_spec = TaskSpec()
         task_spec.contour = contour
