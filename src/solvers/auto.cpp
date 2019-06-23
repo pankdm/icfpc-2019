@@ -57,19 +57,22 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
     futures.emplace_back(tp->enqueueTask<Result>(
         std::make_shared<std::packaged_task<Result()>>([&]() {
           BaseClones1 bc1;
-          return Result("bc1", bc1.Solve(task, 0, 0, 10));
+          BaseClones1Settings sett{0, 0, 10, false};
+          return Result("bc1", bc1.Solve(task, sett));
         })));
 
     futures.emplace_back(tp->enqueueTask<Result>(
         std::make_shared<std::packaged_task<Result()>>([&]() {
           BaseClones1 bc2;
-          return Result("bc2", bc2.Solve(task, 1, 0, 10));
+          BaseClones1Settings sett{1, 0, 10, false};
+          return Result("bc2", bc2.Solve(task, sett));
         })));
 
     futures.emplace_back(tp->enqueueTask<Result>(
         std::make_shared<std::packaged_task<Result()>>([&]() {
           BaseClones1 bc3;
-          return Result("bc3", bc3.Solve(task, 0, 1, 10));
+          BaseClones1Settings sett{0, 1, 10, false};
+          return Result("bc3", bc3.Solve(task, sett));
         })));
 
     for (unsigned i = 0; i < 2; ++i) {
@@ -87,20 +90,18 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
 
   } else {
     // Never comment file solver!
-    // File fsolver;
-    // m.AddSolution(fsolver.Solve(task, task_name), "fsr");
+    File fsolver;
+    m.AddSolution(fsolver.Solve(task, task_name), "fsr");
     // End "never comment" section
 
-    // for (unsigned i = 0; i < 4; i++) {
-    //   for (int j = 0; j < 40; j += 5) {
-    //     BaseClones1 bc;
-    //     m.AddSolution(bc.Solve(task, i & 1, i & 2, j), "bc");
-    //     BaseClones1 bc3;
-    //   }
-    // }
-
-    BaseClones1 bc;
-    m.AddSolution(bc.Solve(task, 0, 0, 20), "bc");
+    for (unsigned i = 0; i < 8; i++) {
+      for (int j = 0; j < 40; j += 10) {
+        BaseClones1Settings sett{i & 1, i & 2, j, i & 4};
+        BaseClones1 bc;
+        m.AddSolution(bc.Solve(task, sett), "bc");
+        BaseClones1 bc3;
+      }
+    }
 
     // for (unsigned i = 1; i < 3; ++i) {
     //   for (unsigned j = 1; j < 3; ++j) {
