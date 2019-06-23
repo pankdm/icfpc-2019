@@ -45,9 +45,6 @@ def solve(task):
     subprocess.check_call(
          [python, "../scripts/puzzle_solver.py", puzzleIn, puzzleOut])
 
-    with open(puzzleOut, "w") as fTemp:
-        pass
-
     taskIn = "data/task%s.desc" % str(blockId)
     taskOut = "data/task%s.sol" % str(blockId)
     with open(taskIn, "w") as fTask:
