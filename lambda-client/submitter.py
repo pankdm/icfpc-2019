@@ -65,7 +65,7 @@ def solve(task, check_prev=False):
     if check_prev:
         prev_block_id = blockId - 1
         if not output_exist(prev_block_id):
-            post_to_slack(f"<!here>, missing solution for previous block {prev_block_id}")
+            post_to_slack(f"<!channel>, missing solution for previous block {prev_block_id}")
 
     fnameTask = "data/task%s.json" % str(blockId)
     with open(fnameTask, "w") as fTask:
