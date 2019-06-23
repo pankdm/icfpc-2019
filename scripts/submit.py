@@ -83,10 +83,13 @@ if __name__ == "__main__":
             progress.set_description(problem_name)
             problem_prefix = os.path.splitext(problem_name)[0]
             solution_name = problem_prefix + ".sol"
+            buy_name = problem_prefix + ".buy"
             gold = os.path.join(config.gold, solution_name)
+            gold_buy = os.path.join(config.gold, buy_name)
             gold_metadata_name = os.path.join(
                 config.gold, problem_prefix + ".meta.yaml")
             evaluate = os.path.join(config.evaluate, solution_name)
+            evaluate_buy = os.path.join(config.evaluate, buy_name)
 
             submission = None
             if os.path.exists(evaluate):
@@ -176,8 +179,11 @@ if __name__ == "__main__":
                 problem = int(problem)
                 score = int(score)
                 solution_name = f"prob-{problem:03}.sol"
+                buy_name = f"prob-{problem:03}.buy"
                 gold = os.path.join(config.gold, solution_name)
                 evaluate = os.path.join(config.evaluate, solution_name)
+                gold_buy = os.path.join(config.gold, buy_name)
+                evaluate_buy = os.path.join(config.evaluate, buy_name)
                 if evaluate not in submissions:
                     # This solution was skipped, ignore the submission
                     continue
@@ -198,6 +204,10 @@ if __name__ == "__main__":
                         data = src.read()
                         md5 = hashlib.md5(data).hexdigest()
                         dst.write(data)
+                    if os.path.exists(evaluate_buy):
+                        with open(evaluate_buy, "rb") as src, open(gold_buy, "wb") as dst:
+                            data = src.read()
+                            dst.write(data)
                     with open(gold_metadata_name, "w") as gold_metadata_file:
                         metadata = {
                             "time": score,
@@ -208,7 +218,7 @@ if __name__ == "__main__":
                 archive_path = os.path.join(config.gold, "gold.zip")
                 gold_files = os.listdir(config.gold)
                 gold_solutions = filter(
-                    lambda f: os.path.splitext(f)[-1] == ".sol", gold_files)
+                    lambda f: os.path.splitext(f)[-1] in [".sol", ".buy"], gold_files)
                 with ZipFile(archive_path, mode="w", compression=ZIP_DEFLATED, compresslevel=9) as zipfile:
                     for solution in tqdm(gold_solutions, desc="Archiving gold solutions"):
                         zipname = os.path.basename(solution)
