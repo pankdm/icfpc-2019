@@ -39,7 +39,7 @@ ActionsClones Auto::Solve(const std::string& task,
 
     futures.emplace_back(tp.enqueueTask<Result>(std::make_shared<std::packaged_task<Result()>>([&](){
       BaseGreedy3 bg4(BaseGreedy3Settings{true, true, 100, 2});
-      return Result("bg3", to_action_clones(bg4.Solve(task)));
+      return Result("bg4", to_action_clones(bg4.Solve(task)));
     })));
 
     futures.emplace_back(tp.enqueueTask<Result>(std::make_shared<std::packaged_task<Result()>>([&](){
