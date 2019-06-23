@@ -52,12 +52,12 @@ def puzzle_valid(spec, world):
 
     for i in spec.included:
         if not world.mappa.inside(i):
-            print("Missing included")
+            print("Missing included (%d, %d)" % (i[0], i[1]))
             return False
 
     for i in spec.excluded:
         if world.mappa.inside(i):
-            print("Missing excluded")
+            print("Missing excluded (%d, %d)" % (i[0], i[1]))
             return False
 
     for b in world.boosters.toList():
