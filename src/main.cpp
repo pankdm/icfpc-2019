@@ -23,6 +23,12 @@
 int main(int argc, char* argv[]) {
   cmd.Parse(argc, argv);
 
+  if (cmd.int_args["solve"]) {
+    auto in = cmd.args["in"];
+    auto out = cmd.args["out"];
+    solvers::Solve(in, out);
+  }
+
   Timer t;
   ThreadPool p(cmd.int_args["threads"]);
   std::atomic<bool> all_ok(true);
