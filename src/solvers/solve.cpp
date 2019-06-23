@@ -2,8 +2,6 @@
 
 #include "base/action_encode.h"
 #include "solvers/auto.h"
-#include "solvers/base_clones.h"
-#include "solvers/base_greedy3.h"
 #include "solvers/test.h"
 #include "common/always_assert.h"
 #include "common/timer.h"
@@ -19,18 +17,8 @@ unsigned Solve(const std::string& input_file, const std::string& output_file,
   std::string task;
   ALWAYS_ASSERT(std::getline(input, task));
   Timer t;
-  ActionsClones actions;
-  if (task_name == "ext") {
-    Auto s;
-    actions = s.Solve(task, task_name);
-  } else if (task_name < "221") {
-    BaseGreedy3 s(BaseGreedy3Settings{true, true, 0});
-    auto al = s.Solve(task);
-    actions.emplace_back(al);
-  } else {
-    BaseClones s;
-    actions = s.Solve(task);
-  }
+  Auto s;
+  auto actions = s.Solve(task, task_name);
   unsigned score = Test(task, actions);
   std::cout << "Task " << task_name << " Done. Time = " << t.GetMilliseconds()
             << "\tScore = " << score << std::endl;
