@@ -267,8 +267,9 @@ class PuzzleSolver:
                 forward = left
                 left = rotate_counter_clockwise(left)
 
-    def generate_contour(self):
+    def generate_contour(self, debug=False):
         start = self.find_lowest_left()
+        print(start)
         forward = (1, 0)
         right = rotate_clockwise(forward)
         left = rotate_counter_clockwise(forward)
@@ -285,6 +286,11 @@ class PuzzleSolver:
 
             if self.is_good(right_pt):
                 points.append(next_corner(now, forward, right))
+                if debug and len(points) > 1:
+                    x1, y1 = points[-2]
+                    x2, y2 = points[-1]
+                    print(points[-2], "→", points[-1], "turn right")
+                    assert x1 == x2 or y1 == y2
                 left = forward
                 forward = right
                 right = rotate_clockwise(right)
@@ -293,13 +299,24 @@ class PuzzleSolver:
                 now = forward_pt
             elif self.is_good(left_pt):
                 points.append(next_corner(now, forward, left))
+                if debug and len(points) > 1:
+                    x1, y1 = points[-2]
+                    x2, y2 = points[-1]
+                    print(points[-2], "→", points[-1], "turn left")
+                    assert x1 == x2 or y1 == y2
                 right = forward
                 forward = left
                 left = rotate_counter_clockwise(left)
                 now = left_pt
             else:
                 # same as left, but stay on the spot
+                last = False
                 points.append(next_corner(now, forward, left))
+                if debug and len(points) > 1:
+                    x1, y1 = points[-2]
+                    x2, y2 = points[-1]
+                    print(points[-2], "→", points[-1], "force left")
+                    assert x1 == x2 or y1 == y2
                 right = forward
                 forward = left
                 left = rotate_counter_clockwise(left)
@@ -334,7 +351,7 @@ class PuzzleSolver:
             # print("filling turns: ", to_fill)
             self.fill_corners(to_fill)
             # self.show()
-            contour = self.generate_contour()
+            contour = self.generate_contour(True)
             # self.show()
             assert len(contour) >= self.spec.vMin
 
@@ -400,7 +417,8 @@ class PuzzleSolver:
 
         if task_spec:
             for b in task_spec.boosters:
-                img.putpixel((b[1][0], self.size - 1 - b[1][1]), (255, 255, 255))
+                img.putpixel((b[1][0], self.size - 1 -
+                              b[1][1]), (255, 255, 255))
         # img = img.resize((1000, 1000), Image.BILINEAR)
         scale = int(1000 / self.size)
         img = img.resize((scale * self.size, scale * self.size))
