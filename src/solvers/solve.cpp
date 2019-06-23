@@ -15,35 +15,24 @@
 #include <string>
 
 namespace solvers {
-int Solve(const std::string& input_file, const std::string& output_file) {
+unsigned Solve(const std::string& input_file, const std::string& output_file,
+               const std::string& task_name) {
   std::ifstream input(input_file);
   std::string task;
   ALWAYS_ASSERT(std::getline(input, task));
-  std::string task_index = input_file.substr(input_file.size() - 8, 3);
   Timer t;
   ActionsClones actions;
-  if (task_index < "221") {
-    BaseGreedy4 s(BaseGreedy3Settings{true, true, 0});
+  if ((task_name != "ext") && (task_name < "221")) {
+    BaseGreedy2 s;
+    // BaseGreedy4 s(BaseGreedy3Settings{true, true, 0});
     auto al = s.Solve(task);
-
-    // Timer t2;
-    // TeleportOptimization opt;
-    // auto new_actions = opt.apply(task, actions);
-    // if (new_actions.size() < actions.size()) {
-    //   std::cout << "Task " << task_index << " was optimized from "
-    //             << actions.size() << " to " << new_actions.size() << ", opt
-    //             time = "
-    //             << t2.GetMilliseconds() << std::endl;
-    //   std::swap(actions, new_actions);
-    // }
-
     actions.emplace_back(al);
   } else {
     BaseClones s;
     actions = s.Solve(task);
   }
   unsigned score = Test(task, actions);
-  std::cout << "Task " << task_index << " Done. Time = " << t.GetMilliseconds()
+  std::cout << "Task " << task_name << " Done. Time = " << t.GetMilliseconds()
             << "\tScore = " << score << std::endl;
   if (score) {
     std::ofstream output(output_file);
@@ -51,7 +40,7 @@ int Solve(const std::string& input_file, const std::string& output_file) {
   } else {
     std::ofstream output(output_file);
     output << actions;
-    std::cerr << "Solution for problem " << task_index << " is incorrect."
+    std::cerr << "Solution for problem " << task_name << " is incorrect."
               << std::endl;
   }
   return score;

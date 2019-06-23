@@ -3,5 +3,6 @@
 #include <string>
 
 namespace solvers {
-int Solve(const std::string& input_file, const std::string& output_file);
+unsigned Solve(const std::string& input_file, const std::string& output_file,
+               const std::string& task_name);
 }  // namespace solvers
