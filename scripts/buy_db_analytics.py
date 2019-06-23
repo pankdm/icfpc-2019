@@ -15,13 +15,19 @@ def print_score(base_yaml, compare_yaml):
     buy = compare_yaml["buy"]
     spent = compare_yaml["spent"]
     roi = delta / spent
-    print (f"{buy} ({spent}): {old_score} -> {new_score} (+{delta:.2f}) ROI = {roi * 100:.2f}%")
+    msg = f"{buy} ({spent}): {old_score} -> {new_score} (+{delta:.2f}) ROI = {roi * 100:.2f}%"
+    # print (msg)
+    return roi, msg
+
+
 
 def process_task(n):
-    print ()
-    print (f"Task {n}")
+    # print ()
+    # print (f"Task {n}")
     base = f"{GOLD}/prob-{n:03}.meta.yaml"
     base_yaml = read_yaml(base)
+
+    rois = []
 
     folder = f"../buy_db/task{n}/"
     files = os.listdir(folder)
@@ -29,9 +35,11 @@ def process_task(n):
         s = re.match("(\d+).meta.yaml", f)
         if s:
             compare_yaml = read_yaml(folder + f)
-            print_score(base_yaml, compare_yaml)
+            rois.append(print_score(base_yaml, compare_yaml))
 
+    rois.sort(key = lambda x : x[0], reverse=True)
+    print (f"Task {n}: {rois[0][1]}")
 
 if __name__ == "__main__":
-    for i in range(1, 10):
+    for i in range(1, 300):
         process_task(i)
