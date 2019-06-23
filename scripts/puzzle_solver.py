@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 
 from PIL import Image
 
@@ -207,7 +208,7 @@ class PuzzleSolver:
             self.bfs_to_filled(pt)
             # input(">")
 
-        countour = self.generate_contour()
+        contour = self.generate_contour()
 
         self.world = World(contour, [], self.gen_booster_point())
         spec = self.spec
