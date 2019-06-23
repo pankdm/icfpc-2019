@@ -33,21 +33,18 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
     futures.emplace_back(tp->enqueueTask<Result>(
         std::make_shared<std::packaged_task<Result()>>([&]() {
           BaseGreedy2 bg2;
-          bg2.InitBoosters(bonuses);
           return Result("bg2", to_action_clones(bg2.Solve(task)));
         })));
 
     futures.emplace_back(tp->enqueueTask<Result>(
         std::make_shared<std::packaged_task<Result()>>([&]() {
           BaseGreedy3 bg3(BaseGreedy3Settings{true, true, 0, 0});
-          bg3.InitBoosters(bonuses);
           return Result("bg3", to_action_clones(bg3.Solve(task)));
         })));
 
     futures.emplace_back(tp->enqueueTask<Result>(
         std::make_shared<std::packaged_task<Result()>>([&]() {
           BaseGreedy3 bg4(BaseGreedy3Settings{true, true, 100, 2});
-          bg4.InitBoosters(bonuses);
           return Result("bg4", to_action_clones(bg4.Solve(task)));
         })));
 
@@ -60,21 +57,42 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
     futures.emplace_back(tp->enqueueTask<Result>(
         std::make_shared<std::packaged_task<Result()>>([&]() {
           BaseClones1 bc1;
-          BaseClones1Settings sett{0, 0, 100, true};
+          BaseClones1Settings sett{0, 0, 100, true, false};
           return Result("bc1", bc1.Solve(task, sett, bonuses));
         })));
 
     futures.emplace_back(tp->enqueueTask<Result>(
         std::make_shared<std::packaged_task<Result()>>([&]() {
           BaseClones1 bc2;
-          BaseClones1Settings sett{1, 0, 100, true};
+          BaseClones1Settings sett{1, 0, 100, true, false};
           return Result("bc2", bc2.Solve(task, sett, bonuses));
         })));
 
     futures.emplace_back(tp->enqueueTask<Result>(
         std::make_shared<std::packaged_task<Result()>>([&]() {
           BaseClones1 bc3;
-          BaseClones1Settings sett{0, 1, 100, true};
+          BaseClones1Settings sett{0, 1, 100, true, false};
+          return Result("bc3", bc3.Solve(task, sett, bonuses));
+        })));
+
+    futures.emplace_back(tp->enqueueTask<Result>(
+        std::make_shared<std::packaged_task<Result()>>([&]() {
+          BaseClones1 bc1;
+          BaseClones1Settings sett{0, 0, 10, true, false};
+          return Result("bc1", bc1.Solve(task, sett, bonuses));
+        })));
+
+    futures.emplace_back(tp->enqueueTask<Result>(
+        std::make_shared<std::packaged_task<Result()>>([&]() {
+          BaseClones1 bc2;
+          BaseClones1Settings sett{1, 0, 10, true, false};
+          return Result("bc2", bc2.Solve(task, sett, bonuses));
+        })));
+
+    futures.emplace_back(tp->enqueueTask<Result>(
+        std::make_shared<std::packaged_task<Result()>>([&]() {
+          BaseClones1 bc3;
+          BaseClones1Settings sett{0, 1, 10, true, false};
           return Result("bc3", bc3.Solve(task, sett, bonuses));
         })));
 
@@ -97,10 +115,14 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
     m.AddSolution(fsolver.Solve(task, task_name), "fsr");
     // End "never comment" section
 
-    // for (unsigned i = 0; i < 4; ++i) {
-    //   BaseGreedy3 bg3(BaseGreedy3Settings{i & 1, i & 2, 0});
-    //   m.AddSolution(bg3.Solve(task), "bg3");
-    // }
+    for (unsigned i = 0; i < 8; i++) {
+      for (int j = 0; j < 40; j += 10) {
+        BaseClones1Settings sett{i & 1, i & 2, j, i & 4, true};
+        BaseClones1 bc;
+        m.AddSolution(bc.Solve(task, sett, bonuses), "bc");
+        BaseClones1 bc3;
+      }
+    }
 
     // for (unsigned i = 1; i < 3; ++i) {
     //   for (unsigned j = 1; j < 3; ++j) {
@@ -110,20 +132,15 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
     //     }
     //   }
     // }
-
+    // for (unsigned i = 0; i < 4; ++i) {
+    //   BaseGreedy3 bg3(BaseGreedy3Settings{i & 1, i & 2, 0});
+    //   m.AddSolution(bg3.Solve(task), "bg3");
+    // }
     // BaseClones bc0;
     // m.AddSolution(bc0.Solve(task, bonuses), "bc0");
     // for (unsigned i = 0; i < 2; ++i) {
     //   ClonesGreedy cg0;
     //   m.AddSolution(cg0.Solve(task, i, bonuses), "cg0");
-    // }
-
-    // for (unsigned i = 0; i < 8; i++) {
-    //   for (int j = 0; j < 40; j += 10) {
-    //     BaseClones1Settings sett{i & 1, i & 2, j, i & 4};
-    //     BaseClones1 bc;
-    //     m.AddSolution(bc.Solve(task, sett, bonuses), "bc");
-    //   }
     // }
   }
   return m.Solution();
