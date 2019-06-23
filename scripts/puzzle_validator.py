@@ -59,7 +59,7 @@ def puzzle_valid(spec, world):
 
     for b in world.boosters.toList():
         if not world.mappa.inside(b[1]):
-            print("Wrong booster position")
+            print("Wrong booster position (%d, %d)" % (b[1][0], b[1][1]))
             return False
 
     return True
