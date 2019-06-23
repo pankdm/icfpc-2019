@@ -110,71 +110,94 @@ bool BaseClones1::AssignClosestWorker(unsigned r, ActionsList& al) {
   };
   thread_local std::queue<S> q;
   thread_local std::unordered_map<unsigned, unsigned> m;
-  for (; !q.empty();) q.pop();
-  acw1.Clear();
-  acw2.Clear();
-  for (unsigned u : unwrapped.List()) {
-    if (ds.Find(u) == r) {
-      q.push({0, u, 0});
-      acw1.Insert(u);
-    }
-  }
-  m.clear();
-  for (unsigned i = 0; i < world.WCount(); ++i) {
-    auto& w = world.GetWorker(i);
-    unsigned index = world.map.Index(w.x, w.y);
-    // std::cout << w.x << " " << w.y << " " << world.map.xsize << " "
-    //           << world.map.ysize << std::endl;
-    acw2.Insert(index);
-    m[index] = i;
-  }
-  unsigned best_distance = unsigned(-1);
-  bool ok = false;
-  Worker w = world.GetWorker(0);
-  for (; !q.empty(); q.pop()) {
-    unsigned d = q.front().distance;
-    unsigned u = q.front().index;
-    unsigned f = q.front().from;
-    if (d > best_distance) break;
-    if (acw2.HasKey(u)) {
-      best_distance = d;
-      unsigned wi = m[u];
-      assert(wi < al.size());
-      if (al[wi].type == ActionType::DO_NOTHING) {
-        w = world.GetWorker(wi);
-        Direction d = GetDirection(world.map, u, f);
-        Worker w = world.GetWorker(wi);
-        Direction d2 = GetDirection(world.map, f, u);
-        Point pw(w.x, w.y);
-        if (d2.direction % 2 != w.direction.direction % 2 && wi == 0) {
-          bool need_turn = true;
-          Point next = pw + d2;
-          for (int i = 0; i < 2; i++) {
-            if (!world.map.Inside(next.x, next.y) ||
-                world.map.Get(next.x, next.y).WrappedOrBlocked()) {
-              need_turn = false;
-            }
-            next = next + d2;
-          }
-          if (need_turn) {
-            if (d2.direction == w.direction.direction - 1) {
-              al[wi].type = ActionType::ROTATE_CLOCKWISE;
-              return true;
-            } else {
-              al[wi].type = ActionType::ROTATE_COUNTERCLOCKWISE;
-              return true;
-            }
-          }
-        }
-        al[wi].type = d.Get();
-        return true;
+  for (int phase = 0; phase < 2; phase++) {
+    for (; !q.empty();) q.pop();
+    acw1.Clear();
+    acw2.Clear();
+    for (unsigned u : unwrapped.List()) {
+      if (phase == 0 && !world.map.HasExtension(u)) {
+        continue;
+      }
+      if (ds.Find(u) == r) {
+        q.push({0, u, 0});
+        acw1.Insert(u);
       }
     }
-    if (d < best_distance) {
-      for (unsigned v : g.Edges(u)) {
-        if (!acw1.HasKey(v)) {
-          acw1.Insert(v);
-          q.push({d + 1, v, u});
+    m.clear();
+    for (unsigned i = 0; i < world.WCount(); ++i) {
+      auto& w = world.GetWorker(i);
+      unsigned index = world.map.Index(w.x, w.y);
+      // std::cout << w.x << " " << w.y << " " << world.map.xsize << " "
+      //           << world.map.ysize << std::endl;
+      acw2.Insert(index);
+      m[index] = i;
+    }
+    unsigned best_distance = unsigned(-1);
+    bool ok = false;
+    Worker w = world.GetWorker(0);
+    for (; !q.empty(); q.pop()) {
+      unsigned d = q.front().distance;
+      unsigned u = q.front().index;
+      unsigned f = q.front().from;
+      if (d > best_distance) break;
+      if (acw2.HasKey(u)) {
+        best_distance = d;
+        unsigned wi = m[u];
+        assert(wi < al.size());
+        if (al[wi].type == ActionType::DO_NOTHING) {
+          w = world.GetWorker(wi);
+          Direction d = GetDirection(world.map, u, f);
+          Worker w = world.GetWorker(wi);
+
+          if (wi == 0 &&
+              world.boosters.extensions.Available({world.time, wi})) {
+            auto p = w.GetNextManipulatorPositionNaive(0 /*TODO*/);
+            al[wi].type = ActionType::ATTACH_MANIPULATOR;
+            al[wi].x = p.first;
+            al[wi].y = p.second;
+            return true;
+          }
+
+          Direction wd = w.direction;
+          Point pw(w.x, w.y);
+
+          // if (phase == 0) {
+          //   w.PrintNeighborhood(world.map, 5);
+          // }
+
+          if (d.direction % 2 != wd.direction % 2 && wi == 0 && phase == 1) {
+            bool need_turn = true;
+            Point next = pw + d;
+            for (int i = 0; i < 4; i++) {
+              if (!world.map.Inside(next.x, next.y) ||
+                  world.map.Get(next.x, next.y).WrappedOrBlocked()) {
+                need_turn = false;
+              }
+              next = next + d;
+            }
+            if (need_turn) {
+              if (d.direction == w.direction.direction - 1) {
+                al[wi].type = ActionType::ROTATE_CLOCKWISE;
+                return true;
+              } else {
+                al[wi].type = ActionType::ROTATE_COUNTERCLOCKWISE;
+                return true;
+              }
+            }
+          }
+          al[wi].type = d.Get();
+          return true;
+        }
+      }
+      if (d < best_distance) {
+        if (phase == 0 && d > 20) {
+          continue;
+        }
+        for (unsigned v : g.Edges(u)) {
+          if (!acw1.HasKey(v)) {
+            acw1.Insert(v);
+            q.push({d + 1, v, u});
+          }
         }
       }
     }
