@@ -1,9 +1,9 @@
 #include "solvers/auto.h"
 
-#include "clones_greedy.h"
 #include "solvers/base_clones.h"
 #include "solvers/base_greedy2.h"
 #include "solvers/base_greedy3.h"
+#include "solvers/clones_greedy.h"
 #include "solvers/file.h"
 #include "solvers/merger.h"
 
