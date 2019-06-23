@@ -137,6 +137,14 @@ void Map::SetBeacon(int x, int y) {
   Get(x, y).SetBeacon();
 }
 
+unsigned Map::Count(Item item) const {
+  unsigned cnt = 0;
+  for (const Square& s : map) {
+    if (s.CheckItem() == item) cnt += 1;
+  }
+  return cnt;
+}
+
 bool Map::Wrapped() const {
   for (const Square& square : map) {
     if (!square.WrappedOrBlocked()) return false;

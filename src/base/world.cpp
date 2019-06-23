@@ -74,8 +74,9 @@ void World::ApplyC(unsigned index, const Action& action) {
     assert(boosters.clones.Available(worker.Time(time)));
     assert(map.Get(worker.x, worker.y).CheckItem() == Item::CODEX);
     boosters.clones.Use();
-    workers.emplace_back(worker);
-    workers.back().index = workers.size() - 1;
+    Worker wnew;
+    wnew.Init(boosters, map, worker.x, worker.y, workers.size());
+    workers.emplace_back(wnew);
   } else {
     GetWorker(index).Apply(time, map, action);
   }
