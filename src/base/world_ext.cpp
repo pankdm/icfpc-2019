@@ -8,7 +8,20 @@ unsigned WorldExt::Index(int x, int y) const { return map.Index(x, y); }
 
 bool WorldExt::Solved() const { return unwrapped.Empty(); }
 
+const std::vector<unsigned>& WorldExt::GEdges(unsigned u) const {
+  return g.Edges(u);
+}
+
+const std::vector<unsigned>& WorldExt::UList() const {
+  return unwrapped.List();
+}
+
 void WorldExt::BuildDSForSet() {
+  for (unsigned u : ds_update_set.List()) {
+    ds.p[u] = u;
+    ds.rank[u] = 0;
+    ds.vsize[u] = 1;
+  }
   for (unsigned u : ds_update_set.List()) {
     for (unsigned t : g.Edges(u)) {
       if ((t > u) && unwrapped.HasKey(t)) {
@@ -42,13 +55,14 @@ void WorldExt::UpdateDS() {
     if (ds_update_required.HasKey(ds.Find(u))) ds_update_set.Insert(u);
   }
   ds.unions -= (ds_update_set.Size() - ds_update_required.Size());
-  for (unsigned u : ds_update_set.List()) {
-    ds.p[u] = u;
-    ds.rank[u] = 0;
-    ds.vsize[u] = 1;
-  }
+  ds_update_required.Clear();
   BuildDSForSet();
 }
+
+bool WorldExt::UpdateDSRequired() const { return !ds_update_required.Empty(); }
+
+unsigned WorldExt::DSFind(unsigned u) { return ds.Find(u); }
+unsigned WorldExt::DSSize(unsigned u) { return ds.GetSize(u); }
 
 void WorldExt::Init(const std::string& desc) {
   World::Init(desc);

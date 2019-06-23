@@ -6,6 +6,7 @@
 #include "common/graph/graph.h"
 #include "common/unsigned_set.h"
 #include <string>
+#include <vector>
 
 class WorldExt : public World {
  protected:
@@ -20,6 +21,8 @@ class WorldExt : public World {
   unsigned Size() const;
   unsigned Index(int x, int y) const;
   bool Solved() const;
+  const std::vector<unsigned>& GEdges(unsigned u) const;
+  const std::vector<unsigned>& UList() const;
 
  protected:
   void BuildDSForSet();
@@ -28,6 +31,10 @@ class WorldExt : public World {
  public:
   void BuildDS();
   void UpdateDS();
+  bool UpdateDSRequired() const;
+
+  unsigned DSFind(unsigned u);
+  unsigned DSSize(unsigned u);
 
  public:
   void Init(const std::string& desc);
