@@ -9,6 +9,8 @@ void CommandLine::Parse(int argc, char* const argv[]) {
       std::max(1, static_cast<int>(std::thread::hardware_concurrency()) - 1);
   int_args["always_save"] = 0;
   int_args["solve"] = 0;
+  int_args["start"] = 1;
+  int_args["stop"] = 300;
 
   int index = 1;
   while (index + 1 < argc) {
