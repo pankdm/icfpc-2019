@@ -1,0 +1,10 @@
+# directory with known to be best solutions, safe to be submitted manually
+gold: solutions_gold
+# directory with solutions to evaluate
+buydb: buy_db
+# directory with lambda-client
+lambdaclient: lambda-client
+# directory with output for best solutions combination
+merge: best_buy
+# directory with all existing submissions
+submission: submissions
