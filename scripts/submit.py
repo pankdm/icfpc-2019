@@ -91,7 +91,7 @@ if __name__ == "__main__":
             evaluate = os.path.join(config.evaluate, solution_name)
             evaluate_buy = os.path.join(config.evaluate, buy_name)
 
-            submission = None
+            should_evaluate = False
             if os.path.exists(evaluate):
                 problem_content = read_file(problem)
                 solution_content = read_file(evaluate)
@@ -113,15 +113,19 @@ if __name__ == "__main__":
                     new_time = len(parse_solution(solution_content))
 
                     if new_time < gold_time:
-                        submission = evaluate
+                        should_evaluate = True
                 else:
-                    submission = evaluate
+                    should_evaluate = True
 
-            if submission:
-                submissions.append(submission)
+            if should_evaluate:
+                submissions.append(evaluate)
+                if os.path.exists(evaluate_buy):
+                    submissions.append(evaluate_buy)
                 new_submissions += 1
             elif os.path.exists(gold):
                 submissions.append(gold)
+                if os.path.exists(gold_buy):
+                    submissions.append(gold_buy)
             else:
                 print(f"No solution for {problem_name}")
 
