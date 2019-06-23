@@ -51,6 +51,8 @@ class Map {
   bool HasBeacon(int x, int y) const;
   void SetBeacon(int x, int y);
 
+  unsigned Count(Item item) const;
+
   bool Wrapped() const;
   void Print() const;
 };
