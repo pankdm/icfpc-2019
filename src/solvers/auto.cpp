@@ -13,10 +13,13 @@
 
 namespace solvers {
 
-static ThreadPool tp(cmd.int_args["threads"]);
-
 ActionsClones Auto::Solve(const std::string& task,
                           const std::string& task_name) {
+  static std::shared_ptr<ThreadPool> tp;
+  if (!tp) {
+    tp = std::make_shared<ThreadPool>(cmd.int_args["threads"]);
+  }
+
   Merger m(task, task_name);
   if (task_name == "ext") {
     using Result = std::pair<std::string, ActionsClones>;
@@ -28,32 +31,32 @@ ActionsClones Auto::Solve(const std::string& task,
       return result;
     };
 
-    futures.emplace_back(tp.enqueueTask<Result>(
+    futures.emplace_back(tp->enqueueTask<Result>(
         std::make_shared<std::packaged_task<Result()>>([&]() {
           BaseGreedy2 bg2;
           return Result("bg2", to_action_clones(bg2.Solve(task)));
         })));
 
-    futures.emplace_back(tp.enqueueTask<Result>(
+    futures.emplace_back(tp->enqueueTask<Result>(
         std::make_shared<std::packaged_task<Result()>>([&]() {
           BaseGreedy3 bg3(BaseGreedy3Settings{true, true, 0, 0});
           return Result("bg3", to_action_clones(bg3.Solve(task)));
         })));
 
-    futures.emplace_back(tp.enqueueTask<Result>(
+    futures.emplace_back(tp->enqueueTask<Result>(
         std::make_shared<std::packaged_task<Result()>>([&]() {
           BaseGreedy3 bg4(BaseGreedy3Settings{true, true, 100, 2});
           return Result("bg4", to_action_clones(bg4.Solve(task)));
         })));
 
-    futures.emplace_back(tp.enqueueTask<Result>(
+    futures.emplace_back(tp->enqueueTask<Result>(
         std::make_shared<std::packaged_task<Result()>>([&]() {
           BaseClones bc0;
           return Result("bc0", bc0.Solve(task));
         })));
 
     for (unsigned i = 0; i < 2; ++i) {
-      futures.emplace_back(tp.enqueueTask<Result>(
+      futures.emplace_back(tp->enqueueTask<Result>(
           std::make_shared<std::packaged_task<Result()>>([&]() {
             ClonesGreedy cg0;
             return Result("cg0", cg0.Solve(task, i));
