@@ -90,33 +90,14 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
     File fsolver;
     m.AddSolution(fsolver.Solve(task, task_name), "fsr");
     // End "never comment" section
-    BaseClones1 bc1;
-    m.AddSolution(bc1.Solve(task, 0, 0, 0), "bc1");
-    BaseClones1 bc2;
-    m.AddSolution(bc2.Solve(task, 0, 0, 10), "bc2");
-    BaseClones1 bc3;
-    m.AddSolution(bc3.Solve(task, 0, 0, 30), "bc3");
 
-    BaseClones1 bc4;
-    m.AddSolution(bc4.Solve(task, 1, 0, 0), "bc4");
-    BaseClones1 bc5;
-    m.AddSolution(bc5.Solve(task, 1, 0, 10), "bc5");
-    BaseClones1 bc6;
-    m.AddSolution(bc6.Solve(task, 1, 0, 30), "bc6");
-
-    BaseClones1 bc7;
-    m.AddSolution(bc7.Solve(task, 0, 1, 0), "bc7");
-    BaseClones1 bc8;
-    m.AddSolution(bc8.Solve(task, 0, 1, 10), "bc8");
-    BaseClones1 bc9;
-    m.AddSolution(bc9.Solve(task, 0, 1, 30), "bc9");
-
-    BaseClones1 bc10;
-    m.AddSolution(bc10.Solve(task, 1, 1, 0), "bc10");
-    BaseClones1 bc11;
-    m.AddSolution(bc11.Solve(task, 1, 1, 10), "bc11");
-    BaseClones1 bc12;
-    m.AddSolution(bc12.Solve(task, 1, 1, 30), "bc12");
+    // for (unsigned i = 0; i < 4; i++) {
+    //   for (int j = 0; j < 40; j += 5) {
+    //     BaseClones1 bc;
+    //     m.AddSolution(bc.Solve(task, i & 1, i & 2, j), "bc");
+    //     BaseClones1 bc3;
+    //   }
+    // }
 
     // for (unsigned i = 1; i < 3; ++i) {
     //   for (unsigned j = 1; j < 3; ++j) {
