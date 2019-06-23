@@ -24,8 +24,8 @@ def solve(task):
 
     state["submitted"].append(blockId)
 
-    puzzleIn = "data/%s_puzzle.desc" % str(blockId)
-    puzzleOut = "data/%s_puzzle.res" % str(blockId)
+    puzzleIn = "data/puzzle%s.task" % str(blockId)
+    puzzleOut = "data/puzzle%s.desc" % str(blockId)
     with open(puzzleIn, "w") as fTask:
         fTask.write(blockinfo["puzzle"])
 
@@ -35,16 +35,18 @@ def solve(task):
     with open(puzzleOut, "w") as fTemp:
         pass
 
-    taskIn = "data/%s_task.desc" % str(blockId)
-    taskOut = "data/%s_task.res" % str(blockId)
+    taskIn = "data/task%s.desc" % str(blockId)
+    taskOut = "data/task%s.sol" % str(blockId)
     with open(taskIn, "w") as fTask:
         fTask.write(blockinfo["task"])
 
     subprocess.check_call(
         ["../src/build/cpp_solver", "-solve", "1", "-in", taskIn, "-out", taskOut])
 
-    subprocess.check_call([python, "./lambda-cli.py", "submit", "-block",
-                           str(blockId), puzzleOut, taskOut])
+    args = [python, "./lambda-cli.py", "submit",
+                           str(blockId), taskOut, puzzleOut]
+    print(args)
+    subprocess.check_call(args)
 
     with open(fnameState, "w") as fState:
         fState.write(dumps(state))
@@ -55,11 +57,11 @@ def loadState():
             state = loads(fState.read())
 
 if False:
-    for block in range(1, 13):
+    for block in range(12, 14):
         loadState()
 
         task = subprocess.check_output(
-            [python, "./lambda-cli.py", "getblockinfo", "-block", str(block)]).decode()
+            [python, "./lambda-cli.py", "getblockinfo", str(block)]).decode()
         solve(task)
 
 while True:
