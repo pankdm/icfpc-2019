@@ -76,6 +76,8 @@ def solve(task, check_prev=False):
     if "15" in blockinfo["balances"]:
         balance = blockinfo["balances"]["15"]
         print_and_log(logs, f"balance = {balance}")
+        with open("balance.txt", "w") as fBalance:
+            fBalance.write(str(balance))
 
     state["submitted"].append(blockId)
 
