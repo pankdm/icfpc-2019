@@ -352,7 +352,6 @@ class PuzzleSolver:
         return task_spec
 
     def show(self):
-        return
         img = Image.new('RGB', (self.size, self.size))
         for x in range(0, self.size):
             for y in range(0, self.size):
