@@ -41,7 +41,9 @@ int main(int argc, char* argv[]) {
   ThreadPool p(cmd.int_args["threads"]);
   std::atomic<bool> all_ok(true);
   std::vector<std::future<int>> futures;
-  for (unsigned i = 221; i <= 300; ++i) {
+  const auto start = cmd.int_args["start"];
+  const auto stop = cmd.int_args["stop"];
+  for (unsigned i = start; i <= stop; ++i) {
     auto t = std::make_shared<std::packaged_task<int()>>([&, i]() {
       std::string si = std::to_string(i + 1000).substr(1);
       unsigned num_steps =
