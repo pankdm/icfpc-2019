@@ -41,7 +41,7 @@ def send_logs(logs):
 def output_exist(blockId):
     taskOut = "data/task%s.sol" % str(blockId)
     puzzleOut = "data/puzzle%s.desc" % str(blockId)
-
+    return os.path.isfile(taskOut) and os.path.isfile(puzzleOut)
 
 def solve(task, check_prev=False):
     logs = []
