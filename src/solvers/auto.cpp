@@ -1,5 +1,6 @@
 #include "solvers/auto.h"
 
+#include "clones_greedy.h"
 #include "solvers/base_clones.h"
 #include "solvers/base_greedy2.h"
 #include "solvers/base_greedy3.h"
@@ -19,6 +20,10 @@ ActionsClones Auto::Solve(const std::string& task,
     m.AddSolution(bg4.Solve(task), "bg4");
     BaseClones bc0;
     m.AddSolution(bc0.Solve(task), "bc0");
+    for (unsigned i = 0; i < 2; ++i) {
+      ClonesGreedy cg0;
+      m.AddSolution(cg0.Solve(task, i), "cg0");
+    }
   } else {
     // Never comment file solver!
     File fsolver;
@@ -39,6 +44,10 @@ ActionsClones Auto::Solve(const std::string& task,
     // }
     // BaseClones bc0;
     // m.AddSolution(bc0.Solve(task), "bc0");
+    // for (unsigned i = 0; i < 2; ++i) {
+    //   ClonesGreedy cg0;
+    //   m.AddSolution(cg0.Solve(task, i), "cg0");
+    // }
   }
   return m.Solution();
 }
