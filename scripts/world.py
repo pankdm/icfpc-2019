@@ -73,6 +73,12 @@ class Mappa:
                 if self.get_color((x, y)) == Cell.UNKNOWN:
                     self.set_color((x, y), Cell.BLOCK)
 
+    def valid_and_inside(self, point):
+        if point[0] >= self.xmin and point[0] <= self.xmax:
+            if point[1] >= self.ymin and point[1] <= self.ymax:
+                return self.inside(point)
+        return False
+
     def inside(self, point):
         c = self.get_color(point)
         return c == Cell.EMPTY or c == Cell.WRAPPED

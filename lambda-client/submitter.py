@@ -26,10 +26,18 @@ def solve(task):
 
     blockinfo = loads(task)
 
+    if not "block" in blockinfo:
+        print("Bad task", task)
+        return
+
     blockId = blockinfo["block"]
 
     if blockId in state["submitted"]:
         return
+
+    fnameTask = "data/task%s.json" % str(blockId)
+    with open(fnameTask, "w") as fTask:
+        fTask.write(task)
 
     print(task)
     if "15" in blockinfo["balances"]:
@@ -66,13 +74,16 @@ def solve(task):
     with open(fnameState, "w") as fState:
         fState.write(dumps(state))
 
-if True:
-    for block in range(1, 16):
+if False:
+    for block in range(18, 25):
         task = subprocess.check_output(
             [python, cli, "getblockinfo", str(block)]).decode()
         solve(task)
 
+i = 0
 while True:
     task = subprocess.check_output(
         [python, cli, "getblockinfo"]).decode()
+    print("hb %d" % i)
     solve(task)
+    i += 1
