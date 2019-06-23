@@ -27,6 +27,7 @@ int main(int argc, char* argv[]) {
     auto in = cmd.args["in"];
     auto out = cmd.args["out"];
     solvers::Solve(in, out);
+    return 0;
   }
 
   Timer t;
