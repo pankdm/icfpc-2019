@@ -16,11 +16,20 @@ while True:
 
     blockId = blockinfo["block"]
 
-    puzzleIn = "%s_task.desc" % blockId
-    puzzleOut = "%s_task.desc" % blockId
+    puzzleIn = "%s_puzzle.desc" % blockId
+    puzzleOut = "%s_puzzle.desc" % blockId
     with open() as fTask:
         fTask.write(blockinfo["puzzle"])
 
     subprocess.check_call([python, "../scripts/puzzle_solver.py", puzzleIn, puzzleOut])
 
-    subprocess.check_call([python, "./lambda-cli.py", "-block", blockId, "-puzzle_sol_path", puzzleOut])
+    taskIn = "%s_task.desc" % blockId
+    taskOut = "%s_task.desc" % blockId
+    with open() as fTask:
+        fTask.write(blockinfo["task"])
+
+    subprocess.check_call(["../src/build/cpp_solver", "-solve", taskIn, taskOut])
+
+    subprocess.check_call([python, "./lambda-cli.py", "submit", "-block", blockId, "-puzzle_sol_path", puzzleOut, "-task_sol_path", taskOut])
+
+    break
