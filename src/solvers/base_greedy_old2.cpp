@@ -1,4 +1,4 @@
-#include "solvers/base_greedy2.h"
+#include "solvers/base_greedy_old2.h"
 
 #include "base/action.h"
 #include "base/action_type.h"
@@ -15,7 +15,7 @@
 #include <utility>
 
 namespace solvers {
-void BaseGreedy2::Init(const std::string& task) {
+void BaseGreedyOld2::Init(const std::string& task) {
   world.Init(task);
   unsigned size = unsigned(world.map.Size());
   auto& map = world.map;
@@ -39,7 +39,7 @@ void BaseGreedy2::Init(const std::string& task) {
   BuildDS();
 }
 
-void BaseGreedy2::BuildDSUnsignedSet() {
+void BaseGreedyOld2::BuildDSUnsignedSet() {
   for (unsigned u : ds_rebuid.List()) {
     for (unsigned t : g.Edges(u)) {
       if ((t > u) && unwrapped.HasKey(t)) {
@@ -49,14 +49,14 @@ void BaseGreedy2::BuildDSUnsignedSet() {
   }
 }
 
-void BaseGreedy2::BuildDS() {
+void BaseGreedyOld2::BuildDS() {
   ds.Init(world.map.Size());
   ds_rebuid = unwrapped;
   BuildDSUnsignedSet();
   SetTarget();
 }
 
-void BaseGreedy2::RebuildDS() {
+void BaseGreedyOld2::RebuildDS() {
   ds_rebuid.Clear();
   for (unsigned u : unwrapped.List()) {
     if (ds_rebuid_required.HasKey(ds.Find(u))) ds_rebuid.Insert(u);
@@ -70,7 +70,7 @@ void BaseGreedy2::RebuildDS() {
   BuildDSUnsignedSet();
 }
 
-void BaseGreedy2::SetTarget(unsigned dist_weight) {
+void BaseGreedyOld2::SetTarget(unsigned dist_weight) {
   if (dist_weight == 0) {
     unsigned min_ds_size = ds.Size();
     for (unsigned u : unwrapped.List()) {
@@ -135,7 +135,7 @@ void BaseGreedy2::SetTarget(unsigned dist_weight) {
   }
 }
 
-Action BaseGreedy2::NextMove() {
+Action BaseGreedyOld2::NextMove() {
   thread_local UnsignedSet s;
   thread_local std::queue<std::pair<int, Direction>> q;
   if (s.Size() < world.map.Size()) {
@@ -181,7 +181,7 @@ Action BaseGreedy2::NextMove() {
   return Action(ActionType::END);
 }
 
-void BaseGreedy2::Update() {
+void BaseGreedyOld2::Update() {
   auto& q = world.map.wraps_history;
   for (; !q.empty(); q.pop()) {
     int index = q.front();
@@ -192,9 +192,9 @@ void BaseGreedy2::Update() {
   }
 }
 
-bool BaseGreedy2::Wrapped() { return unwrapped.Empty(); }
+bool BaseGreedyOld2::Wrapped() { return unwrapped.Empty(); }
 
-ActionsList BaseGreedy2::Solve(const std::string& task) {
+ActionsList BaseGreedyOld2::Solve(const std::string& task) {
   Init(task);
   ActionsList actions;
   for (; !Wrapped();) {
