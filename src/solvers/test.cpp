@@ -4,6 +4,7 @@
 
 namespace solvers {
 unsigned Test(const std::string& task, const ActionsList& actions) {
+  if (actions.empty()) return 0;
   World world;
   world.Init(task);
   world.Apply(actions);
@@ -11,6 +12,7 @@ unsigned Test(const std::string& task, const ActionsList& actions) {
 }
 
 unsigned Test(const std::string& task, const ActionsClones& actions) {
+  if (actions.empty()) return 0;
   World world;
   world.Init(task);
   world.ApplyC(actions);
