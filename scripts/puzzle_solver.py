@@ -47,15 +47,15 @@ def next_corner(pt, vec, new_vec):
         dx, dy = 0, 0
     elif vec == (0, 1) and new_vec == (1, 0):
         dx, dy = 1, 0
-    elif vec == (0, 1) and new_vec == (0, -1):
+    elif vec == (0, 1) and new_vec == (-1, 0):
         dx, dy = 1, 1
     elif vec == (-1, 0) and new_vec == (0, 1):
-        dx, dy = 0, 0
+        dx, dy = 1, 1
     elif vec == (-1, 0) and new_vec == (0, -1):
-        dx, dy = 1, 0
+        dx, dy = 0, 1
     elif vec == (0, -1) and new_vec == (1, 0):
         dx, dy = 0, 0
-    elif vec == (0, -1) and new_vec == (0, -1):
+    elif vec == (0, -1) and new_vec == (-1, 0):
         dx, dy = 0, 1
     return (x + dx, y + dy)
 
@@ -252,10 +252,10 @@ class PuzzleSolver:
                 left = rotate_counter_clockwise(left)
                 now = left_pt
             else:
-                # same as right, but stay on the spot
-                left = forward
-                forward = right
-                right = rotate_clockwise(right)
+                # same as left, but stay on the spot
+                right = forward
+                forward = left
+                left = rotate_counter_clockwise(left)
 
     def generate_contour(self):
         start = self.find_lowest_left()
@@ -263,12 +263,9 @@ class PuzzleSolver:
         right = rotate_clockwise(forward)
         left = rotate_counter_clockwise(forward)
         points = list()
-        points.append(start)
         now = start
         while True:
-            if now == start and len(points) > 1:
-                break
-            # print('at ', now, forward)
+            last = now == start and len(points) > 0
             self.set_state(now, State.CONTOUR)
             x, y = now
             left_pt = next_point(now, left)
@@ -290,11 +287,14 @@ class PuzzleSolver:
                 left = rotate_counter_clockwise(left)
                 now = left_pt
             else:
-                # same as right, but stay on the spot
-                points.append(next_corner(now, forward, right))
-                left = forward
-                forward = right
-                right = rotate_clockwise(right)
+                # same as left, but stay on the spot
+                points.append(next_corner(now, forward, left))
+                right = forward
+                forward = left
+                left = rotate_counter_clockwise(left)
+
+            if last:
+                break
 
         self.show()
         print('num turns = ', len(points))
@@ -348,6 +348,7 @@ class PuzzleSolver:
         return task_spec
 
     def show(self):
+        return
         img = Image.new('RGB', (self.size, self.size))
         for x in range(0, self.size):
             for y in range(0, self.size):
