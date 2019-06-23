@@ -26,6 +26,10 @@ def solve(task):
 
     blockinfo = loads(task)
 
+    if not "block" in blockinfo:
+        print("Bad task", task)
+        return
+
     blockId = blockinfo["block"]
 
     if blockId in state["submitted"]:
@@ -67,12 +71,15 @@ def solve(task):
         fState.write(dumps(state))
 
 if True:
-    for block in range(1, 16):
+    for block in range(18, 25):
         task = subprocess.check_output(
             [python, cli, "getblockinfo", str(block)]).decode()
         solve(task)
 
+i = 0
 while True:
     task = subprocess.check_output(
         [python, cli, "getblockinfo"]).decode()
+    print("hb %d" % i)
     solve(task)
+    i += 1
