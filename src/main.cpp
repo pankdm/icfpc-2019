@@ -26,7 +26,8 @@ int main(int argc, char* argv[]) {
   if (cmd.int_args["solve"]) {
     auto in = cmd.args["in"];
     auto out = cmd.args["out"];
-    solvers::Solve(in, out, "ext");
+    auto bonus = cmd.args["bonus"];
+    solvers::Solve(in, out, bonus, "ext");
     return 0;
   }
 
@@ -39,7 +40,9 @@ int main(int argc, char* argv[]) {
       std::string si = std::to_string(i + 1000).substr(1);
       unsigned num_steps =
           solvers::Solve("../problems/all/prob-" + si + ".desc",
-                         "../solutions_cpp/prob-" + si + ".sol", si);
+                         "../solutions_cpp/prob-" + si + ".sol",
+                         "",  // empty bonus file path for now
+                         si);
       all_ok = all_ok && num_steps;
       return num_steps;
     });
