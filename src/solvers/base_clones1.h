@@ -10,6 +10,14 @@
 #include <vector>
 
 namespace solvers {
+class BaseClones1Settings {
+ public:
+  size_t manip_index;
+  size_t strategy;
+  size_t ext_dist;
+  bool use_shifts;
+};
+
 class BaseClones1 : public Solver {
  public:
   class POI {
@@ -31,13 +39,10 @@ class BaseClones1 : public Solver {
   UnsignedSet ds_rebuid_required;
   UnsignedSet ds_rebuid;
   UnsignedSet acw1, acw2;
-  size_t manip_index;
-  size_t strategy;
-  size_t ext_dist;
+  BaseClones1Settings sett;
 
  protected:
-  void Init(const std::string& task, size_t manip_index, size_t strategy,
-            size_t ext_dist);
+  void Init(const std::string& task, BaseClones1Settings sett);
   void CleanPOI();
   void BuildDSUnsignedSet();
   void BuildDS();
@@ -52,7 +57,6 @@ class BaseClones1 : public Solver {
   bool Wrapped();
 
  public:
-  ActionsClones Solve(const std::string& task, size_t manip_index,
-                      size_t strategy, size_t ext_dist);
+  ActionsClones Solve(const std::string& task, BaseClones1Settings sett);
 };
 }  // namespace solvers
