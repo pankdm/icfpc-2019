@@ -165,13 +165,14 @@ class PuzzleSolver:
         x, y = pt
         return self.field[x][y]
 
-    def rand_point(seld):
+    def rand_point(self):
+        x = randint(0, self.spec.tSize - 1)
+        y = randint(0, self.spec.tSize - 1)
+        return (x, y)
 
     def gen_booster_point(self):
         while True:
-            x = randint(0, self.spec.tSize - 1)
-            y = randint(0, self.spec.tSize - 1)
-            res = (x, y)
+            res = self.rand_point()
             if res not in self.used_for_boosters and self.is_good(res):
                 self.used_for_boosters.add(res)
                 self.used_for_something.add(res)
@@ -179,9 +180,7 @@ class PuzzleSolver:
 
     def gen_location(self):
         while True:
-            x = randint(0, self.spec.tSize - 1)
-            y = randint(0, self.spec.tSize - 1)
-            res = (x, y)
+            res = self.rand_point()
             if res not in self.used_for_something and self.is_good(res):
                 self.used_for_something.add(res)
             return res
