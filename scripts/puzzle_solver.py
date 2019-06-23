@@ -359,10 +359,10 @@ class PuzzleSolver:
                              get_color(self.field[x][y]))
 
         if task_spec:
-            for b in task_spec.boosters.toList():
+            for b in task_spec.boosters:
                 img.putpixel((b[0], self.size - 1 - b[1]), (255, 255, 255))
 
-        img = img.resize((600, 600), Image.BILINEAR)
+        img = img.resize((1000, 1000), Image.BILINEAR)
         img.show()
         img.save('image.png')
         input("waiting >")
