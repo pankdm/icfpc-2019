@@ -35,9 +35,9 @@ ActionsList ParseAL(const std::string& s) {
         break;
       case 'B': {
         al.emplace_back(ActionType::ATTACH_MANIPULATOR);
-        size_t npos = s.find(')', i);
+        size_t npos = s.find(')', i++);
         assert(npos != std::string::npos);
-        assert(s[++i] == '(');
+        assert(s[i] == '(');
         Point p(s.substr(i, npos - i + 1));
         i = npos;
         al.back().x = p.x;
@@ -54,9 +54,9 @@ ActionsList ParseAL(const std::string& s) {
         break;
       case 'T': {
         al.emplace_back(ActionType::SHIFT);
-        size_t npos = s.find(')', i);
+        size_t npos = s.find(')', i++);
         assert(npos != std::string::npos);
-        assert(s[++i] == '(');
+        assert(s[i] == '(');
         Point p(s.substr(i, npos - i + 1));
         i = npos;
         al.back().x = p.x;
