@@ -112,10 +112,10 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
     // }
 
     // BaseClones bc0;
-    // m.AddSolution(bc0.Solve(task), "bc0");
+    // m.AddSolution(bc0.Solve(task, bonuses), "bc0");
     // for (unsigned i = 0; i < 2; ++i) {
     //   ClonesGreedy cg0;
-    //   m.AddSolution(cg0.Solve(task, i), "cg0");
+    //   m.AddSolution(cg0.Solve(task, i, bonuses), "cg0");
     // }
 
     // for (unsigned i = 0; i < 8; i++) {
