@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
   if (cmd.int_args["solve"]) {
     auto in = cmd.args["in"];
     auto out = cmd.args["out"];
-    solvers::Solve(in, out);
+    solvers::Solve(in, out, "ext");
     return 0;
   }
 
@@ -37,14 +37,15 @@ int main(int argc, char* argv[]) {
   for (unsigned i = 1; i <= 300; ++i) {
     auto t = std::make_shared<std::packaged_task<int()>>([&, i]() {
       std::string si = std::to_string(i + 1000).substr(1);
-      int num_steps = solvers::Solve("../problems/all/prob-" + si + ".desc",
-                                     "../solutions_cpp/prob-" + si + ".sol");
+      unsigned num_steps =
+          solvers::Solve("../problems/all/prob-" + si + ".desc",
+                         "../solutions_cpp/prob-" + si + ".sol", si);
       all_ok = all_ok && num_steps;
       return num_steps;
     });
     futures.emplace_back(p.enqueueTask(std::move(t)));
   }
-  int total_steps = 0;
+  unsigned total_steps = 0;
   for (auto& f : futures) {
     total_steps += f.get();
   }
