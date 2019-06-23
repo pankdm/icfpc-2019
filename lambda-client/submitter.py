@@ -5,7 +5,7 @@ import subprocess
 from json import dumps, loads
 import os
 
-from slack_integration import post_logs
+from slack_integration import post_to_slack
 
 python = "python3.7"
 
@@ -14,6 +14,8 @@ cli = "./lambda-cli.py"
 
 state = {}
 state["submitted"] = []
+
+SUBMIT = True
 
 def loadState():
     if os.path.isfile(fnameState):
@@ -26,8 +28,8 @@ def print_and_log(logs, s):
     logs.append(s)
 
 iteration = 0
-def send_to_slack(logs):
-    post_logs("\n".join(logs))
+def send_logs(logs):
+    post_to_slack("\n".join(logs))
 
 
 def output_exist(blockId):
@@ -35,7 +37,7 @@ def output_exist(blockId):
     puzzleOut = "data/puzzle%s.desc" % str(blockId)
 
 
-def solve(task):
+def solve(task, check_prev=False):
     logs = []
     logs.append(f"iteration = {iteration}")
 
@@ -51,9 +53,13 @@ def solve(task):
 
     blockId = blockinfo["block"]
     print_and_log(logs, f"Solving blockId {blockId}")
-
     if blockId in state["submitted"]:
         return
+
+    if check_prev:
+        prev_block_id = blockId - 1
+        if not output_exist(prev_block_id):
+            post_to_slack(f"<!here>, missing solution for previous block {prev_block_id}")
 
     fnameTask = "data/task%s.json" % str(blockId)
     with open(fnameTask, "w") as fTask:
@@ -68,7 +74,7 @@ def solve(task):
     state["submitted"].append(blockId)
 
     if output_exist(blockId):
-        send_to_slack(logs)
+        send_logs(logs)
 
     puzzleIn = "data/puzzle%s.task" % str(blockId)
     puzzleOut = "data/puzzle%s.desc" % str(blockId)
@@ -91,17 +97,18 @@ def solve(task):
     subprocess.check_call(
         ["../src/build/cpp_solver", "-solve", "1", "-in", taskIn, "-out", taskOut])
 
-    # args = [python, cli, "submit",
-    #                        str(blockId), taskOut, puzzleOut]
-    # print(args)
-    # subprocess.check_call(args)
-    #
-    # with open(fnameState, "w") as fState:
-    #     fState.write(dumps(state))
+    if SUBMIT:
+        args = [python, cli, "submit",
+                               str(blockId), taskOut, puzzleOut]
+        print(args)
+        subprocess.check_call(args)
+
+        with open(fnameState, "w") as fState:
+            fState.write(dumps(state))
 
 
 if True:
-    for block in range(60, 63):
+    for block in range(25, 25):
         print("replay %d" % block)
         task = subprocess.check_output(
             [python, cli, "getblockinfo", str(block)]).decode()
@@ -112,6 +119,6 @@ while True:
     task = subprocess.check_output(
         [python, cli, "getblockinfo"]).decode()
     print("hb %d" % i)
-    solve(task)
+    solve(task, check_prev=True)
     i += 1
     iteration += 1
