@@ -11,10 +11,16 @@
 #include <utility>
 
 namespace solvers {
+<<<<<<< HEAD
 void BaseClones1::Init(const std::string& task, size_t manipindex,
                        int _ext_dist) {
   manip_index = manipindex;
   ext_dist = _ext_dist;
+=======
+void BaseClones1::Init(const std::string& task, size_t manipindex, size_t strat) {
+  manip_index = manipindex;
+  strategy = strat;
+>>>>>>> e4d1b85100c4206f72db9ffde9463ce84803caca
   world.Init(task);
   unsigned size = unsigned(world.map.Size());
   auto& map = world.map;
@@ -152,7 +158,7 @@ bool BaseClones1::AssignClosestWorker(unsigned r, ActionsList& al) {
 
           if (wi == manip_index &&
               world.boosters.extensions.Available({world.time, wi})) {
-            auto p = w.GetNextManipulatorPositionNaive(0 /*TODO*/);
+            auto p = w.GetNextManipulatorPositionNaive(strategy /*TODO*/);
             al[wi].type = ActionType::ATTACH_MANIPULATOR;
             al[wi].x = p.first;
             al[wi].y = p.second;
@@ -211,7 +217,7 @@ Action BaseClones1::SendToNearestUnwrapped(unsigned windex) {
   auto& w = world.GetWorker(windex);
   if (windex == manip_index &&
       world.boosters.extensions.Available({world.time, windex})) {
-    auto p = w.GetNextManipulatorPositionNaive(0 /*TODO*/);
+    auto p = w.GetNextManipulatorPositionNaive(strategy /*TODO*/);
     Action a(ActionType::ATTACH_MANIPULATOR, p.first, p.second);
     return a;
   }
@@ -370,9 +376,14 @@ void BaseClones1::Update() {
 
 bool BaseClones1::Wrapped() { return unwrapped.Empty(); }
 
+<<<<<<< HEAD
 ActionsClones BaseClones1::Solve(const std::string& task, size_t manip_index,
                                  int ext_dist) {
   Init(task, manip_index, ext_dist);
+=======
+ActionsClones BaseClones1::Solve(const std::string& task, size_t manip_index, size_t strategy) {
+  Init(task, manip_index, strategy);
+>>>>>>> e4d1b85100c4206f72db9ffde9463ce84803caca
   ActionsClones actions;
   for (; !Wrapped();) {
     auto al = NextMove();

@@ -54,15 +54,23 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
           return Result("bc0", bc0.Solve(task, bonuses));
         })));
 
-    for (unsigned i = 0; i < 2; ++i) {
-      for (unsigned dist = 1; dist < 25; dist += 10) {
-        futures.emplace_back(tp->enqueueTask<Result>(
-            std::make_shared<std::packaged_task<Result()>>([&, i, dist]() {
-              BaseClones1 bc1;
-              return Result("bc1", bc1.Solve(task, i, dist));
-            })));
-      }
-    }
+    futures.emplace_back(tp->enqueueTask<Result>(
+        std::make_shared<std::packaged_task<Result()>>([&]() {
+          BaseClones1 bc1;
+          return Result("bc1", bc1.Solve(task, 0, 0));
+        })));
+
+    futures.emplace_back(tp->enqueueTask<Result>(
+        std::make_shared<std::packaged_task<Result()>>([&]() {
+          BaseClones1 bc2;
+          return Result("bc2", bc2.Solve(task, 1, 0));
+        })));
+
+    futures.emplace_back(tp->enqueueTask<Result>(
+        std::make_shared<std::packaged_task<Result()>>([&]() {
+          BaseClones1 bc3;
+          return Result("bc3", bc3.Solve(task, 0, 1));
+        })));
 
     for (unsigned i = 0; i < 2; ++i) {
       futures.emplace_back(tp->enqueueTask<Result>(
