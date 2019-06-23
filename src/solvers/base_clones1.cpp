@@ -11,7 +11,8 @@
 #include <utility>
 
 namespace solvers {
-void BaseClones1::Init(const std::string& task) {
+void BaseClones1::Init(const std::string& task, size_t manipindex) {
+  manip_index = manipindex;
   world.Init(task);
   unsigned size = unsigned(world.map.Size());
   auto& map = world.map;
@@ -182,7 +183,7 @@ bool BaseClones1::AssignClosestWorker(unsigned r, ActionsList& al) {
 
 Action BaseClones1::SendToNearestUnwrapped(unsigned windex) {
   auto& w = world.GetWorker(windex);
-  if (windex == 0 &&
+  if (windex == manip_index &&
       world.boosters.extensions.Available({world.time, windex})) {
     auto p = w.GetNextManipulatorPositionNaive(0 /*TODO*/);
     Action a(ActionType::ATTACH_MANIPULATOR, p.first, p.second);
@@ -343,8 +344,8 @@ void BaseClones1::Update() {
 
 bool BaseClones1::Wrapped() { return unwrapped.Empty(); }
 
-ActionsClones BaseClones1::Solve(const std::string& task) {
-  Init(task);
+ActionsClones BaseClones1::Solve(const std::string& task, size_t manip_index) {
+  Init(task, manip_index);
   ActionsClones actions;
   for (; !Wrapped();) {
     auto al = NextMove();
