@@ -74,8 +74,9 @@ def solve(task):
     with open(fnameState, "w") as fState:
         fState.write(dumps(state))
 
-if False:
-    for block in range(18, 25):
+if True:
+    for block in range(25, 29):
+        print("replay %d" % block)
         task = subprocess.check_output(
             [python, cli, "getblockinfo", str(block)]).decode()
         solve(task)
