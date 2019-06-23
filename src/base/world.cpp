@@ -51,6 +51,30 @@ void World::Init(const std::string& desc) {
   GetWorker().Init(boosters, map, pworker.x, pworker.y, 0);
 }
 
+void World::InitBonuses(const std::string& bonuses) {
+  for (auto& b : bonuses) {
+    switch (b) {
+      case 'B':
+        boosters.extensions.Add(BoosterTime());
+        break;
+      case 'F':
+        boosters.fast_wheels.Add(BoosterTime());
+        break;
+      case 'L':
+        boosters.drills.Add(BoosterTime());
+        break;
+      case 'R':
+        boosters.teleporters.Add(BoosterTime());
+        break;
+      case 'C':
+        boosters.clones.Add(BoosterTime());
+        break;
+      default:
+        assert(false);
+    }
+  }
+}
+
 Worker& World::GetWorker(unsigned index) {
   assert(index < workers.size());
   return workers[index];

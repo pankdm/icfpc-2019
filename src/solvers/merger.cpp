@@ -4,12 +4,13 @@
 #include <iostream>
 
 namespace solvers {
-Merger::Merger(const std::string& _task, const std::string& _task_name)
-    : task(_task), task_name(_task_name) {}
+Merger::Merger(const std::string& _task, const std::string& _task_name,
+               const std::string& _bonuses)
+    : task(_task), task_name(_task_name), bonuses(_bonuses) {}
 
 void Merger::AddSolution(const ActionsClones& s,
                          const std::string& solution_name) {
-  unsigned score = Test(task, s);
+  unsigned score = Test(task, s, bonuses);
   if (solution_name != "") {
     std::cout << "Task " << task_name << "\tSolution " << solution_name
               << "\tScore = " << score << std::endl;

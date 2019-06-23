@@ -12,14 +12,19 @@
 
 namespace solvers {
 unsigned Solve(const std::string& input_file, const std::string& output_file,
-               const std::string& task_name) {
+               const std::string& bonus_file, const std::string& task_name) {
   std::ifstream input(input_file);
   std::string task;
   ALWAYS_ASSERT(std::getline(input, task));
+  std::string bonuses;
+  if (bonus_file.size() > 0) {
+    std::ifstream bonus(bonus_file);
+    ALWAYS_ASSERT(std::getline(bonus, bonuses));
+  }
   Timer t;
   Auto s;
-  auto actions = s.Solve(task, task_name);
-  unsigned score = Test(task, actions);
+  auto actions = s.Solve(task, task_name, bonuses);
+  unsigned score = Test(task, actions, bonuses);
   std::cout << "Task " << task_name << " Done. Time = " << t.GetMilliseconds()
             << "\tScore = " << score << std::endl;
   if (score) {
