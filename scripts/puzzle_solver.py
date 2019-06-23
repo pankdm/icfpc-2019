@@ -11,7 +11,7 @@ import sys
 
 from copy import deepcopy
 from collections import deque
-from random import randint
+from random import randint, shuffle
 
 from world import World, Mappa
 
@@ -93,7 +93,7 @@ class PuzzleSolver:
         self.size = spec.tSize
         self.field = [[State.UNKNOWN] * self.size for x in range(self.size)]
 
-        print(f"size = {self.size}, min, max: {spec.vMin}, {spec.vMax}")
+        print(f"size = {self.size}, min, max: {spec.vMin}, {spec.vMax}, incl: %d, excl: %d" % (len(spec.included), len(spec.excluded)))
 
         for pt in spec.included:
             x, y = pt
@@ -103,6 +103,8 @@ class PuzzleSolver:
             assert y != 0
             assert y != self.size - 1
             self.field[x][y] = State.GOOD
+
+        shuffle(spec.excluded)
 
         for pt in spec.excluded:
             x, y = pt
@@ -114,6 +116,7 @@ class PuzzleSolver:
 
     def get_points_order(self):
         pts = [pt for pt in spec.excluded]
+        # pts = list(filter(lambda p: p[0] and p[1], pts))
         pts.sort(key=lambda x: manhattan(x, self.size))
         return pts
 
@@ -264,8 +267,9 @@ class PuzzleSolver:
                 forward = left
                 left = rotate_counter_clockwise(left)
 
-    def generate_contour(self):
+    def generate_contour(self, debug=False):
         start = self.find_lowest_left()
+        print(start)
         forward = (1, 0)
         right = rotate_clockwise(forward)
         left = rotate_counter_clockwise(forward)
@@ -282,6 +286,11 @@ class PuzzleSolver:
 
             if self.is_good(right_pt):
                 points.append(next_corner(now, forward, right))
+                if debug and len(points) > 1:
+                    x1, y1 = points[-2]
+                    x2, y2 = points[-1]
+                    print(points[-2], "→", points[-1], "turn right")
+                    assert x1 == x2 or y1 == y2
                 left = forward
                 forward = right
                 right = rotate_clockwise(right)
@@ -290,13 +299,24 @@ class PuzzleSolver:
                 now = forward_pt
             elif self.is_good(left_pt):
                 points.append(next_corner(now, forward, left))
+                if debug and len(points) > 1:
+                    x1, y1 = points[-2]
+                    x2, y2 = points[-1]
+                    print(points[-2], "→", points[-1], "turn left")
+                    assert x1 == x2 or y1 == y2
                 right = forward
                 forward = left
                 left = rotate_counter_clockwise(left)
                 now = left_pt
             else:
                 # same as left, but stay on the spot
+                last = False
                 points.append(next_corner(now, forward, left))
+                if debug and len(points) > 1:
+                    x1, y1 = points[-2]
+                    x2, y2 = points[-1]
+                    print(points[-2], "→", points[-1], "force left")
+                    assert x1 == x2 or y1 == y2
                 right = forward
                 forward = left
                 left = rotate_counter_clockwise(left)
@@ -331,7 +351,7 @@ class PuzzleSolver:
             # print("filling turns: ", to_fill)
             self.fill_corners(to_fill)
             # self.show()
-            contour = self.generate_contour()
+            contour = self.generate_contour(True)
             # self.show()
             assert len(contour) >= self.spec.vMin
 
@@ -341,6 +361,8 @@ class PuzzleSolver:
 
         task_spec.location = self.gen_location()
 
+        self.show()
+        print("#points: ", len(contour))
         mappa = Mappa(contour, [], task_spec.location)
 
         spec = self.spec
@@ -395,7 +417,8 @@ class PuzzleSolver:
 
         if task_spec:
             for b in task_spec.boosters:
-                img.putpixel((b[1][0], self.size - 1 - b[1][1]), (255, 255, 255))
+                img.putpixel((b[1][0], self.size - 1 -
+                              b[1][1]), (255, 255, 255))
         # img = img.resize((1000, 1000), Image.BILINEAR)
         scale = int(1000 / self.size)
         img = img.resize((scale * self.size, scale * self.size))
