@@ -57,6 +57,7 @@ class BaseClones1 : public Solver {
   bool Wrapped();
 
  public:
-  ActionsClones Solve(const std::string& task, BaseClones1Settings sett);
+  ActionsClones Solve(const std::string& task, BaseClones1Settings sett,
+                      const std::string& bonuses);
 };
 }  // namespace solvers
