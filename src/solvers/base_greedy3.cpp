@@ -17,15 +17,13 @@ Action BaseGreedy3::NextMove() {
         (mops_to_go > 0 &&
          (world.map.items_coords.count(Item::EXTENSION) == 0 ||
           world.map.items_coords[Item::EXTENSION].empty()))) {
-      BuildDS();
-      ds_rebuid_required.Clear();
+      world.UpdateDS();
       SetTarget(settings.dist_weight);
     }
     mops_to_go--;
 
     Action a(ActionType::ATTACH_MANIPULATOR, p.first, p.second);
     world.Apply(a);
-    Update();
     return a;
   }
 
@@ -38,9 +36,8 @@ Action BaseGreedy3::NextMove() {
   }
   Point pw(world.GetWorker().x, world.GetWorker().y);
   for (; !q.empty();) q.pop();
-  if (!ds_rebuid_required.Empty()) {
-    RebuildDS();
-    ds_rebuid_required.Clear();
+  if (world.UpdateDSRequired()) {
+    world.UpdateDS();
     SetTarget(settings.dist_weight);
   }
 
@@ -95,12 +92,10 @@ Action BaseGreedy3::NextMove() {
           if (d.direction == world.GetWorker().direction.direction - 1) {
             Action a(ActionType::ROTATE_CLOCKWISE);
             world.Apply(a);
-            Update();
             return a;
           } else {
             Action a(ActionType::ROTATE_COUNTERCLOCKWISE);
             world.Apply(a);
-            Update();
             return a;
           }
         }
@@ -141,17 +136,15 @@ Action BaseGreedy3::NextMove() {
           if (score == 4) {
             Action a(d.Get());
             world.Apply(a);
-            Update();
             return a;
           }
         }
       }
       Action a(d.Get());
       world.Apply(a);
-      Update();
       return a;
     }
-    for (int inext : g.Edges(index)) {
+    for (int inext : world.GEdges(index)) {
       if (!s.HasKey(inext)) {
         q.push(std::make_pair(inext, d));
         s.Insert(inext);
@@ -162,12 +155,12 @@ Action BaseGreedy3::NextMove() {
   world.map.Print();
   assert(false);
   return Action(ActionType::END);
-}  // namespace solvers
+}
 
 ActionsList BaseGreedy3::Solve(const std::string& task) {
   Init(task);
   ActionsList actions;
-  for (; !Wrapped();) {
+  for (; !world.Solved();) {
     Action a = NextMove();
     if (a.type == ActionType::END) return actions;
     actions.emplace_back(a);

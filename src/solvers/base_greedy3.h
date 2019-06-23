@@ -1,11 +1,11 @@
 #pragma once
 
-#include "solvers/base_greedy_old2.h"
+#include "solvers/base_greedy2.h"
 #include "solvers/settings/base_greedy3.h"
 #include <set>
 
 namespace solvers {
-class BaseGreedy3 : public BaseGreedyOld2 {
+class BaseGreedy3 : public BaseGreedy2 {
   std::set<std::pair<int, int>> bonuses;
   Action NextMove();
 
