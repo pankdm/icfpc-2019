@@ -3,10 +3,7 @@
 #include "base/action.h"
 #include "base/world_ext.h"
 #include "solvers/solver.h"
-#include "common/disjoint_set.h"
-#include "common/graph/graph.h"
 #include "common/unsigned_set.h"
-#include <utility>
 #include <vector>
 
 namespace solvers {
