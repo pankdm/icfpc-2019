@@ -13,4 +13,8 @@ ActionsList Solver::Solve(const std::string& task, const std::string& bonuses) {
   return {};
 }
 
+void Solver::InitBoosters(const std::string& bonuses) {
+  world.InitBonuses(bonuses);
+}
+
 }  // namespace solvers
