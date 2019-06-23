@@ -3,6 +3,7 @@
 while [ 1 ]; do
     git pull
     git add ../lambda-client/data/*
+    git add ../lambda-client/state.json
     git commit -m "new data"
     git push
     cd ../src
