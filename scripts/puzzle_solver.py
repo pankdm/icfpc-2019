@@ -177,7 +177,7 @@ class PuzzleSolver:
             if (res not in self.used_for_boosters) and mappa.valid_and_inside(res):
                 self.used_for_boosters.add(res)
                 self.used_for_something.add(res)
-            return res
+                return res
 
     def gen_location(self):
         while True:
@@ -185,7 +185,7 @@ class PuzzleSolver:
             if res not in self.used_for_something and self.is_very_good(res):
                 self.used_for_boosters.add(res)
                 self.used_for_something.add(res)
-            return res
+                return res
 
     def gen_boosters(self, ch, count, task_spec, mappa):
         for i in range(count):
