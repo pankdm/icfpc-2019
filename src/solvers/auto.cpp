@@ -87,8 +87,8 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
 
   } else {
     // Never comment file solver!
-    File fsolver;
-    m.AddSolution(fsolver.Solve(task, task_name), "fsr");
+    // File fsolver;
+    // m.AddSolution(fsolver.Solve(task, task_name), "fsr");
     // End "never comment" section
 
     // for (unsigned i = 0; i < 4; i++) {
@@ -98,6 +98,9 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
     //     BaseClones1 bc3;
     //   }
     // }
+
+    BaseClones1 bc;
+    m.AddSolution(bc.Solve(task, 0, 0, 20), "bc");
 
     // for (unsigned i = 1; i < 3; ++i) {
     //   for (unsigned j = 1; j < 3; ++j) {

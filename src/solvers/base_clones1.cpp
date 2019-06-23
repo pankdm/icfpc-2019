@@ -163,9 +163,45 @@ bool BaseClones1::AssignClosestWorker(unsigned r, ActionsList& al) {
           Direction wd = w.direction;
           Point pw(w.x, w.y);
 
-          // if (phase == 0) {
-          //   w.PrintNeighborhood(world.map, 5);
-          // }
+          if (wi == 0) {
+            for (int i = 0; i < 2; i++) {
+              Direction d((1 + 2 * i + w.direction.direction) % 4);
+              int score = 0;
+              Point base = pw;
+              Direction wd = w.direction;
+              int MAX = 4;
+              for (int iter = 0; iter < MAX; iter++) {
+                if (iter > 0) {
+                  base = base + wd;
+                }
+                if (!world.map.ValidToMove(base.x, base.y)) {
+                  continue;
+                }
+                if (iter > 1 && world.map.Get(base.x, base.y).Wrapped()) {
+                  continue;
+                }
+                int sz = w.CellsToNewlyWrap(world.map, wd.DX() * iter,
+                                            wd.DY() * iter)
+                             .size();
+                Point pd = base + d;
+                if (!world.map.ValidToMove(pd.x, pd.y)) {
+                  continue;
+                }
+                int new_sz =
+                    w.CellsToNewlyWrap(world.map, wd.DX() * iter + d.DX(),
+                                       wd.DY() * iter + d.DY())
+                        .size();
+                if (new_sz > sz) {
+                  score++;
+                }
+              }
+              if (score == MAX) {
+                w.PrintNeighborhood(world.map, 4);
+                al[wi].type = d.Get();
+                return true;
+              }
+            }
+          }
 
           if (d.direction != wd.direction && wi == manip_index && phase == 1) {
             bool need_turn = true;
