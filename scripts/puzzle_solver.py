@@ -173,7 +173,7 @@ class PuzzleSolver:
     def gen_booster_point(self, mappa):
         while True:
             res = self.rand_point()
-            if res not in self.used_for_boosters and mappa.inside(res):
+            if (res not in self.used_for_boosters) and mappa.inside(res):
                 self.used_for_boosters.add(res)
                 self.used_for_something.add(res)
             return res
