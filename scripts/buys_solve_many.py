@@ -1,3 +1,5 @@
+#!/usr/bin/env python3.7
+
 from buys_solve_one import solve_one
 
 
