@@ -347,19 +347,20 @@ class PuzzleSolver:
         ]:
             self.gen_boosters(ch, count, task_spec, mappa)
 
-        self.show()
+        self.show(task_spec)
 
         return task_spec
 
-    def show(self):
+    def show(self, task_spec=None):
         img = Image.new('RGB', (self.size, self.size))
         for x in range(0, self.size):
             for y in range(0, self.size):
                 img.putpixel((x, self.size - 1 - y),
                              get_color(self.field[x][y]))
 
-        for b in self.boosters.toList():
-            img.putpixel((b[0], self.size - 1 - b[1]), (255, 255, 255))
+        if task_spec:
+            for b in task_spec.boosters.toList():
+                img.putpixel((b[0], self.size - 1 - b[1]), (255, 255, 255))
 
         img = img.resize((600, 600), Image.BILINEAR)
         img.show()
