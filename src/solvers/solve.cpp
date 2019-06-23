@@ -4,6 +4,7 @@
 #include "solvers/base_clones.h"
 #include "solvers/base_greedy2.h"
 #include "solvers/base_greedy3.h"
+#include "solvers/base_greedy4.h"
 #include "solvers/optimization_teleport.h"
 #include "solvers/test.h"
 #include "common/always_assert.h"
@@ -22,7 +23,7 @@ int Solve(const std::string& input_file, const std::string& output_file) {
   Timer t;
   ActionsClones actions;
   if (task_index < "221") {
-    BaseGreedy3 s;
+    BaseGreedy4 s(BaseGreedy3Settings{true, true, 0});
     auto al = s.Solve(task);
 
     // Timer t2;
@@ -48,6 +49,8 @@ int Solve(const std::string& input_file, const std::string& output_file) {
     std::ofstream output(output_file);
     output << actions;
   } else {
+    std::ofstream output(output_file);
+    output << actions;
     std::cerr << "Solution for problem " << task_index << " is incorrect."
               << std::endl;
   }

@@ -2,6 +2,8 @@
 
 #include "base/item.h"
 #include "base/square.h"
+#include "map"
+#include "set"
 #include <queue>
 #include <string>
 #include <vector>
@@ -15,6 +17,7 @@ class Map {
   // For solvers
   bool save_wraps = false;
   std::queue<int> wraps_history;
+  std::map<Item, std::set<std::pair<int, int>>> items_coords;
 
  protected:
   void Resize(int _xsize, int _ysize);

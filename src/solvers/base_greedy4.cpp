@@ -1,15 +1,13 @@
-#include "solvers/base_greedy3.h"
+#include "solvers/base_greedy4.h"
 #include "base/action_type.h"
 #include "base/point.h"
 
 namespace solvers {
 
-BaseGreedy3::BaseGreedy3(BaseGreedy3Settings _settings) {
-  settings = _settings;
-  mops_to_go = _settings.chase_mops_cnt;
-}
+BaseGreedy4::BaseGreedy4(BaseGreedy3Settings _settings)
+    : BaseGreedy3(_settings) {}
 
-Action BaseGreedy3::NextMove() {
+Action BaseGreedy4::NextMove() {
   if (world.boosters.unused_extensions) {
     auto p =
         world.GetWorker().GetNextManipulatorPositionNaive(settings.use_sword);
@@ -161,7 +159,7 @@ Action BaseGreedy3::NextMove() {
   return Action(ActionType::END);
 }  // namespace solvers
 
-ActionsList BaseGreedy3::Solve(const std::string& task) {
+ActionsList BaseGreedy4::Solve(const std::string& task) {
   Init(task);
   ActionsList actions;
   for (; !Wrapped();) {
