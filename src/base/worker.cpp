@@ -125,6 +125,8 @@ void Worker::PrintNeighborhood(Map& map, int sz) {
         std::cout << "H";
       else if (s.Wrapped())
         std::cout << "~";
+      else if (map.HasExtension(i, j))
+        std::cout << "!";
       else
         std::cout << ".";
     }
