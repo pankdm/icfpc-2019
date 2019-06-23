@@ -31,6 +31,11 @@ def next_point(pt, vec):
     dx, dy = vec
     return (x + dx, y + dy)
 
+def prev_point(pt, vec):
+    x, y = pt
+    dx, dy = vec
+    return (x - dx, y - dy)
+
 
 class State:
     UNKNOWN = 0
@@ -133,6 +138,11 @@ class PuzzleSolver:
         x, y = pt
         self.field[x][y] = state
 
+
+    def get_state(self, pt):
+        x, y = pt
+        return self.field[x][y]
+
     def gen_booster_point(self):
         while True:
             x = randint(0, self.spec.tSize - 1)
@@ -162,10 +172,61 @@ class PuzzleSolver:
 
     def find_lowest_left(self):
         size = self.size
-        for x in range(0, size):
-            for y in range(0, size):
-                if self.field[x][y] in [State.UNKNOWN, State.GOOD]:
+        for x in range(1, size):
+            for y in range(1, size):
+                if self.field[x][y] in [State.UNKNOWN, State.GOOD, State.CONTOUR]:
                     return (x, y)
+
+    def get_row_req(self, pt, forward, state):
+        return [
+            (pt, state),
+            (next_point(pt, forward), state),
+            (prev_point(pt, forward), state)
+        ]
+
+
+    def is_fillable(self, pt, forward):
+        right = rotate_clockwise(forward)
+        left = rotate_counter_clockwise(forward)
+        reqs = (
+            self.get_row_req(pt, forward, State.CONTOUR) +
+            self.get_row_req(next_point(pt, right), forward, State.FILLED) +
+            self.get_row_req(next_point(pt, left), forward, State.UNKNOWN)
+        )
+        for pt, state in reqs:
+            if self.get_state(pt) != state:
+                return False
+        return True
+
+    def fill_corners(self, num_corners):
+        start = self.find_lowest_left()
+        forward = (1, 0)
+        now = start
+
+        while True:
+            print ('at ', now, forward)
+            # self.set_state(now, State.CONTOUR)
+            if self.is_fillable(now, forward):
+                print ('filling ', now)
+                self.set_state(now, State.FILLED)
+                num_corners -= 4
+                if num_corners < 0: break
+
+            x, y = now
+            right = rotate_clockwise(forward)
+            right_pt = next_point(now, right)
+            if self.is_good(right_pt):
+                forward = right
+                now = right_pt
+                continue
+
+            forward_pt = next_point(now, forward)
+            if self.is_good(forward_pt):
+                now = forward_pt
+                continue
+
+            left = rotate_counter_clockwise(forward)
+            forward = left
 
     def generate_contour(self):
         start = self.find_lowest_left()
@@ -177,6 +238,7 @@ class PuzzleSolver:
         while True:
             if now == start and forward == (1, 0) and num_turns > 0:
                 break
+            # print ('at ', now, forward)
             self.set_state(now, State.CONTOUR)
             x, y = now
             right = rotate_clockwise(forward)
@@ -186,7 +248,6 @@ class PuzzleSolver:
                 points.append(now)
                 forward = right
                 now = right_pt
-
                 continue
 
             forward_pt = next_point(now, forward)
@@ -196,12 +257,13 @@ class PuzzleSolver:
 
             left = rotate_counter_clockwise(forward)
             num_turns += 1
-            points.append(forward_pt)
+            points.append(now)
             forward = left
 
         print ('num turns = ', num_turns)
+        print (points[:5])
         print (points[-5:])
-        return points
+        return points, num_turns
 
     def solve(self):
         # create ostov tree for red
@@ -219,8 +281,18 @@ class PuzzleSolver:
             self.bfs_to_filled(pt)
             # input(">")
 
+        contour, num_turns = self.generate_contour()
+        if num_turns < self.spec.vMin:
+            to_fill = self.spec.vMin - num_turns
+            print ("filling turns: ", to_fill)
+            self.fill_corners(to_fill)
+            self.show()
+            contour, num_turns = self.generate_contour()
+            self.show()
+            assert num_turns >= self.spec.vMin
+
         task_spec = TaskSpec()
-        task_spec.contour = self.generate_contour()
+        task_spec.contour = contour
         task_spec.boosters = set()
         task_spec.location = self.gen_location()
 
@@ -234,9 +306,11 @@ class PuzzleSolver:
             ('X', spec.xNum)
         ]:
             self.gen_boosters(ch, count, task_spec)
+
+        self.show()
+
         return task_spec
 
-        # self.show()
 
     def show(self):
         img = Image.new('RGB', (self.size, self.size))
@@ -247,6 +321,7 @@ class PuzzleSolver:
         img = img.resize((600, 600), Image.BILINEAR)
         img.show()
         img.save('image.png')
+        input("waiting >")
 
 
 file = sys.argv[1]
@@ -258,5 +333,5 @@ spec = PuzzleSpec(s)
 solver = PuzzleSolver(spec)
 task_spec = solver.solve()
 
-# print(puzzle_valid(spec, world))
+print(puzzle_valid(spec, task_spec))
 write_problem(fout, task_spec)
