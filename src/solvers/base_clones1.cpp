@@ -140,26 +140,6 @@ bool BaseClones1::AssignClosestWorker(unsigned r, ActionsList& al) {
         Direction d = GetDirection(world.map, u, f);
         Worker w = world.GetWorker(wi);
         Point pw(w.x, w.y);
-        if (d.direction % 2 != w.direction.direction % 2 && wi == 0) {
-          bool need_turn = true;
-          Point next = pw + d;
-          for (int i = 0; i < 2; i++) {
-            if (world.map.Inside(next.x, next.y) &&
-                world.map.Get(next.x, next.y).WrappedOrBlocked()) {
-              need_turn = false;
-            }
-            next = next + d;
-          }
-          if (need_turn) {
-            if (d.direction == world.GetWorker().direction.direction - 1) {
-              al[wi].type = ActionType::ROTATE_CLOCKWISE;
-              return true;
-            } else {
-              al[wi].type = ActionType::ROTATE_COUNTERCLOCKWISE;
-              return true;
-            }
-          }
-        }
         al[wi].type = d.Get();
         return true;
       }
