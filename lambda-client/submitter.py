@@ -8,14 +8,27 @@ import os
 python = "python3.7"
 
 fnameState = "state.json"
+cli = "./lambda-cli.py"
 
 state = {}
 state["submitted"] = []
 
+def loadState():
+    if os.path.isfile(fnameState):
+        with open(fnameState) as fState:
+            global state
+            state = loads(fState.read())
+
 def solve(task):
+    loadState()
+
     task = task.replace("\'", "\"")
     print(task)
+
     blockinfo = loads(task)
+
+    if "15" in blockinfo["balances"]:
+        print('balance', blockinfo["balances"]["15"])
 
     blockId = blockinfo["block"]
 
@@ -29,8 +42,8 @@ def solve(task):
     with open(puzzleIn, "w") as fTask:
         fTask.write(blockinfo["puzzle"])
 
-    # subprocess.check_call(
-    #     [python, "../scripts/puzzle_solver.py", puzzleIn, puzzleOut])
+    subprocess.check_call(
+         [python, "../scripts/puzzle_solver.py", puzzleIn, puzzleOut])
 
     with open(puzzleOut, "w") as fTemp:
         pass
@@ -43,7 +56,7 @@ def solve(task):
     subprocess.check_call(
         ["../src/build/cpp_solver", "-solve", "1", "-in", taskIn, "-out", taskOut])
 
-    args = [python, "./lambda-cli.py", "submit",
+    args = [python, cli, "submit",
                            str(blockId), taskOut, puzzleOut]
     print(args)
     subprocess.check_call(args)
@@ -51,22 +64,15 @@ def solve(task):
     with open(fnameState, "w") as fState:
         fState.write(dumps(state))
 
-def loadState():
-    if os.path.isfile(fnameState):
-        with open(fnameState) as fState:
-            state = loads(fState.read())
-
 if False:
     for block in range(12, 14):
         loadState()
 
         task = subprocess.check_output(
-            [python, "./lambda-cli.py", "getblockinfo", str(block)]).decode()
+            [python, cli, "getblockinfo", str(block)]).decode()
         solve(task)
 
 while True:
-    loadState()
-
     task = subprocess.check_output(
-        [python, "./lambda-cli.py", "getblockinfo"]).decode()
+        [python, cli, "getblockinfo"]).decode()
     solve(task)
