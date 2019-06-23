@@ -33,9 +33,11 @@ class BaseClones1 : public Solver {
   UnsignedSet acw1, acw2;
   size_t manip_index;
   size_t strategy;
+  size_t ext_dist;
 
  protected:
-  void Init(const std::string& task, size_t manip_index, size_t strategy);
+  void Init(const std::string& task, size_t manip_index, size_t strategy,
+            size_t ext_dist);
   void CleanPOI();
   void BuildDSUnsignedSet();
   void BuildDS();
@@ -51,6 +53,6 @@ class BaseClones1 : public Solver {
 
  public:
   ActionsClones Solve(const std::string& task, size_t manip_index,
-                      size_t strategy);
+                      size_t strategy, size_t ext_dist);
 };
 }  // namespace solvers
