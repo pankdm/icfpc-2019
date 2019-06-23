@@ -8,51 +8,71 @@ import os
 python = "python3.7"
 
 fnameState = "state.json"
+cli = "./lambda-cli.py"
 
 state = {}
 state["submitted"] = []
 
-while True:
+def loadState():
     if os.path.isfile(fnameState):
         with open(fnameState) as fState:
+            global state
             state = loads(fState.read())
 
-    task = subprocess.check_output(
-        [python, "./lambda-cli.py", "getblockinfo"]).decode()
-    # for s in ['balances', 'block', "block_subs", "puzzle", "block_ts", "excluded"]:
-    #     task = task.replace("\'" + s + "\'", "\"" + s + "\"")
+def solve(task):
+    loadState()
+
     task = task.replace("\'", "\"")
-    print(task)
+
     blockinfo = loads(task)
 
     blockId = blockinfo["block"]
 
     if blockId in state["submitted"]:
-        continue
+        return
+
+    print(task)
+    if "15" in blockinfo["balances"]:
+        print('balance', blockinfo["balances"]["15"])
 
     state["submitted"].append(blockId)
 
-    puzzleIn = "data/%s_puzzle.desc" % blockId
-    puzzleOut = "data/%s_puzzle.res" % blockId
+    puzzleIn = "data/puzzle%s.task" % str(blockId)
+    puzzleOut = "data/puzzle%s.desc" % str(blockId)
     with open(puzzleIn, "w") as fTask:
         fTask.write(blockinfo["puzzle"])
 
-    # subprocess.check_call(
-    #     [python, "../scripts/puzzle_solver.py", puzzleIn, puzzleOut])
+    res = 1
+    it = 0
+    while res != 0 and it < 20:
+        print("puzzle_solver %d" % it)
+        res = subprocess.call(
+            [python, "../scripts/puzzle_solver.py", puzzleIn, puzzleOut])
+        it += 1
 
-    with open(puzzleOut, "w") as fTemp:
-        pass
-
-    taskIn = "data/%s_task.desc" % blockId
-    taskOut = "data/%s_task.res" % blockId
+    taskIn = "data/task%s.desc" % str(blockId)
+    taskOut = "data/task%s.sol" % str(blockId)
     with open(taskIn, "w") as fTask:
         fTask.write(blockinfo["task"])
 
     subprocess.check_call(
         ["../src/build/cpp_solver", "-solve", "1", "-in", taskIn, "-out", taskOut])
 
-    subprocess.check_call([python, "./lambda-cli.py", "submit", "-block",
-                           blockId, "-puzzle_sol_path", puzzleOut, "-task_sol_path", taskOut])
+    args = [python, cli, "submit",
+                           str(blockId), taskOut, puzzleOut]
+    print(args)
+    subprocess.check_call(args)
 
     with open(fnameState, "w") as fState:
         fState.write(dumps(state))
+
+if True:
+    for block in range(1, 16):
+        task = subprocess.check_output(
+            [python, cli, "getblockinfo", str(block)]).decode()
+        solve(task)
+
+while True:
+    task = subprocess.check_output(
+        [python, cli, "getblockinfo"]).decode()
+    solve(task)
