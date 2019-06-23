@@ -23,17 +23,17 @@ def solve(task):
     loadState()
 
     task = task.replace("\'", "\"")
-    print(task)
 
     blockinfo = loads(task)
-
-    if "15" in blockinfo["balances"]:
-        print('balance', blockinfo["balances"]["15"])
 
     blockId = blockinfo["block"]
 
     if blockId in state["submitted"]:
         return
+
+    print(task)
+    if "15" in blockinfo["balances"]:
+        print('balance', blockinfo["balances"]["15"])
 
     state["submitted"].append(blockId)
 
@@ -61,10 +61,8 @@ def solve(task):
     with open(fnameState, "w") as fState:
         fState.write(dumps(state))
 
-if False:
-    for block in range(12, 14):
-        loadState()
-
+if True:
+    for block in range(1, 16):
         task = subprocess.check_output(
             [python, cli, "getblockinfo", str(block)]).decode()
         solve(task)
