@@ -33,18 +33,21 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
     futures.emplace_back(tp->enqueueTask<Result>(
         std::make_shared<std::packaged_task<Result()>>([&]() {
           BaseGreedy2 bg2;
+          bg2.InitBoosters(bonuses);
           return Result("bg2", to_action_clones(bg2.Solve(task)));
         })));
 
     futures.emplace_back(tp->enqueueTask<Result>(
         std::make_shared<std::packaged_task<Result()>>([&]() {
           BaseGreedy3 bg3(BaseGreedy3Settings{true, true, 0, 0});
+          bg3.InitBoosters(bonuses);
           return Result("bg3", to_action_clones(bg3.Solve(task)));
         })));
 
     futures.emplace_back(tp->enqueueTask<Result>(
         std::make_shared<std::packaged_task<Result()>>([&]() {
           BaseGreedy3 bg4(BaseGreedy3Settings{true, true, 100, 2});
+          bg4.InitBoosters(bonuses);
           return Result("bg4", to_action_clones(bg4.Solve(task)));
         })));
 
