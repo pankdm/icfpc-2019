@@ -58,8 +58,11 @@ def puzzle_valid(spec, world):
             return False
 
     for b in world.boosters.toList():
+        if not is_good_point(b[1], spec):
+            print("Wrong booster position (%d, %d) box" % (b[1][0], b[1][1]))
+            return False
         if not world.mappa.inside(b[1]):
-            print("Wrong booster position (%d, %d)" % (b[1][0], b[1][1]))
+            print("Wrong booster position (%d, %d) inside" % (b[1][0], b[1][1]))
             return False
 
     return True
