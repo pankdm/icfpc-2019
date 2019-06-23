@@ -55,6 +55,12 @@ ActionsClones Auto::Solve(const std::string& task,
           return Result("bc0", bc0.Solve(task));
         })));
 
+    futures.emplace_back(tp->enqueueTask<Result>(
+        std::make_shared<std::packaged_task<Result()>>([&]() {
+          BaseClones1 bc1;
+          return Result("bc1", bc1.Solve(task));
+        })));
+
     for (unsigned i = 0; i < 2; ++i) {
       futures.emplace_back(tp->enqueueTask<Result>(
           std::make_shared<std::packaged_task<Result()>>([&]() {
@@ -69,12 +75,12 @@ ActionsClones Auto::Solve(const std::string& task,
     }
 
   } else {
+    // Never comment file solver!
     File fsolver;
     m.AddSolution(fsolver.Solve(task, task_name), "fsr");
+    // End "never comment" section
     BaseClones1 bc1;
     m.AddSolution(bc1.Solve(task), "bc1");
-    // Never comment file solver!
-    // End "never comment" section
 
     // for (unsigned i = 1; i < 3; ++i) {
     //   for (unsigned j = 1; j < 3; ++j) {
