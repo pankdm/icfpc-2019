@@ -4,6 +4,7 @@
 #include "common/pool.h"
 
 #include "solvers/base_clones.h"
+#include "solvers/base_clones1.h"
 #include "solvers/base_greedy2.h"
 #include "solvers/base_greedy3.h"
 #include "solvers/clones_greedy.h"
@@ -54,6 +55,12 @@ ActionsClones Auto::Solve(const std::string& task,
           return Result("bc0", bc0.Solve(task));
         })));
 
+    futures.emplace_back(tp->enqueueTask<Result>(
+        std::make_shared<std::packaged_task<Result()>>([&]() {
+          BaseClones1 bc1;
+          return Result("bc1", bc1.Solve(task));
+        })));
+
     for (unsigned i = 0; i < 2; ++i) {
       futures.emplace_back(tp->enqueueTask<Result>(
           std::make_shared<std::packaged_task<Result()>>([&, i]() {
@@ -72,6 +79,8 @@ ActionsClones Auto::Solve(const std::string& task,
     File fsolver;
     m.AddSolution(fsolver.Solve(task, task_name), "fsr");
     // End "never comment" section
+    BaseClones1 bc1;
+    m.AddSolution(bc1.Solve(task), "bc1");
 
     // for (unsigned i = 1; i < 3; ++i) {
     //   for (unsigned j = 1; j < 3; ++j) {
