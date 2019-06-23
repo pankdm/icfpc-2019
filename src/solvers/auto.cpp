@@ -56,7 +56,7 @@ ActionsClones Auto::Solve(const std::string& task,
 
     for (unsigned i = 0; i < 2; ++i) {
       futures.emplace_back(tp->enqueueTask<Result>(
-          std::make_shared<std::packaged_task<Result()>>([&]() {
+          std::make_shared<std::packaged_task<Result()>>([&, i]() {
             ClonesGreedy cg0;
             return Result("cg0", cg0.Solve(task, i));
           })));
