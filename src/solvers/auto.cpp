@@ -103,6 +103,21 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
     m.AddSolution(bc5.Solve(task, 1, 0, 10), "bc5");
     BaseClones1 bc6;
     m.AddSolution(bc6.Solve(task, 1, 0, 30), "bc6");
+
+    BaseClones1 bc7;
+    m.AddSolution(bc7.Solve(task, 0, 1, 0), "bc7");
+    BaseClones1 bc8;
+    m.AddSolution(bc8.Solve(task, 0, 1, 10), "bc8");
+    BaseClones1 bc9;
+    m.AddSolution(bc9.Solve(task, 0, 1, 30), "bc9");
+
+    BaseClones1 bc10;
+    m.AddSolution(bc10.Solve(task, 1, 1, 0), "bc10");
+    BaseClones1 bc11;
+    m.AddSolution(bc11.Solve(task, 1, 1, 10), "bc11");
+    BaseClones1 bc12;
+    m.AddSolution(bc12.Solve(task, 1, 1, 30), "bc12");
+
     // for (unsigned i = 1; i < 3; ++i) {
     //   for (unsigned j = 1; j < 3; ++j) {
     //     for (unsigned k = 0; k < 4; ++k) {

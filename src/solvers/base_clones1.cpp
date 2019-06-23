@@ -167,8 +167,7 @@ bool BaseClones1::AssignClosestWorker(unsigned r, ActionsList& al) {
           //   w.PrintNeighborhood(world.map, 5);
           // }
 
-          if (d.direction % 2 != wd.direction % 2 && wi == manip_index &&
-              phase == 1) {
+          if (d.direction != wd.direction && wi == manip_index && phase == 1) {
             bool need_turn = true;
             Point next = pw + d;
             for (int i = 0; i < 4; i++) {
@@ -389,7 +388,6 @@ ActionsClones BaseClones1::Solve(const std::string& task, size_t manip_index,
     if (do_nothing) break;
   }
   if (actions.size() < world.WCount()) actions.resize(world.WCount());
-  //   std::cerr << "Solver finished" << std::endl;
   return actions;
 }
 }  // namespace solvers
