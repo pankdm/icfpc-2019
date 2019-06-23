@@ -4,6 +4,7 @@ import sys
 import subprocess
 from json import dumps, loads
 import os
+import time
 
 from slack_integration import post_to_slack
 
@@ -15,7 +16,12 @@ cli = "./lambda-cli.py"
 state = {}
 state["submitted"] = []
 
-SUBMIT = True
+if len(sys.argv) > 1:
+    if sys.argv[1] == '0':
+        SUBMIT = False
+else:
+    SUBMIT = True
+print ('Submit = ', SUBMIT)
 
 def loadState():
     if os.path.isfile(fnameState):
@@ -73,7 +79,7 @@ def solve(task, check_prev=False):
 
     state["submitted"].append(blockId)
 
-    if output_exist(blockId):
+    if not output_exist(blockId):
         send_logs(logs)
 
     puzzleIn = "data/puzzle%s.task" % str(blockId)
@@ -122,3 +128,4 @@ while True:
     solve(task, check_prev=True)
     i += 1
     iteration += 1
+    time.sleep(10)
