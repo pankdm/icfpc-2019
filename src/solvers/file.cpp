@@ -8,9 +8,12 @@
 #include <vector>
 
 namespace solvers {
-ActionsClones File::Solve(const std::string& task,
-                          const std::string& task_name) {
+ActionsClones File::Solve(const std::string& task, const std::string& task_name,
+                          std::string ext_filename) {
   auto filename = "../solutions_cpp/prob-" + task_name + ".sol";
+  if (!ext_filename.empty()) {
+    filename = ext_filename;
+  }
   std::ifstream f(filename);
   std::string s;
   if (!f.is_open()) return {};

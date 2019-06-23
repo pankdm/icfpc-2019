@@ -30,6 +30,15 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
       return result;
     };
 
+    if (!cmd.args["current_best"].empty()) {
+      futures.emplace_back(tp->enqueueTask<Result>(
+          std::make_shared<std::packaged_task<Result()>>([&]() {
+            File fsolver;
+            return Result("fsr",
+                          fsolver.Solve(task, "", cmd.args["current_best"]));
+          })));
+    }
+
     futures.emplace_back(tp->enqueueTask<Result>(
         std::make_shared<std::packaged_task<Result()>>([&]() {
           BaseGreedy2 bg2;
