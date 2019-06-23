@@ -184,7 +184,7 @@ void BaseClones::NextMove_Clone(ActionsList& al) {
   unsigned l = al.size();
   CleanPOI();
   unsigned new_workers = 0;
-  if (world.boosters.unused_clones > 0) {
+  if (world.boosters.clones.Available({world.time, 0})) {
     for (unsigned i = 0; i < l; ++i) {
       auto& w = world.GetWorker(i);
       if (world.map(w.x, w.y).CheckItem() == Item::CODEX) {
@@ -194,7 +194,7 @@ void BaseClones::NextMove_Clone(ActionsList& al) {
       }
     }
   }
-  bool unused_boosters = (world.boosters.unused_clones > new_workers);
+  bool unused_boosters = (world.boosters.clones.Size() > new_workers);
   poi_assigned.Clear();
   for (bool assigned = true; assigned;) {
     assigned = false;

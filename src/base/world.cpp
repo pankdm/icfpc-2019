@@ -48,7 +48,7 @@ void World::Init(const std::string& desc) {
   }
   Point pworker(vs[1]);
   workers.resize(1);
-  GetWorker().Init(boosters, map, pworker.x, pworker.y);
+  GetWorker().Init(boosters, map, pworker.x, pworker.y, 0);
 }
 
 Worker& World::GetWorker(unsigned index) {
@@ -71,10 +71,11 @@ unsigned World::WCount() const { return workers.size(); }
 void World::ApplyC(unsigned index, const Action& action) {
   if (action.type == ActionType::CLONE) {
     auto& worker = GetWorker(index);
-    assert(boosters.unused_clones > 0);
+    assert(boosters.clones.Available(worker.Time(time)));
     assert(map.Get(worker.x, worker.y).CheckItem() == Item::CODEX);
-    boosters.unused_clones -= 1;
+    boosters.clones.Use();
     workers.emplace_back(worker);
+    workers.back().index = workers.size() - 1;
   } else {
     GetWorker(index).Apply(time, map, action);
   }

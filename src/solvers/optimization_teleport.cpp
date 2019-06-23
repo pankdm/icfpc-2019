@@ -2,8 +2,8 @@
 
 #include "common/always_assert.h"
 
-#include <iostream>
 #include <algorithm>
+#include <iostream>
 
 namespace solvers {
 
@@ -47,7 +47,8 @@ ActionsList TeleportOptimization::apply(const std::string& task,
     int y = world.workers[0].y;
 
     // std::cerr << "time = " << world.time
-    //           << " unchanged = " << unchanged_duration << " x,y = " << x << ","
+    //           << " unchanged = " << unchanged_duration << " x,y = " << x <<
+    //           ","
     //           << y << std::endl;
 
     auto index = world.map.Index(x, y);
@@ -68,7 +69,7 @@ ActionsList TeleportOptimization::apply(const std::string& task,
       //           << " continue: " << task.continue_time << std::endl;
     }
 
-    if (world.workers[0].pboosters->unused_teleporters > 0 &&
+    if (world.boosters.teleporters.Available({world.time, 0}) &&
         visited_time[index] == 0) {
       visited_time[index] = world.time;
     }
@@ -95,7 +96,8 @@ ActionsList TeleportOptimization::apply(const std::string& task,
   for (const auto& action : actions) {
     ++current_time;
 
-    if (best.teleport_time < current_time && current_time <= best.continue_time) {
+    if (best.teleport_time < current_time &&
+        current_time <= best.continue_time) {
       continue;
     }
     result.emplace_back(action);
