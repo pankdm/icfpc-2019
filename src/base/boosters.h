@@ -1,10 +1,12 @@
 #pragma once
 
+#include "base/boosters_queue.h"
+
 class Boosters {
  public:
-  unsigned unused_extensions = 0;
-  unsigned unused_fast_wheels = 0;
-  unsigned unused_drills = 0;
-  unsigned unused_teleporters = 0;
-  unsigned unused_clones = 0;
+  BoostersQueue extensions;
+  BoostersQueue fast_wheels;
+  BoostersQueue drills;
+  BoostersQueue teleporters;
+  BoostersQueue clones;
 };
