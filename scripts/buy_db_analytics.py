@@ -5,6 +5,8 @@ import re
 
 from parser import read_yaml
 
+FULL_ANALYTICS = True
+
 GOLD = "../solutions_gold/"
 
 def print_score(n, base_yaml, compare_yaml):
@@ -41,7 +43,12 @@ def process_task(n):
             rois.append(print_score(n, base_yaml, compare_yaml))
 
     rois.sort(key = lambda x : x[0], reverse=True)
-    print (f"{rois[0][1]}")
+    if FULL_ANALYTICS:
+        print()
+        for roi in rois:
+            print (roi[1])
+    else:
+        print (f"{rois[0][1]}")
 
 if __name__ == "__main__":
     for i in range(1, 300):
