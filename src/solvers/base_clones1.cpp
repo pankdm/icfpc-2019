@@ -11,11 +11,8 @@
 #include <utility>
 
 namespace solvers {
-void BaseClones1::Init(const std::string& task, size_t manipindex, size_t strat,
-                       size_t _ext_dist) {
-  manip_index = manipindex;
-  strategy = strat;
-  ext_dist = _ext_dist;
+void BaseClones1::Init(const std::string& task, BaseClones1Settings _sett) {
+  sett = _sett;
   world.Init(task);
   unsigned size = unsigned(world.map.Size());
   auto& map = world.map;
@@ -125,6 +122,13 @@ bool BaseClones1::AssignClosestWorker(unsigned r, ActionsList& al) {
         acw1.Insert(u);
       }
     }
+    if (phase == 0 && world.map.items_coords.count(Item::EXTENSION) > 0) {
+      for (auto p : world.map.items_coords[Item::EXTENSION]) {
+        unsigned u = world.map.Index(p.first, p.second);
+        q.push({0, u, 0});
+        acw1.Insert(u);
+      }
+    }
     m.clear();
     for (unsigned i = 0; i < world.WCount(); ++i) {
       auto& w = world.GetWorker(i);
@@ -151,9 +155,9 @@ bool BaseClones1::AssignClosestWorker(unsigned r, ActionsList& al) {
           Direction d = GetDirection(world.map, u, f);
           Worker w = world.GetWorker(wi);
 
-          if (wi == manip_index &&
+          if (wi == sett.manip_index &&
               world.boosters.extensions.Available({world.time, wi})) {
-            auto p = w.GetNextManipulatorPositionNaive(strategy /*TODO*/);
+            auto p = w.GetNextManipulatorPositionNaive(sett.strategy);
             al[wi].type = ActionType::ATTACH_MANIPULATOR;
             al[wi].x = p.first;
             al[wi].y = p.second;
@@ -163,11 +167,48 @@ bool BaseClones1::AssignClosestWorker(unsigned r, ActionsList& al) {
           Direction wd = w.direction;
           Point pw(w.x, w.y);
 
-          // if (phase == 0) {
-          //   w.PrintNeighborhood(world.map, 5);
-          // }
+          if (wi == sett.manip_index && sett.use_shifts) {
+            for (int i = 0; i < 2; i++) {
+              Direction d((1 + 2 * i + w.direction.direction) % 4);
+              int score = 0;
+              Point base = pw;
+              Direction wd = w.direction;
+              int MAX = 4;
+              for (int iter = 0; iter < MAX; iter++) {
+                if (iter > 0) {
+                  base = base + wd;
+                }
+                if (!world.map.ValidToMove(base.x, base.y)) {
+                  continue;
+                }
+                if (iter > 1 && world.map.Get(base.x, base.y).Wrapped()) {
+                  continue;
+                }
+                int sz = w.CellsToNewlyWrap(world.map, wd.DX() * iter,
+                                            wd.DY() * iter)
+                             .size();
+                Point pd = base + d;
+                if (!world.map.ValidToMove(pd.x, pd.y)) {
+                  continue;
+                }
+                int new_sz =
+                    w.CellsToNewlyWrap(world.map, wd.DX() * iter + d.DX(),
+                                       wd.DY() * iter + d.DY())
+                        .size();
+                if (new_sz > sz) {
+                  score++;
+                }
+              }
+              if (score == MAX) {
+                // w.PrintNeighborhood(world.map, 4);
+                al[wi].type = d.Get();
+                return true;
+              }
+            }
+          }
 
-          if (d.direction != wd.direction && wi == manip_index && phase == 1) {
+          if (d.direction != wd.direction && wi == sett.manip_index &&
+              phase == 1) {
             bool need_turn = true;
             Point next = pw + d;
             for (int i = 0; i < 4; i++) {
@@ -192,7 +233,7 @@ bool BaseClones1::AssignClosestWorker(unsigned r, ActionsList& al) {
         }
       }
       if (d < best_distance) {
-        if (phase == 0 && d > ext_dist) {
+        if (phase == 0 && d > sett.ext_dist) {
           continue;
         }
         for (unsigned v : g.Edges(u)) {
@@ -209,9 +250,9 @@ bool BaseClones1::AssignClosestWorker(unsigned r, ActionsList& al) {
 
 Action BaseClones1::SendToNearestUnwrapped(unsigned windex) {
   auto& w = world.GetWorker(windex);
-  if (windex == manip_index &&
+  if (windex == sett.manip_index &&
       world.boosters.extensions.Available({world.time, windex})) {
-    auto p = w.GetNextManipulatorPositionNaive(strategy /*TODO*/);
+    auto p = w.GetNextManipulatorPositionNaive(sett.strategy);
     Action a(ActionType::ATTACH_MANIPULATOR, p.first, p.second);
     return a;
   }
@@ -370,9 +411,11 @@ void BaseClones1::Update() {
 
 bool BaseClones1::Wrapped() { return unwrapped.Empty(); }
 
-ActionsClones BaseClones1::Solve(const std::string& task, size_t manip_index,
-                                 size_t strategy, size_t ext_dist) {
-  Init(task, manip_index, strategy, ext_dist);
+ActionsClones BaseClones1::Solve(const std::string& task,
+                                 BaseClones1Settings sett,
+                                 const std::string& bonuses) {
+  Init(task, sett);
+  world.InitBonuses(bonuses);
   ActionsClones actions;
   for (; !Wrapped();) {
     auto al = NextMove();
