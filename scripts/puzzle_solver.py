@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 
 from PIL import Image
 
@@ -15,11 +16,10 @@ from random import randint
 from world import World
 
 
-
-
 def rotate_clockwise(vec):
     x, y = vec
     return (y, -x)
+
 
 def rotate_counter_clockwise(vec):
     x, y = vec
@@ -31,6 +31,7 @@ def next_point(pt, vec):
     dx, dy = vec
     return (x + dx, y + dy)
 
+
 class State:
     UNKNOWN = 0
     GOOD = 1
@@ -39,14 +40,15 @@ class State:
     CONNECTED = 4
     CONTOUR = 5
 
+
 def get_color(state):
     colors = {
-        State.UNKNOWN: (0, 0, 0), # black
-        State.GOOD : (0, 255, 0), # green
-        State.BAD : (255, 0, 0), # red
-        State.FILLED : (255, 255, 0), # yellow
-        State.CONNECTED: (255, 0, 0), # red
-        State.CONTOUR: (0, 255, 0), # grey
+        State.UNKNOWN: (0, 0, 0),  # black
+        State.GOOD: (0, 255, 0),  # green
+        State.BAD: (255, 0, 0),  # red
+        State.FILLED: (255, 255, 0),  # yellow
+        State.CONNECTED: (255, 0, 0),  # red
+        State.CONTOUR: (0, 255, 0),  # grey
     }
     return colors[state]
 
@@ -55,16 +57,22 @@ def manhattan(pt, size):
     x, y = pt
     return min([x, y, size - 1 - x, size - 1 - y])
 
+
 class PuzzleSolver:
     def __init__(self, spec):
         self.spec = spec
         self.size = spec.tSize
         self.field = [[State.UNKNOWN] * self.size for x in range(self.size)]
 
-        print (f"min, max: {spec.vMin}, {spec.vMax}")
+        print(f"min, max: {spec.vMin}, {spec.vMax}")
 
         for pt in spec.included:
             x, y = pt
+            # we don't support greens on border yet
+            assert x != 0
+            assert x != self.size - 1
+            assert y != 0
+            assert y != self.size - 1
             self.field[x][y] = State.GOOD
 
         for pt in spec.excluded:
@@ -76,7 +84,7 @@ class PuzzleSolver:
 
     def get_points_order(self):
         pts = [pt for pt in spec.excluded]
-        pts.sort(key = lambda x : manhattan(x, self.size))
+        pts.sort(key=lambda x: manhattan(x, self.size))
         return pts
 
     def bfs_to_filled(self, start):
@@ -180,8 +188,8 @@ class PuzzleSolver:
             points.append(forward_pt)
             forward = left
 
-        print ('num turns = ', num_turns)
-        print (points[-5:])
+        print('num turns = ', num_turns)
+        print(points[-5:])
         self.show()
 
     def solve(self):
@@ -200,7 +208,7 @@ class PuzzleSolver:
             self.bfs_to_filled(pt)
             # input(">")
 
-        countour = self.generate_contour()
+        contour = self.generate_contour()
 
         self.world = World(contour, [], self.gen_booster_point())
         spec = self.spec
@@ -213,10 +221,12 @@ class PuzzleSolver:
         img = Image.new('RGB', (self.size, self.size))
         for x in range(0, self.size):
             for y in range(0, self.size):
-                img.putpixel((x, self.size - 1 - y), get_color(self.field[x][y]))
+                img.putpixel((x, self.size - 1 - y),
+                             get_color(self.field[x][y]))
         img = img.resize((600, 600), Image.BILINEAR)
         img.show()
         img.save('image.png')
+
 
 file = sys.argv[1]
 s = read_file(file)
