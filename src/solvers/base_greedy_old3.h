@@ -1,18 +1,20 @@
 #pragma once
 
-#include "solvers/base_greedy_old3.h"
+#include "solvers/base_greedy_old2.h"
+#include "solvers/settings/base_greedy3.h"
 #include <set>
 
 namespace solvers {
-
-class BaseGreedy4 : public BaseGreedyOld3 {
+class BaseGreedyOld3 : public BaseGreedyOld2 {
   std::set<std::pair<int, int>> bonuses;
   Action NextMove();
+
+ protected:
   int mops_to_go;
+  BaseGreedy3Settings settings;
 
  public:
-  BaseGreedy4(BaseGreedy3Settings);
+  BaseGreedyOld3(BaseGreedy3Settings);
   ActionsList Solve(const std::string& task);
 };
-
 }  // namespace solvers
