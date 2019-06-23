@@ -298,7 +298,7 @@ class PuzzleSolver:
 
         spec = self.spec
         for ch, count in [
-            ('M', spec.mNum),
+            ('B', spec.mNum),
             ('F', spec.fNum),
             ('L', spec.dNum),
             ('R', spec.rNum),
