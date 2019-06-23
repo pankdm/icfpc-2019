@@ -5,6 +5,8 @@ import subprocess
 from json import dumps, loads
 import os
 
+from slack_integration import post_logs
+
 python = "python3.7"
 
 fnameState = "state.json"
@@ -19,7 +21,24 @@ def loadState():
             global state
             state = loads(fState.read())
 
+def print_and_log(logs, s):
+    print (s)
+    logs.append(s)
+
+iteration = 0
+def send_to_slack(logs):
+    post_logs("\n".join(logs))
+
+
+def output_exist(blockId):
+    taskOut = "data/task%s.sol" % str(blockId)
+    puzzleOut = "data/puzzle%s.desc" % str(blockId)
+
+
 def solve(task):
+    logs = []
+    logs.append(f"iteration = {iteration}")
+
     loadState()
 
     task = task.replace("\'", "\"")
@@ -31,6 +50,7 @@ def solve(task):
         return
 
     blockId = blockinfo["block"]
+    print_and_log(logs, f"Solving blockId {blockId}")
 
     if blockId in state["submitted"]:
         return
@@ -39,11 +59,16 @@ def solve(task):
     with open(fnameTask, "w") as fTask:
         fTask.write(task)
 
-    print(task)
+    # print(task)
+    print_and_log (logs, "puzzle task: {}".format(blockinfo["puzzle"].split("#")[0]))
     if "15" in blockinfo["balances"]:
-        print('balance', blockinfo["balances"]["15"])
+        balance = blockinfo["balances"]["15"]
+        print_and_log(logs, f"balance = {balance}")
 
     state["submitted"].append(blockId)
+
+    if output_exist(blockId):
+        send_to_slack(logs)
 
     puzzleIn = "data/puzzle%s.task" % str(blockId)
     puzzleOut = "data/puzzle%s.desc" % str(blockId)
@@ -66,16 +91,17 @@ def solve(task):
     subprocess.check_call(
         ["../src/build/cpp_solver", "-solve", "1", "-in", taskIn, "-out", taskOut])
 
-    args = [python, cli, "submit",
-                           str(blockId), taskOut, puzzleOut]
-    print(args)
-    subprocess.check_call(args)
+    # args = [python, cli, "submit",
+    #                        str(blockId), taskOut, puzzleOut]
+    # print(args)
+    # subprocess.check_call(args)
+    #
+    # with open(fnameState, "w") as fState:
+    #     fState.write(dumps(state))
 
-    with open(fnameState, "w") as fState:
-        fState.write(dumps(state))
 
 if True:
-    for block in range(25, 29):
+    for block in range(60, 63):
         print("replay %d" % block)
         task = subprocess.check_output(
             [python, cli, "getblockinfo", str(block)]).decode()
@@ -88,3 +114,4 @@ while True:
     print("hb %d" % i)
     solve(task)
     i += 1
+    iteration += 1
