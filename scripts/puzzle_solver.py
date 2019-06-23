@@ -181,7 +181,7 @@ class PuzzleSolver:
     def gen_location(self):
         while True:
             res = self.rand_point()
-            if res not in self.used_for_something and self.is_good(res):
+            if res not in self.used_for_something and self.is_very_good(res):
                 self.used_for_something.add(res)
             return res
 
@@ -192,6 +192,10 @@ class PuzzleSolver:
     def is_good(self, pt):
         x, y = pt
         return (self.field[x][y] in [State.UNKNOWN, State.GOOD, State.CONTOUR])
+
+    def is_very_good(self, pt):
+        x, y = pt
+        return (self.field[x][y] in [State.GOOD])
 
     def find_lowest_left(self):
         size = self.size
