@@ -149,7 +149,7 @@ bool BaseClones1::AssignClosestWorker(unsigned r, ActionsList& al) {
           Direction d = GetDirection(world.map, u, f);
           Worker w = world.GetWorker(wi);
 
-          if (wi == 0 &&
+          if (wi == manip_index &&
               world.boosters.extensions.Available({world.time, wi})) {
             auto p = w.GetNextManipulatorPositionNaive(0 /*TODO*/);
             al[wi].type = ActionType::ATTACH_MANIPULATOR;
