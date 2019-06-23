@@ -134,7 +134,7 @@ class PuzzleSolver:
                 x = x0 + dx
                 y = y0 + dy
                 next = (x, y)
-                if self.get_state((x, y)) in [State.FILLED]:
+                if self.get_state((x, y)) in [State.FILLED, State.CONNECTED]:
                     target = now
                     break
 
@@ -270,7 +270,7 @@ class PuzzleSolver:
 
     def generate_contour(self, debug=False):
         start = self.find_lowest_left()
-        print(start)
+        # print(start)
         forward = (1, 0)
         right = rotate_clockwise(forward)
         left = rotate_counter_clockwise(forward)
@@ -290,7 +290,7 @@ class PuzzleSolver:
                 if debug and len(points) > 1:
                     x1, y1 = points[-2]
                     x2, y2 = points[-1]
-                    print(points[-2], "→", points[-1], "turn right")
+                    # print(points[-2], "→", points[-1], "turn right")
                     assert x1 == x2 or y1 == y2
                 left = forward
                 forward = right
@@ -303,7 +303,7 @@ class PuzzleSolver:
                 if debug and len(points) > 1:
                     x1, y1 = points[-2]
                     x2, y2 = points[-1]
-                    print(points[-2], "→", points[-1], "turn left")
+                    # print(points[-2], "→", points[-1], "turn left")
                     assert x1 == x2 or y1 == y2
                 right = forward
                 forward = left
@@ -316,7 +316,7 @@ class PuzzleSolver:
                 if debug and len(points) > 1:
                     x1, y1 = points[-2]
                     x2, y2 = points[-1]
-                    print(points[-2], "→", points[-1], "force left")
+                    # print(points[-2], "→", points[-1], "force left")
                     assert x1 == x2 or y1 == y2
                 right = forward
                 forward = left
@@ -350,6 +350,7 @@ class PuzzleSolver:
 
         contour = self.generate_contour()
         num_turns = len(contour)
+        print("Initial #turns: ", num_turns)
         # self.show()
 
         if num_turns < self.spec.vMin:
@@ -367,7 +368,7 @@ class PuzzleSolver:
 
         task_spec.location = self.gen_location()
 
-        self.show()
+        # self.show()
         print("#points: ", len(contour))
         mappa = Mappa(contour, [], task_spec.location)
 
