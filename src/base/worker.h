@@ -1,6 +1,7 @@
 #pragma once
 
 #include "base/action.h"
+#include "base/booster_time.h"
 #include "base/boosters.h"
 #include "base/direction.h"
 #include "base/manipulator.h"
@@ -13,6 +14,7 @@ class Worker {
  public:
   int x;
   int y;
+  unsigned index;
 
   std::vector<Manipulator> manipulators;
 
@@ -26,17 +28,18 @@ class Worker {
   void AddManipulatorI(int x, int y);
 
  public:
-  void Init(Boosters& b, Map& map, int _x, int _y);
+  void Init(Boosters& b, Map& map, int _x, int _y, unsigned _index);
+  BoosterTime Time(unsigned time) const;
 
   void Wrap(Map& map);
   std::vector<std::pair<int, int>> CellsToWrap(Map& map, int dx = 0,
                                                int dy = 0);
   std::vector<std::pair<int, int>> CellsToNewlyWrap(Map& map, int dx = 0,
                                                     int dy = 0);
-  void Move(const Direction& d, Map& map, bool drill_enabled);
+  void Move(const Direction& d, Map& map, unsigned time, bool drill_enabled);
   void RotateClockwise();
   void RotateCounterClockwise();
-  void AddManipulator(const Manipulator& m);
+  void AddManipulator(const Manipulator& m, unsigned time);
   void PrintNeighborhood(Map& map, int sz);
   std::pair<int, int> GetNextManipulatorPositionNaive(int strategy) const;
 
