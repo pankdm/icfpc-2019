@@ -13,7 +13,7 @@ from copy import deepcopy
 from collections import deque
 from random import randint
 
-from world import World
+from world import World, Mappa
 
 
 def rotate_clockwise(vec):
@@ -47,15 +47,15 @@ def next_corner(pt, vec, new_vec):
         dx, dy = 0, 0
     elif vec == (0, 1) and new_vec == (1, 0):
         dx, dy = 1, 0
-    elif vec == (0, 1) and new_vec == (0, -1):
+    elif vec == (0, 1) and new_vec == (-1, 0):
         dx, dy = 1, 1
     elif vec == (-1, 0) and new_vec == (0, 1):
-        dx, dy = 0, 0
+        dx, dy = 1, 1
     elif vec == (-1, 0) and new_vec == (0, -1):
-        dx, dy = 1, 0
+        dx, dy = 0, 1
     elif vec == (0, -1) and new_vec == (1, 0):
         dx, dy = 0, 0
-    elif vec == (0, -1) and new_vec == (0, -1):
+    elif vec == (0, -1) and new_vec == (-1, 0):
         dx, dy = 0, 1
     return (x + dx, y + dy)
 
@@ -165,32 +165,37 @@ class PuzzleSolver:
         x, y = pt
         return self.field[x][y]
 
-    def gen_booster_point(self):
+    def rand_point(self):
+        x = randint(0, self.spec.tSize - 1)
+        y = randint(0, self.spec.tSize - 1)
+        return (x, y)
+
+    def gen_booster_point(self, mappa):
         while True:
-            x = randint(0, self.spec.tSize - 1)
-            y = randint(0, self.spec.tSize - 1)
-            res = (x, y)
-            if res not in self.used_for_boosters and self.is_good(res):
+            res = self.rand_point()
+            if (res not in self.used_for_boosters) and mappa.inside(res):
                 self.used_for_boosters.add(res)
                 self.used_for_something.add(res)
             return res
 
     def gen_location(self):
         while True:
-            x = randint(0, self.spec.tSize - 1)
-            y = randint(0, self.spec.tSize - 1)
-            res = (x, y)
-            if res not in self.used_for_something and self.is_good(res):
+            res = self.rand_point()
+            if res not in self.used_for_something and self.is_very_good(res):
                 self.used_for_something.add(res)
             return res
 
-    def gen_boosters(self, ch, count, task_spec):
+    def gen_boosters(self, ch, count, task_spec, mappa):
         for i in range(count):
-            task_spec.boosters.add((ch, self.gen_booster_point()))
+            task_spec.boosters.add((ch, self.gen_booster_point(mappa)))
 
     def is_good(self, pt):
         x, y = pt
         return (self.field[x][y] in [State.UNKNOWN, State.GOOD, State.CONTOUR])
+
+    def is_very_good(self, pt):
+        x, y = pt
+        return (self.field[x][y] in [State.GOOD])
 
     def find_lowest_left(self):
         size = self.size
@@ -252,10 +257,10 @@ class PuzzleSolver:
                 left = rotate_counter_clockwise(left)
                 now = left_pt
             else:
-                # same as right, but stay on the spot
-                left = forward
-                forward = right
-                right = rotate_clockwise(right)
+                # same as left, but stay on the spot
+                right = forward
+                forward = left
+                left = rotate_counter_clockwise(left)
 
     def generate_contour(self):
         start = self.find_lowest_left()
@@ -263,12 +268,9 @@ class PuzzleSolver:
         right = rotate_clockwise(forward)
         left = rotate_counter_clockwise(forward)
         points = list()
-        points.append(start)
         now = start
         while True:
-            if now == start and len(points) > 1:
-                break
-            # print('at ', now, forward)
+            last = now == start and len(points) > 0
             self.set_state(now, State.CONTOUR)
             x, y = now
             left_pt = next_point(now, left)
@@ -290,11 +292,14 @@ class PuzzleSolver:
                 left = rotate_counter_clockwise(left)
                 now = left_pt
             else:
-                # same as right, but stay on the spot
-                points.append(next_corner(now, forward, right))
-                left = forward
-                forward = right
-                right = rotate_clockwise(right)
+                # same as left, but stay on the spot
+                points.append(next_corner(now, forward, left))
+                right = forward
+                forward = left
+                left = rotate_counter_clockwise(left)
+
+            if last:
+                break
 
         self.show()
         print('num turns = ', len(points))
@@ -330,7 +335,10 @@ class PuzzleSolver:
         task_spec = TaskSpec()
         task_spec.contour = contour
         task_spec.boosters = set()
+
         task_spec.location = self.gen_location()
+
+        mappa = Mappa(contour, [], task_spec.location)
 
         spec = self.spec
         for ch, count in [
@@ -341,19 +349,25 @@ class PuzzleSolver:
             ('C', spec.cNum),
             ('X', spec.xNum)
         ]:
-            self.gen_boosters(ch, count, task_spec)
+            self.gen_boosters(ch, count, task_spec, mappa)
 
-        self.show()
+        self.show(task_spec)
 
         return task_spec
 
-    def show(self):
+    def show(self, task_spec=None):
+        return
         img = Image.new('RGB', (self.size, self.size))
         for x in range(0, self.size):
             for y in range(0, self.size):
                 img.putpixel((x, self.size - 1 - y),
                              get_color(self.field[x][y]))
-        img = img.resize((600, 600), Image.BILINEAR)
+
+        if task_spec:
+            for b in task_spec.boosters:
+                img.putpixel((b[1][0], self.size - 1 - b[1][1]), (255, 255, 255))
+
+        img = img.resize((1000, 1000), Image.BILINEAR)
         img.show()
         img.save('image.png')
         input("waiting >")
@@ -370,4 +384,8 @@ task_spec = solver.solve()
 
 write_problem(fout, task_spec)
 world = parse_problem(read_file(sys.argv[2]))
-print(puzzle_valid(spec, world))
+valid = puzzle_valid(spec, world)
+print("valid", valid)
+if not valid:
+    sys.exit(1)
+
