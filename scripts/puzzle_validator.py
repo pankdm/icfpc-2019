@@ -47,4 +47,19 @@ def puzzle_valid(spec, world):
         print("Too much vertices")
         return False
 
+    for i in spec.included:
+        if not world.mappa.inside(i):
+            print("Missing included")
+            return False
+
+    for i in spec.excluded:
+        if world.mappa.inside(i):
+            print("Missing excluded")
+            return False
+
+    for b in world.boosters.toList():
+        if not world.mappa.inside(b[1]):
+            print("Wrong booster position")
+            return False
+
     return True
