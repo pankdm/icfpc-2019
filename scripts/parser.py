@@ -1,4 +1,6 @@
 
+import yaml
+
 from world import (
     World,
     Mappa,
@@ -11,6 +13,9 @@ def read_file(file_name):
     with open(file_name, "r") as f:
         return f.read()
 
+def read_yaml(file_name):
+    s = read_file(file_name)
+    return yaml.safe_load(s)
 
 def parse_point(s):
     assert(s[0] == '(')
