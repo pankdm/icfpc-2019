@@ -122,6 +122,13 @@ bool BaseClones1::AssignClosestWorker(unsigned r, ActionsList& al) {
         acw1.Insert(u);
       }
     }
+    if (phase == 0 && world.map.items_coords.count(Item::EXTENSION) > 0) {
+      for (auto p : world.map.items_coords[Item::EXTENSION]) {
+        unsigned u = world.map.Index(p.first, p.second);
+        q.push({0, u, 0});
+        acw1.Insert(u);
+      }
+    }
     m.clear();
     for (unsigned i = 0; i < world.WCount(); ++i) {
       auto& w = world.GetWorker(i);
@@ -405,8 +412,10 @@ void BaseClones1::Update() {
 bool BaseClones1::Wrapped() { return unwrapped.Empty(); }
 
 ActionsClones BaseClones1::Solve(const std::string& task,
-                                 BaseClones1Settings sett) {
+                                 BaseClones1Settings sett,
+                                 const std::string& bonuses) {
   Init(task, sett);
+  world.InitBonuses(bonuses);
   ActionsClones actions;
   for (; !Wrapped();) {
     auto al = NextMove();

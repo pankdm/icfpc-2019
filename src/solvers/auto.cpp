@@ -57,22 +57,22 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
     futures.emplace_back(tp->enqueueTask<Result>(
         std::make_shared<std::packaged_task<Result()>>([&]() {
           BaseClones1 bc1;
-          BaseClones1Settings sett{0, 0, 10, false};
-          return Result("bc1", bc1.Solve(task, sett));
+          BaseClones1Settings sett{0, 0, 10, true};
+          return Result("bc1", bc1.Solve(task, sett, bonuses));
         })));
 
     futures.emplace_back(tp->enqueueTask<Result>(
         std::make_shared<std::packaged_task<Result()>>([&]() {
           BaseClones1 bc2;
-          BaseClones1Settings sett{1, 0, 10, false};
-          return Result("bc2", bc2.Solve(task, sett));
+          BaseClones1Settings sett{1, 0, 10, true};
+          return Result("bc2", bc2.Solve(task, sett, bonuses));
         })));
 
     futures.emplace_back(tp->enqueueTask<Result>(
         std::make_shared<std::packaged_task<Result()>>([&]() {
           BaseClones1 bc3;
-          BaseClones1Settings sett{0, 1, 10, false};
-          return Result("bc3", bc3.Solve(task, sett));
+          BaseClones1Settings sett{0, 1, 10, true};
+          return Result("bc3", bc3.Solve(task, sett, bonuses));
         })));
 
     for (unsigned i = 0; i < 2; ++i) {
@@ -98,7 +98,7 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
       for (int j = 0; j < 40; j += 10) {
         BaseClones1Settings sett{i & 1, i & 2, j, i & 4};
         BaseClones1 bc;
-        m.AddSolution(bc.Solve(task, sett), "bc");
+        m.AddSolution(bc.Solve(task, sett, bonuses), "bc");
         BaseClones1 bc3;
       }
     }
