@@ -21,8 +21,11 @@ class WorldExt : public World {
   unsigned Size() const;
   unsigned Index(int x, int y) const;
   bool Solved() const;
+  const UndirectedGraph& G() const;
   const std::vector<unsigned>& GEdges(unsigned u) const;
   const std::vector<unsigned>& UList() const;
+  bool Unwrapped(unsigned index) const;
+  bool Unwrapped(int x, int y) const;
 
  protected:
   void BuildDSForSet();

@@ -8,6 +8,8 @@ unsigned WorldExt::Index(int x, int y) const { return map.Index(x, y); }
 
 bool WorldExt::Solved() const { return unwrapped.Empty(); }
 
+const UndirectedGraph& WorldExt::G() const { return g; }
+
 const std::vector<unsigned>& WorldExt::GEdges(unsigned u) const {
   return g.Edges(u);
 }
@@ -15,6 +17,12 @@ const std::vector<unsigned>& WorldExt::GEdges(unsigned u) const {
 const std::vector<unsigned>& WorldExt::UList() const {
   return unwrapped.List();
 }
+
+bool WorldExt::Unwrapped(unsigned index) const {
+  return unwrapped.HasKey(index);
+}
+
+bool WorldExt::Unwrapped(int x, int y) const { return Unwrapped(Index(x, y)); }
 
 void WorldExt::BuildDSForSet() {
   for (unsigned u : ds_update_set.List()) {
