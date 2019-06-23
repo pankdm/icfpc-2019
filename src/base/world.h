@@ -15,6 +15,7 @@ class World {
 
  public:
   void Init(const std::string& desc);
+  void InitBonuses(const std::string& bonuses);
   Worker& GetWorker(unsigned index = 0);
   void Apply(const Action& action);
   void Apply(const ActionsList& actions);

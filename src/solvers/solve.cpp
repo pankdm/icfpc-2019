@@ -12,7 +12,7 @@
 
 namespace solvers {
 unsigned Solve(const std::string& input_file, const std::string& output_file,
-               const std::string& task_name) {
+               const std::string& bonus_file, const std::string& task_name) {
   std::ifstream input(input_file);
   std::string task;
   ALWAYS_ASSERT(std::getline(input, task));
