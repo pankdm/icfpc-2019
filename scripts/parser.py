@@ -6,11 +6,10 @@ from world import (
     Boosters
 )
 
+
 def read_file(file_name):
-    f = open(file_name)
-    s = f.read()
-    f.close()
-    return s
+    with open(file_name, "r") as f:
+        return f.read()
 
 
 def parse_point(s):
@@ -19,15 +18,18 @@ def parse_point(s):
     x, y = map(int, s[1:-1].split(','))
     return (x, y)
 
+
 def parse_map(s):
-    if len(s)==0:
+    if len(s) == 0:
         return None
     assert (s[0] == '(')
     assert (s[-1] == ')')
     return [tuple(map(int, pair.split(','))) for pair in s[1:-1].split('),(')]
 
+
 def parse_obstacles(s):
     return [parse_map(obs) for obs in s.split(';') if obs is not None]
+
 
 def parse_boosters(s):
     res = {}
@@ -40,6 +42,7 @@ def parse_boosters(s):
         res[pt] = boo[0]
 
     return Boosters(res)
+
 
 def is_valid_booster(s):
     assert(len(s) == 1)
@@ -61,8 +64,10 @@ def parse_problem(s):
 
     return world
 
+
 def write_point(point):
     return "(%d,%d)" % (point[0], point[1])
+
 
 def write_map(mappa):
     if mappa:
@@ -70,11 +75,14 @@ def write_map(mappa):
     else:
         return ""
 
+
 def write_obstacles(obstacles):
     return ";".join(map(write_map, obstacles))
 
+
 def write_booster(booster):
     return booster[0] + write_point(booster[1])
+
 
 def write_boosters(boosters):
     if boosters:
@@ -82,8 +90,13 @@ def write_boosters(boosters):
     else:
         return ""
 
+
 def write_problem(fname, world):
-    s = "#".join([write_map(world.mappa), write_point(world.get_location()), write_obstacles(world.mappa.obstacles), write_boosters(world.boosters)])
+    s = "#".join([
+        write_map(world.mappa),
+        write_point(world.get_location()),
+        write_obstacles(world.mappa.obstacles),
+        write_boosters(world.boosters)])
 
     with open(fname, "w") as fOut:
         fOut.write(s)
@@ -92,7 +105,7 @@ def write_problem(fname, world):
 # returns pair of next index, result
 def parse_token(path, index):
     assert index < len(path)
-    single = set(['W', 'S', 'A', 'D', 'Z', 'E', 'Q', 'F', 'L', 'R'])
+    single = set(['W', 'S', 'A', 'D', 'Z', 'E', 'Q', 'F', 'L', 'R', 'C'])
     with_pt = set(['B', 'T'])
     if path[index] in single:
         action = Action(path[index])
@@ -103,27 +116,30 @@ def parse_token(path, index):
         index1 = path.find(',', index + 1)
         assert index1 > 0
         assert path[index1] == ','
-        x = int(path[index + 2 : index1])
+        x = int(path[index + 2: index1])
 
         index2 = path.find(')', index1 + 1)
         assert index2 > 0
         assert path[index2] == ')'
-        y = int(path[index1 + 1 : index2])
+        y = int(path[index1 + 1: index2])
 
         action = Action(path[index])
         action.pt = (x, y)
         return action, index2 + 1
     assert False, 'Unknown action: {}'.format(path[index])
 
-def parse_solution(solution):
-    path = solution.strip('\n')
-    index = 0
-    res = []
-    while True:
-        action, new_index = parse_token(path, index)
 
-        assert new_index > index
-        index = new_index
-        res.append(action)
-        if index >= len(path):
-            return res
+def parse_solution(solution):
+    paths = solution.strip('\n').split('#')
+    for path in paths:
+        index = 0
+        res = []
+        while True:
+            action, new_index = parse_token(path, index)
+
+            assert new_index > index
+            index = new_index
+            res.append(action)
+            if index >= len(path):
+                # TODO parse clones as well
+                return res

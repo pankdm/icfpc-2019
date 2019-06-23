@@ -15,12 +15,29 @@ from random import randint
 from world import World
 
 
+
+
+def rotate_clockwise(vec):
+    x, y = vec
+    return (y, -x)
+
+def rotate_counter_clockwise(vec):
+    x, y = vec
+    return (-y, x)
+
+
+def next_point(pt, vec):
+    x, y = pt
+    dx, dy = vec
+    return (x + dx, y + dy)
+
 class State:
     UNKNOWN = 0
     GOOD = 1
     BAD = 2
     FILLED = 3
     CONNECTED = 4
+    CONTOUR = 5
 
 def get_color(state):
     colors = {
@@ -29,6 +46,7 @@ def get_color(state):
         State.BAD : (255, 0, 0), # red
         State.FILLED : (255, 255, 0), # yellow
         State.CONNECTED: (255, 0, 0), # red
+        State.CONTOUR: (0, 255, 0), # grey
     }
     return colors[state]
 
@@ -42,6 +60,8 @@ class PuzzleSolver:
         self.spec = spec
         self.size = spec.tSize
         self.field = [[State.UNKNOWN] * self.size for x in range(self.size)]
+
+        print (f"min, max: {spec.vMin}, {spec.vMax}")
 
         for pt in spec.included:
             x, y = pt
@@ -78,7 +98,7 @@ class PuzzleSolver:
                 x = x0 + dx
                 y = y0 + dy
                 next = (x, y)
-                if self.field[x][y] in [State.FILLED, State.CONNECTED]:
+                if self.field[x][y] in [State.FILLED]:
                     target = now
                     break
 
@@ -100,7 +120,6 @@ class PuzzleSolver:
 
         self.set_state(start, State.CONNECTED)
 
-
     def set_state(self, pt, state):
         x, y = pt
         self.field[x][y] = state
@@ -113,10 +132,57 @@ class PuzzleSolver:
             if not res in self.used_for_boosters and self.world.inside(res):
                 self.used_for_boosters.add(res)
             return res
-        
+
     def gen_boosters(self, ch, count):
         for i in range(count):
             world.boosters.add_booster(ch, self.gen_booster_point())
+
+    def is_good(self, pt):
+        x, y = pt
+        return (self.field[x][y] in [State.UNKNOWN, State.GOOD, State.CONTOUR])
+
+    def find_lowest_left(self):
+        size = self.size
+        for x in range(0, size):
+            for y in range(0, size):
+                if self.field[x][y] in [State.UNKNOWN, State.GOOD]:
+                    return (x, y)
+
+    def generate_contour(self):
+        start = self.find_lowest_left()
+        forward = (1, 0)
+        points = list()
+        points.append(start)
+        now = start
+        num_turns = 0
+        while True:
+            if now == start and forward == (1, 0) and num_turns > 0:
+                break
+            self.set_state(now, State.CONTOUR)
+            x, y = now
+            right = rotate_clockwise(forward)
+            right_pt = next_point(now, right)
+            if self.is_good(right_pt):
+                num_turns += 1
+                points.append(now)
+                forward = right
+                now = right_pt
+
+                continue
+
+            forward_pt = next_point(now, forward)
+            if self.is_good(forward_pt):
+                now = forward_pt
+                continue
+
+            left = rotate_counter_clockwise(forward)
+            num_turns += 1
+            points.append(forward_pt)
+            forward = left
+
+        print ('num turns = ', num_turns)
+        print (points[-5:])
+        self.show()
 
     def solve(self):
         # create ostov tree for red
@@ -134,7 +200,7 @@ class PuzzleSolver:
             self.bfs_to_filled(pt)
             # input(">")
 
-        contour = []
+        countour = self.generate_contour()
 
         self.world = World(contour, [], self.gen_booster_point())
         spec = self.spec
@@ -147,8 +213,8 @@ class PuzzleSolver:
         img = Image.new('RGB', (self.size, self.size))
         for x in range(0, self.size):
             for y in range(0, self.size):
-                img.putpixel((x, y), get_color(self.field[x][y]))
-        img = img.resize((400, 400), Image.BILINEAR)
+                img.putpixel((x, self.size - 1 - y), get_color(self.field[x][y]))
+        img = img.resize((600, 600), Image.BILINEAR)
         img.show()
         img.save('image.png')
 

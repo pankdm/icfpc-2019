@@ -435,6 +435,9 @@ def apply_action(world, action):
     elif t == 'T':
         x, y = action.pt
         world.shift(x, y)
+    elif t == 'C':
+        # TODO clone
+        world.do_nothing()
     else:
         assert False, "Unknown action: {}".format(t)
 
