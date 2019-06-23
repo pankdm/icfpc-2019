@@ -18,10 +18,19 @@ ActionsClones Auto::Solve(const std::string& task,
     BaseClones bc0;
     m.AddSolution(bc0.Solve(task), "bc0");
   } else {
-    // File fsolver;
-    // m.AddSolution(fsolver.Solve(task, task_name), "fsr");
-    BaseGreedy3 bg3(BaseGreedy3Settings{false, true, 2, 2});
-    m.AddSolution(bg3.Solve(task), "bg3");
+    // Never comment file solver!
+    File fsolver;
+    m.AddSolution(fsolver.Solve(task, task_name), "fsr");
+    // End "never comment" section
+
+    // for (unsigned i = 1; i < 3; ++i) {
+    //   for (unsigned j = 1; j < 3; ++j) {
+    //     for (unsigned k = 0; k < 4; ++k) {
+    //       BaseGreedy3 bg3(BaseGreedy3Settings{k & 1, k & 2, i, j});
+    //       m.AddSolution(bg3.Solve(task), "bg3");
+    //     }
+    //   }
+    // }
     // for (unsigned i = 0; i < 4; ++i) {
     //   BaseGreedy3 bg3(BaseGreedy3Settings{i & 1, i & 2, 0});
     //   m.AddSolution(bg3.Solve(task), "bg3");
