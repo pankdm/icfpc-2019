@@ -10,6 +10,9 @@ def is_good_coordinate(x, spec):
         return False
     return True
 
+def is_good_point(p, spec):
+    return is_good_coordinate(p[0], spec) and is_good_coordinate(p[1], spec)
+
 def too_small(p, spec):
     xmin, xmax = p
     return (xmax - xmin + 1) <= spec.tSize - (spec.tSize // 10)
