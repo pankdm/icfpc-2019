@@ -127,6 +127,8 @@ bool BaseClones1::AssignClosestWorker(unsigned r, ActionsList& al) {
     m[index] = i;
   }
   unsigned best_distance = unsigned(-1);
+  bool ok = false;
+  Worker w = world.GetWorker(0);
   for (; !q.empty(); q.pop()) {
     unsigned d = q.front().distance;
     unsigned u = q.front().index;
@@ -137,9 +139,31 @@ bool BaseClones1::AssignClosestWorker(unsigned r, ActionsList& al) {
       unsigned wi = m[u];
       assert(wi < al.size());
       if (al[wi].type == ActionType::DO_NOTHING) {
+        w = world.GetWorker(wi);
         Direction d = GetDirection(world.map, u, f);
         Worker w = world.GetWorker(wi);
+        Direction d2 = GetDirection(world.map, f, u);
         Point pw(w.x, w.y);
+        if (d2.direction % 2 != w.direction.direction % 2 && wi == 0) {
+          bool need_turn = true;
+          Point next = pw + d2;
+          for (int i = 0; i < 2; i++) {
+            if (!world.map.Inside(next.x, next.y) ||
+                world.map.Get(next.x, next.y).WrappedOrBlocked()) {
+              need_turn = false;
+            }
+            next = next + d2;
+          }
+          if (need_turn) {
+            if (d2.direction == w.direction.direction - 1) {
+              al[wi].type = ActionType::ROTATE_CLOCKWISE;
+              return true;
+            } else {
+              al[wi].type = ActionType::ROTATE_COUNTERCLOCKWISE;
+              return true;
+            }
+          }
+        }
         al[wi].type = d.Get();
         return true;
       }
