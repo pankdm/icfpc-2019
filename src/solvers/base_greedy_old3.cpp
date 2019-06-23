@@ -1,21 +1,25 @@
-#include "solvers/base_greedy4.h"
+#include "solvers/base_greedy_old3.h"
 #include "base/action_type.h"
 #include "base/point.h"
 
 namespace solvers {
 
-BaseGreedy4::BaseGreedy4(BaseGreedy3Settings _settings)
-    : BaseGreedyOld3(_settings) {}
+BaseGreedyOld3::BaseGreedyOld3(BaseGreedy3Settings _settings) {
+  settings = _settings;
+  mops_to_go = _settings.chase_mops_cnt;
+}
 
-Action BaseGreedy4::NextMove() {
+Action BaseGreedyOld3::NextMove() {
   if (world.boosters.extensions.Available({world.time, 0})) {
     auto p =
         world.GetWorker().GetNextManipulatorPositionNaive(settings.use_sword);
-    if (mops_to_go == 1 || (mops_to_go > 0 && world.map.items_coords.count(
-                                                  Item::EXTENSION) == 0)) {
+    if (mops_to_go == 1 ||
+        (mops_to_go > 0 &&
+         (world.map.items_coords.count(Item::EXTENSION) == 0 ||
+          world.map.items_coords[Item::EXTENSION].empty()))) {
       BuildDS();
       ds_rebuid_required.Clear();
-      SetTarget();
+      SetTarget(settings.dist_weight);
     }
     mops_to_go--;
 
@@ -37,10 +41,11 @@ Action BaseGreedy4::NextMove() {
   if (!ds_rebuid_required.Empty()) {
     RebuildDS();
     ds_rebuid_required.Clear();
-    SetTarget();
+    SetTarget(settings.dist_weight);
   }
 
-  if (mops_to_go > 0 && world.map.items_coords.count(Item::EXTENSION) > 0) {
+  if (mops_to_go > 0 && (world.map.items_coords.count(Item::EXTENSION) > 0 &&
+                         !world.map.items_coords[Item::EXTENSION].empty())) {
     target.Clear();
     for (auto p : world.map.items_coords[Item::EXTENSION]) {
       target.Insert(world.map.Index(p.first, p.second));
@@ -159,7 +164,7 @@ Action BaseGreedy4::NextMove() {
   return Action(ActionType::END);
 }  // namespace solvers
 
-ActionsList BaseGreedy4::Solve(const std::string& task) {
+ActionsList BaseGreedyOld3::Solve(const std::string& task) {
   Init(task);
   ActionsList actions;
   for (; !Wrapped();) {
