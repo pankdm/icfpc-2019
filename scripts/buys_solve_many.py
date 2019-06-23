@@ -11,4 +11,6 @@ boost = ["C", "B"]
 
 for i in range(1, 301):
     for b in boost:
+        print ()
+        print ('Task {i}, buy {b}')
         solve_one(i, b)
