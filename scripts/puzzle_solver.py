@@ -87,7 +87,8 @@ def manhattan(pt, size):
 
 
 class PuzzleSolver:
-    def __init__(self, spec):
+    def __init__(self, spec, draw):
+        self.draw = draw
         self.spec = spec
         self.size = spec.tSize
         self.field = [[State.UNKNOWN] * self.size for x in range(self.size)]
@@ -353,10 +354,36 @@ class PuzzleSolver:
 
         self.show(task_spec)
 
+        self.show_map(mappa, self.spec, task_spec.location)
+
         return task_spec
 
+    def show_map(self, mappa, spec, location):
+        if not self.draw:
+            return
+        img = Image.new('RGB', (self.size, self.size))
+
+        def pp(x, y, color):
+            img.putpixel((x, self.size - 1 - y), color)
+
+        for x in range(0, mappa.xmax + 1):
+            for y in range(0, mappa.ymax + 1):
+                pp(x, y, (255, 255, 255) if mappa.inside((x, y)) else (0, 0, 0))
+
+        for p in spec.included:
+            pp(p[0], p[1], (0, 255, 0) if mappa.inside(p) else (0, 255, 255))
+        for p in spec.excluded:
+            pp(p[0], p[1], (255, 0, 0) if not mappa.inside(p) else (255, 255, 0))
+
+        pp(location[0], location[1], (0, 0, 255))
+
+        img = img.resize((1000, 1000), Image.BILINEAR)
+        img.show()
+        img.save('image.png')
+
     def show(self, task_spec=None):
-        return
+        if not self.draw:
+            return
         img = Image.new('RGB', (self.size, self.size))
         for x in range(0, self.size):
             for y in range(0, self.size):
@@ -373,13 +400,14 @@ class PuzzleSolver:
         input("waiting >")
 
 
+draw = len(sys.argv) > 3
 file = sys.argv[1]
 fout = sys.argv[2]
 s = read_file(file)
 
 spec = PuzzleSpec(s)
 
-solver = PuzzleSolver(spec)
+solver = PuzzleSolver(spec, draw)
 task_spec = solver.solve()
 
 write_problem(fout, task_spec)
