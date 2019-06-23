@@ -303,7 +303,6 @@ ActionsClones BaseClones::Solve(const std::string& task) {
     if (do_nothing) break;
   }
   if (actions.size() < world.WCount()) actions.resize(world.WCount());
-  //   std::cerr << "Solver finished" << std::endl;
   return actions;
 }
 }  // namespace solvers
