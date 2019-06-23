@@ -165,6 +165,8 @@ class PuzzleSolver:
         x, y = pt
         return self.field[x][y]
 
+    def rand_point(seld):
+
     def gen_booster_point(self):
         while True:
             x = randint(0, self.spec.tSize - 1)
