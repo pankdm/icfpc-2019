@@ -7,15 +7,18 @@ from parser import read_yaml
 
 GOLD = "../solutions_gold/"
 
-def print_score(base_yaml, compare_yaml):
+def print_score(n, base_yaml, compare_yaml):
     old_score = base_yaml["time"]
     new_score = compare_yaml["time"]
-    delta = (compare_yaml["max_score"] * (old_score - new_score) / old_score)
+    max_score = compare_yaml["max_score"]
+    delta = (max_score * (old_score - new_score) / old_score)
 
     buy = compare_yaml["buy"]
     spent = compare_yaml["spent"]
     roi = delta / spent
-    msg = f"{buy} ({spent}): {old_score} -> {new_score} (+{delta:.2f}) ROI = {roi * 100:.2f}%"
+    msg = (f"Task {n}: {buy} ({spent}): " +
+           f"{old_score} -> {new_score} = (+{delta:.1f}), max {max_score}, " +
+           f"ROI = {roi * 100:.1f}%")
     # print (msg)
     return roi, msg
 
@@ -35,10 +38,10 @@ def process_task(n):
         s = re.match("(\d+).meta.yaml", f)
         if s:
             compare_yaml = read_yaml(folder + f)
-            rois.append(print_score(base_yaml, compare_yaml))
+            rois.append(print_score(n, base_yaml, compare_yaml))
 
     rois.sort(key = lambda x : x[0], reverse=True)
-    print (f"Task {n}: {rois[0][1]}")
+    print (f"{rois[0][1]}")
 
 if __name__ == "__main__":
     for i in range(1, 300):
