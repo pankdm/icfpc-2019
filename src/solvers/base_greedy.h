@@ -1,12 +1,12 @@
 #pragma once
 
-#include "base/world.h"
+#include "base/world_ext.h"
 #include "solvers/solver.h"
 
 namespace solvers {
 class BaseGreedy : public Solver {
  protected:
-  World world;
+  WorldExt world;
 
  public:
   ActionsList Solve(const std::string& task);
