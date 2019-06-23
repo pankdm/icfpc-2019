@@ -70,14 +70,68 @@ void BaseGreedy2::RebuildDS() {
   BuildDSUnsignedSet();
 }
 
-void BaseGreedy2::SetTarget() {
-  unsigned min_ds_size = ds.Size();
-  for (unsigned u : unwrapped.List()) {
-    min_ds_size = std::min(min_ds_size, ds.GetSize(u));
-  }
-  target.Clear();
-  for (unsigned u : unwrapped.List()) {
-    if (ds.GetSize(u) == min_ds_size) target.Insert(u);
+void BaseGreedy2::SetTarget(unsigned dist_weight) {
+  if (dist_weight == 0) {
+    unsigned min_ds_size = ds.Size();
+    for (unsigned u : unwrapped.List()) {
+      min_ds_size = std::min(min_ds_size, ds.GetSize(u));
+    }
+    target.Clear();
+    for (unsigned u : unwrapped.List()) {
+      if (ds.GetSize(u) == min_ds_size) target.Insert(u);
+    }
+  } else {
+    target.Clear();
+    auto w = world.GetWorker();
+    // score = dist + size
+    int best_score = -1;
+    std::map<int, int> rep_to_score;
+    std::map<int, int> rep_to_size;
+    for (unsigned u : unwrapped.List()) {
+      rep_to_size[ds.Find(u)] = ds.GetSize(u);
+    }
+    std::queue<std::pair<int, int>> q;
+    UnsignedSet s(world.map.Size());
+    q.push(std::make_pair(world.map.Index(w.x, w.y), 0));
+    s.Insert(world.map.Index(w.x, w.y));
+    for (; !q.empty(); q.pop()) {
+      int index = q.front().first;
+      int dist = q.front().second;
+      Point px(world.map.X(index), world.map.Y(index));
+      if (!world.map.Get(px.x, px.y).WrappedOrBlocked()) {
+        if (best_score != -1 && dist_weight * dist > best_score) {
+          break;
+        }
+        int rep = ds.Find(index);
+        if (rep_to_score.count(rep) == 0) {
+          int score = dist * dist_weight + ds.GetSize(rep);
+          rep_to_score[rep] = score;
+          if (best_score == -1 || score < best_score) {
+            best_score = score;
+          }
+        }
+        if (rep_to_score.size() == rep_to_size.size()) {
+          break;
+        }
+      }
+      for (int i = 0; i < 4; i++) {
+        Point p = px + Direction(i);
+        if (!world.map.Inside(p.x, p.y)) {
+          continue;
+        }
+        int index = world.map.Index(p.x, p.y);
+        if (s.HasKey(index)) {
+          continue;
+        }
+        q.push(std::make_pair(index, dist + 1));
+        s.Insert(index);
+      }
+    }
+    for (unsigned u : unwrapped.List()) {
+      if (rep_to_score[ds.Find(u)] == best_score) {
+        target.Insert(u);
+      }
+    }
   }
 }
 

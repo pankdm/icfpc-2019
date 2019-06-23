@@ -13,11 +13,13 @@ Action BaseGreedy3::NextMove() {
   if (world.boosters.unused_extensions) {
     auto p =
         world.GetWorker().GetNextManipulatorPositionNaive(settings.use_sword);
-    if (mops_to_go == 1 || (mops_to_go > 0 && world.map.items_coords.count(
-                                                  Item::EXTENSION) == 0)) {
+    if (mops_to_go == 1 ||
+        (mops_to_go > 0 &&
+         (world.map.items_coords.count(Item::EXTENSION) == 0 ||
+          world.map.items_coords[Item::EXTENSION].empty()))) {
       BuildDS();
       ds_rebuid_required.Clear();
-      SetTarget();
+      SetTarget(settings.dist_weight);
     }
     mops_to_go--;
 
@@ -39,10 +41,11 @@ Action BaseGreedy3::NextMove() {
   if (!ds_rebuid_required.Empty()) {
     RebuildDS();
     ds_rebuid_required.Clear();
-    SetTarget();
+    SetTarget(settings.dist_weight);
   }
 
-  if (mops_to_go > 0 && world.map.items_coords.count(Item::EXTENSION) > 0) {
+  if (mops_to_go > 0 && (world.map.items_coords.count(Item::EXTENSION) > 0 &&
+                         !world.map.items_coords[Item::EXTENSION].empty())) {
     target.Clear();
     for (auto p : world.map.items_coords[Item::EXTENSION]) {
       target.Insert(world.map.Index(p.first, p.second));
