@@ -13,7 +13,7 @@ assert 0 <= shard < NUM_SHARDS
 
 for i in range(1, 301):
     if i % NUM_SHARDS == shard:
-        for b in boost:
+        for b in boosters:
             print ()
-            print ('Task {i}, buy {b}')
+            print (f"Task {i}, buy {b}")
             solve_one(i, b)
