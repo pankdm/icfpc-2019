@@ -61,12 +61,16 @@ def solve_one(n, boosters):
     with open(buy_in, "w") as buy_file:
         buy_file.write(boosters)
 
+    extra_args = []
+    if os.path.isfile(task_out):
+        extra_args = ["-current_best", task_out]
+
     subprocess.check_call(
         ["../src/build/cpp_solver",
             "-solve", "1",
             "-in", task_in,
             "-out", task_out,
-            "-bonus", buy_in])
+            "-bonus", buy_in] + extra_args)
 
     task_in_content = read_file(task_in)
     world = parse_problem(task_in_content)
