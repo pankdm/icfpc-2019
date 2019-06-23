@@ -32,9 +32,6 @@ class ClonesGreedy : public Solver {
  protected:
   void Init(const std::string& task);
   void CleanPOI();
-  void BuildDSUnsignedSet();
-  void BuildDS();
-  void RebuildDS();
   void UpdateTarget();
   bool AssignClosestWorker(unsigned r, ActionsList& al);
   ActionType SendToNearestCodeX(unsigned windex);
@@ -42,8 +39,6 @@ class ClonesGreedy : public Solver {
   void NextMove_Init(ActionsList& al);
   void NextMove_Wrap(ActionsList& al);
   ActionsList NextMove();
-  void Update();
-  bool Wrapped();
 
  public:
   ActionsClones Solve(const std::string& task, unsigned _strategy,
