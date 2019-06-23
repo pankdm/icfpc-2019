@@ -384,4 +384,8 @@ task_spec = solver.solve()
 
 write_problem(fout, task_spec)
 world = parse_problem(read_file(sys.argv[2]))
-print(puzzle_valid(spec, world))
+valid = puzzle_valid(spec, world)
+print("valid", valid)
+if not valid:
+    sys.exit(1)
+

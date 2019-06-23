@@ -42,8 +42,13 @@ def solve(task):
     with open(puzzleIn, "w") as fTask:
         fTask.write(blockinfo["puzzle"])
 
-    subprocess.check_call(
-         [python, "../scripts/puzzle_solver.py", puzzleIn, puzzleOut])
+    res = 1
+    it = 0
+    while res != 0 and it < 20:
+        print("puzzle_solver %d" % it)
+        res = subprocess.call(
+            [python, "../scripts/puzzle_solver.py", puzzleIn, puzzleOut])
+        it += 1
 
     taskIn = "data/task%s.desc" % str(blockId)
     taskOut = "data/task%s.sol" % str(blockId)
