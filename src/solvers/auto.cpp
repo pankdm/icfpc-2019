@@ -94,14 +94,10 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
     m.AddSolution(fsolver.Solve(task, task_name), "fsr");
     // End "never comment" section
 
-    for (unsigned i = 0; i < 8; i++) {
-      for (int j = 0; j < 40; j += 10) {
-        BaseClones1Settings sett{i & 1, i & 2, j, i & 4};
-        BaseClones1 bc;
-        m.AddSolution(bc.Solve(task, sett, bonuses), "bc");
-        BaseClones1 bc3;
-      }
-    }
+    // for (unsigned i = 0; i < 4; ++i) {
+    //   BaseGreedy3 bg3(BaseGreedy3Settings{i & 1, i & 2, 0});
+    //   m.AddSolution(bg3.Solve(task), "bg3");
+    // }
 
     // for (unsigned i = 1; i < 3; ++i) {
     //   for (unsigned j = 1; j < 3; ++j) {
@@ -111,15 +107,20 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
     //     }
     //   }
     // }
-    // for (unsigned i = 0; i < 4; ++i) {
-    //   BaseGreedy3 bg3(BaseGreedy3Settings{i & 1, i & 2, 0});
-    //   m.AddSolution(bg3.Solve(task), "bg3");
-    // }
+
     // BaseClones bc0;
     // m.AddSolution(bc0.Solve(task), "bc0");
     // for (unsigned i = 0; i < 2; ++i) {
     //   ClonesGreedy cg0;
     //   m.AddSolution(cg0.Solve(task, i), "cg0");
+    // }
+
+    // for (unsigned i = 0; i < 8; i++) {
+    //   for (int j = 0; j < 40; j += 10) {
+    //     BaseClones1Settings sett{i & 1, i & 2, j, i & 4};
+    //     BaseClones1 bc;
+    //     m.AddSolution(bc.Solve(task, sett, bonuses), "bc");
+    //   }
     // }
   }
   return m.Solution();
