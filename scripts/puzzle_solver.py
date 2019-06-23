@@ -93,7 +93,7 @@ class PuzzleSolver:
         self.size = spec.tSize
         self.field = [[State.UNKNOWN] * self.size for x in range(self.size)]
 
-        print(f"size = {self.size}, min, max: {spec.vMin}, {spec.vMax}")
+        print(f"size = {self.size}, min, max: {spec.vMin}, {spec.vMax}, incl: %d, excl: %d" % (len(spec.included), len(spec.excluded)))
 
         for pt in spec.included:
             x, y = pt
@@ -116,6 +116,7 @@ class PuzzleSolver:
 
     def get_points_order(self):
         pts = [pt for pt in spec.excluded]
+        # pts = list(filter(lambda p: p[0] and p[1], pts))
         pts.sort(key=lambda x: manhattan(x, self.size))
         return pts
 
@@ -343,6 +344,7 @@ class PuzzleSolver:
 
         task_spec.location = self.gen_location()
 
+        self.show()
         print("#points: ", len(contour))
         mappa = Mappa(contour, [], task_spec.location)
 
