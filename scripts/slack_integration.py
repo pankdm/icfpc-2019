@@ -1,6 +1,6 @@
 import sys
 
-def post_logs(s):
+def post_to_slack(s):
     try:
         import os
         import slack
