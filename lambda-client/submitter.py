@@ -35,7 +35,7 @@ def print_and_log(logs, s):
 
 iteration = 0
 def send_logs(logs):
-    post_to_slack("\n".join(logs))
+    post_to_slack("```\n{}\n```".format("\n".join(logs)))
 
 
 def output_exist(blockId):
