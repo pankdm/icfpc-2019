@@ -8,5 +8,13 @@ while [ 1 ]; do
     cd ../src
     make
     cd -
+
+    ps_out=$(ps fx | grep submitter | grep -v grep)
+    if [[ "${ps_out}" == "" ]]; then
+        cd ../lambda-client
+        ./submitter.py &
+        cd -
+    fi
+
     sleep 60
 done

@@ -35,6 +35,10 @@ def solve(task):
     if blockId in state["submitted"]:
         return
 
+    fnameTask = "data/task%s.json" % str(blockId)
+    with open(fnameTask, "w") as fTask:
+        fTask.write(task)
+
     print(task)
     if "15" in blockinfo["balances"]:
         print('balance', blockinfo["balances"]["15"])
