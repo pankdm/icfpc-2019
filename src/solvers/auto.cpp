@@ -15,6 +15,8 @@ ActionsClones Auto::Solve(const std::string& task,
     m.AddSolution(bg2.Solve(task), "bg2");
     BaseGreedy3 bg3(BaseGreedy3Settings{true, true, 0, 0});
     m.AddSolution(bg3.Solve(task), "bg3");
+    BaseGreedy3 bg4(BaseGreedy3Settings{true, true, 100, 2});
+    m.AddSolution(bg4.Solve(task), "bg4");
     BaseClones bc0;
     m.AddSolution(bc0.Solve(task), "bc0");
   } else {
