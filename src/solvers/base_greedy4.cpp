@@ -8,7 +8,7 @@ BaseGreedy4::BaseGreedy4(BaseGreedy3Settings _settings)
     : BaseGreedy3(_settings) {}
 
 Action BaseGreedy4::NextMove() {
-  if (world.boosters.unused_extensions) {
+  if (world.boosters.extensions.Available({world.time, 0})) {
     auto p =
         world.GetWorker().GetNextManipulatorPositionNaive(settings.use_sword);
     if (mops_to_go == 1 || (mops_to_go > 0 && world.map.items_coords.count(

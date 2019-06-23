@@ -10,7 +10,7 @@ BaseGreedy3::BaseGreedy3(BaseGreedy3Settings _settings) {
 }
 
 Action BaseGreedy3::NextMove() {
-  if (world.boosters.unused_extensions) {
+  if (world.boosters.extensions.Available({world.time, 0})) {
     auto p =
         world.GetWorker().GetNextManipulatorPositionNaive(settings.use_sword);
     if (mops_to_go == 1 ||
