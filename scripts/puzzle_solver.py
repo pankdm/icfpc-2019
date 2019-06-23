@@ -13,7 +13,7 @@ from copy import deepcopy
 from collections import deque
 from random import randint
 
-from world import World
+from world import World, Mappa
 
 
 def rotate_clockwise(vec):
