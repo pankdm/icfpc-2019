@@ -76,7 +76,7 @@ def get_color(state):
         State.BAD: (255, 0, 0),  # red
         State.FILLED: (255, 255, 0),  # yellow
         State.CONNECTED: (255, 0, 0),  # red
-        State.CONTOUR: (0, 255, 0),  # grey
+        State.CONTOUR: (128, 128, 128),  # grey
     }
     return colors[state]
 
@@ -272,7 +272,8 @@ class PuzzleSolver:
         now = start
         while True:
             last = now == start and len(points) > 0
-            self.set_state(now, State.CONTOUR)
+            if (self.get_state(now) == State.UNKNOWN):
+                self.set_state(now, State.CONTOUR)
             x, y = now
             left_pt = next_point(now, left)
             forward_pt = next_point(now, forward)
