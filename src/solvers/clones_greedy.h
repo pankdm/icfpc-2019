@@ -51,6 +51,7 @@ class ClonesGreedy : public Solver {
   bool Wrapped();
 
  public:
-  ActionsClones Solve(const std::string& task, unsigned _strategy);
+  ActionsClones Solve(const std::string& task, unsigned _strategy,
+                      const std::string& bonuses);
 };
 }  // namespace solvers

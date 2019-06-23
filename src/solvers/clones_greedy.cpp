@@ -313,10 +313,12 @@ void ClonesGreedy::Update() {
 
 bool ClonesGreedy::Wrapped() { return unwrapped.Empty(); }
 
-ActionsClones ClonesGreedy::Solve(const std::string& task, unsigned _strategy) {
+ActionsClones ClonesGreedy::Solve(const std::string& task, unsigned _strategy,
+                                  const std::string& bonuses) {
   if ((Count(task, Item::CLONE) == 0) || (Count(task, Item::CODEX) == 0))
     return {};
   strategy = _strategy;
+  world.InitBonuses(bonuses);
   Init(task);
   ActionsClones actions;
   for (; !Wrapped();) {

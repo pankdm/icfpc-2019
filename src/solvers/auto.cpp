@@ -19,7 +19,7 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
     tp = std::make_shared<ThreadPool>(cmd.int_args["threads"]);
   }
 
-  Merger m(task, task_name);
+  Merger m(task, task_name, bonuses);
   if (task_name == "ext") {
     using Result = std::pair<std::string, ActionsClones>;
 
@@ -64,7 +64,7 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
       futures.emplace_back(tp->enqueueTask<Result>(
           std::make_shared<std::packaged_task<Result()>>([&, i]() {
             ClonesGreedy cg0;
-            return Result("cg0", cg0.Solve(task, i));
+            return Result("cg0", cg0.Solve(task, i, bonuses));
           })));
     }
 

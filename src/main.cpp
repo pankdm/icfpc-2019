@@ -26,6 +26,12 @@ int main(int argc, char* argv[]) {
   if (cmd.int_args["solve"]) {
     auto in = cmd.args["in"];
     auto out = cmd.args["out"];
+    /*
+    Adds support for initial bonus boosters for the experimental runs
+        Example: src$ build/cpp_solver -solve 1 -in
+    ../lambda-client/data/task13.desc -out temp.log -bonus
+    ../lambda-client/bonuses.buy
+     */
     auto bonus = cmd.args["bonus"];
     solvers::Solve(in, out, bonus, "ext");
     return 0;
