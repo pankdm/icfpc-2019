@@ -24,7 +24,7 @@ class BaseGreedy2 : public Solver {
   void BuildDSUnsignedSet();
   void BuildDS();
   void RebuildDS();
-  void SetTarget();
+  void SetTarget(unsigned dist_weight = 1);
   Action NextMove();
   void Update();
   bool Wrapped();

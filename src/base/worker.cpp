@@ -154,7 +154,7 @@ void Worker::Move(const Direction& d, Map& map, bool drill_enabled) {
   assert(map.ValidToMove(x, y, drill_enabled));
   if (drill_enabled) map.Drill(x, y);
   Item item = map(x, y).GetItem();
-  if ((item != Item::BEACON) && (item != Item::CODEX)) {
+  if ((item != Item::BEACON) && (item != Item::CODEX) && (item != Item::NONE)) {
     map.items_coords[item].erase(std::make_pair(x, y));
   }
   switch (item) {
