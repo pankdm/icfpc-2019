@@ -93,7 +93,7 @@ class PuzzleSolver:
         self.size = spec.tSize
         self.field = [[State.UNKNOWN] * self.size for x in range(self.size)]
 
-        print(f"min, max: {spec.vMin}, {spec.vMax}")
+        print(f"size = {self.size}, min, max: {spec.vMin}, {spec.vMax}")
 
         for pt in spec.included:
             x, y = pt
@@ -235,7 +235,7 @@ class PuzzleSolver:
 
         while True:
             if self.is_fillable(now, forward):
-                print('filling ', now)
+                # print('filling ', now)
                 self.set_state(now, State.FILLED)
                 num_corners -= 4
                 if num_corners < 0:
@@ -304,8 +304,8 @@ class PuzzleSolver:
             if last:
                 break
 
-        self.show()
-        print('num turns = ', len(points))
+        # self.show()
+        # print('num turns = ', len(points))
         return points
 
     def solve(self):
@@ -328,11 +328,11 @@ class PuzzleSolver:
         num_turns = len(contour)
         if num_turns < self.spec.vMin:
             to_fill = self.spec.vMin - num_turns
-            print("filling turns: ", to_fill)
+            # print("filling turns: ", to_fill)
             self.fill_corners(to_fill)
-            self.show()
+            # self.show()
             contour = self.generate_contour()
-            self.show()
+            # self.show()
             assert len(contour) >= self.spec.vMin
 
         task_spec = TaskSpec()
@@ -379,7 +379,8 @@ class PuzzleSolver:
 
         pp(location[0], location[1], (0, 0, 255))
 
-        img = img.resize((1000, 1000), Image.BILINEAR)
+        scale = int(1000 / self.size)
+        img = img.resize((scale * self.size, scale * self.size))
         img.show()
         img.save('image.png')
 
@@ -395,11 +396,12 @@ class PuzzleSolver:
         if task_spec:
             for b in task_spec.boosters:
                 img.putpixel((b[1][0], self.size - 1 - b[1][1]), (255, 255, 255))
-
-        img = img.resize((1000, 1000), Image.BILINEAR)
+        # img = img.resize((1000, 1000), Image.BILINEAR)
+        scale = int(1000 / self.size)
+        img = img.resize((scale * self.size, scale * self.size))
         img.show()
-        img.save('image.png')
-        input("waiting >")
+        # img.save('image.png')
+        # input("waiting >")
 
 
 draw = len(sys.argv) > 3
@@ -418,4 +420,3 @@ valid = puzzle_valid(spec, world)
 print("valid", valid)
 if not valid:
     sys.exit(1)
-
