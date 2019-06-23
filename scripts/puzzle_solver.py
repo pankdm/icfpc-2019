@@ -331,7 +331,10 @@ class PuzzleSolver:
         task_spec = TaskSpec()
         task_spec.contour = contour
         task_spec.boosters = set()
+
         task_spec.location = self.gen_location()
+
+        mappa = Mappa(contour)
 
         spec = self.spec
         for ch, count in [
