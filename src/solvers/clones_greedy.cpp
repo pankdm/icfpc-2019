@@ -1,7 +1,6 @@
 #include "solvers/clones_greedy.h"
 
 #include "base/action.h"
-#include "base/action_encode.h"
 #include "base/action_type.h"
 #include "base/count.h"
 #include "base/direction.h"
@@ -90,7 +89,7 @@ bool ClonesGreedy::AssignClosestWorker(unsigned r, ActionsList& al) {
       best_distance = d;
       unsigned wi = m[u];
       assert(wi < al.size());
-      if (al[wi].type == ActionType::DO_NOTHING) {
+      if (Sleep(al[wi])) {
         al[wi].type = GetDirection(world.map, u, f).Get();
         return true;
       }
@@ -203,7 +202,7 @@ void ClonesGreedy::NextMove_Init(ActionsList& al) {
         }
       }
     }
-    assert(al[0].type != ActionType::DO_NOTHING);
+    assert(!Sleep(al[0]));
     return;
   }
   // Go to nearest CodeX point.
@@ -224,7 +223,7 @@ void ClonesGreedy::NextMove_Wrap(ActionsList& al) {
   unsigned l = al.size();
   unsigned waiting_workers = 0;
   for (auto& action : al) {
-    if (action.type == ActionType::DO_NOTHING) waiting_workers += 1;
+    if (Sleep(action)) waiting_workers += 1;
   }
   if (waiting_workers == 0) return;
   if (world.UpdateDSRequired()) {
@@ -237,8 +236,7 @@ void ClonesGreedy::NextMove_Wrap(ActionsList& al) {
   }
   // Do something with remaining workers
   for (unsigned i = 0; i < l; ++i) {
-    if (al[i].type == ActionType::DO_NOTHING)
-      al[i].type = SendToNearestUnwrapped(i);
+    if (Sleep(al[i])) al[i].type = SendToNearestUnwrapped(i);
   }
 }
 
