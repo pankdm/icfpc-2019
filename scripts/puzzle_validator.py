@@ -29,7 +29,7 @@ def puzzle_valid(spec, world):
         if not is_good_coordinate(c[0], spec) or not is_good_coordinate(c[1], spec):
             print("Not valid coordinate")
             return False
-    if not world.mappa.inside(world.get_location()):
+    if not world.mappa.valid_and_inside(world.get_location()):
         print("Not inside %s" % (str(world.mappa.get_color(world.get_location()))))
         return False
 
@@ -51,12 +51,12 @@ def puzzle_valid(spec, world):
         return False
 
     for i in spec.included:
-        if not world.mappa.inside(i):
+        if not world.mappa.valid_and_inside(i):
             print("Missing included (%d, %d)" % (i[0], i[1]))
             return False
 
     for i in spec.excluded:
-        if world.mappa.inside(i):
+        if world.mappa.valid_and_inside(i):
             print("Missing excluded (%d, %d)" % (i[0], i[1]))
             return False
 
@@ -64,8 +64,21 @@ def puzzle_valid(spec, world):
         if not is_good_point(b[1], spec):
             print("Wrong booster position (%d, %d) box" % (b[1][0], b[1][1]))
             return False
-        if not world.mappa.inside(b[1]):
+        if not world.mappa.valid_and_inside(b[1]):
             print("Wrong booster position (%d, %d) inside" % (b[1][0], b[1][1]))
             return False
+
+    bpoints = set()
+    added = 1
+    bpoints.add(world.get_location())
+    for b in world.boosters.toList():
+        if b[1] in bpoints:
+            print("dup (%d, %d)" % (b[1][0], b[1][1]))
+        bpoints.add(b[1])
+        added += 1
+
+    if added != len(bpoints):
+        print("Boosters intersect %d %d" % (added, len(bpoints)))
+        return False
 
     return True
