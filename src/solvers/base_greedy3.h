@@ -1,6 +1,6 @@
 #pragma once
 
-#include "solvers/base_greedy2.h"
+#include "solvers/base_greedy_old2.h"
 #include <set>
 
 namespace solvers {
@@ -14,7 +14,7 @@ class BaseGreedy3Settings {
                     // 2 = chase rgmin(2*dist+size) (prefer closest) etc.
 };
 
-class BaseGreedy3 : public BaseGreedy2 {
+class BaseGreedy3 : public BaseGreedyOld2 {
   std::set<std::pair<int, int>> bonuses;
   Action NextMove();
 

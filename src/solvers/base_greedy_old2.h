@@ -8,7 +8,7 @@
 #include <vector>
 
 namespace solvers {
-class BaseGreedy2 : public Solver {
+class BaseGreedyOld2 : public Solver {
  protected:
   World world;
 
