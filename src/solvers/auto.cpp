@@ -57,21 +57,21 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
     futures.emplace_back(tp->enqueueTask<Result>(
         std::make_shared<std::packaged_task<Result()>>([&]() {
           BaseClones1 bc1;
-          BaseClones1Settings sett{0, 0, 10, true};
+          BaseClones1Settings sett{0, 0, 100, true};
           return Result("bc1", bc1.Solve(task, sett, bonuses));
         })));
 
     futures.emplace_back(tp->enqueueTask<Result>(
         std::make_shared<std::packaged_task<Result()>>([&]() {
           BaseClones1 bc2;
-          BaseClones1Settings sett{1, 0, 10, true};
+          BaseClones1Settings sett{1, 0, 100, true};
           return Result("bc2", bc2.Solve(task, sett, bonuses));
         })));
 
     futures.emplace_back(tp->enqueueTask<Result>(
         std::make_shared<std::packaged_task<Result()>>([&]() {
           BaseClones1 bc3;
-          BaseClones1Settings sett{0, 1, 10, true};
+          BaseClones1Settings sett{0, 1, 100, true};
           return Result("bc3", bc3.Solve(task, sett, bonuses));
         })));
 

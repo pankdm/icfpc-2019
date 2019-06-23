@@ -167,7 +167,7 @@ bool BaseClones1::AssignClosestWorker(unsigned r, ActionsList& al) {
           Direction wd = w.direction;
           Point pw(w.x, w.y);
 
-          if (wi == 0 && sett.use_shifts) {
+          if (wi == sett.manip_index && sett.use_shifts) {
             for (int i = 0; i < 2; i++) {
               Direction d((1 + 2 * i + w.direction.direction) % 4);
               int score = 0;
