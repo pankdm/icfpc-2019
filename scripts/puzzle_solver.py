@@ -360,8 +360,7 @@ class PuzzleSolver:
                              get_color(self.field[x][y]))
 
         for b in self.boosters.toList():
-                img.putpixel((b[0], self.size - 1 - b[1]),
-                             )
+            img.putpixel((b[0], self.size - 1 - b[1]), (255, 255, 255))
 
         img = img.resize((600, 600), Image.BILINEAR)
         img.show()
