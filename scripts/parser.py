@@ -65,19 +65,21 @@ def parse_problem(s):
     return world
 
 
+class TaskSpec:
+    def __init__(self):
+        self.contour = None
+        self.boosters = None
+        self.location = None
+
 def write_point(point):
     return "(%d,%d)" % (point[0], point[1])
 
 
-def write_map(mappa):
-    if mappa:
-        return ",".join(map(write_point, mappa.contour))
-    else:
-        return ""
-
+def write_contour(contour):
+    return ",".join(map(write_point, contour))
 
 def write_obstacles(obstacles):
-    return ";".join(map(write_map, obstacles))
+    return ";".join(map(write_contour, obstacles))
 
 
 def write_booster(booster):
@@ -86,17 +88,17 @@ def write_booster(booster):
 
 def write_boosters(boosters):
     if boosters:
-        return ";".join(map(write_booster, boosters.toList()))
+        return ";".join(map(write_booster, boosters))
     else:
         return ""
 
 
-def write_problem(fname, world):
+def write_problem(fname, task_spec):
     s = "#".join([
-        write_map(world.mappa),
-        write_point(world.get_location()),
-        write_obstacles(world.mappa.obstacles),
-        write_boosters(world.boosters)])
+        write_contour(task_spec.contour),
+        write_point(task_spec.location),
+        write_obstacles({}),
+        write_boosters(task_spec.boosters)])
 
     with open(fname, "w") as fOut:
         fOut.write(s)

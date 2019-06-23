@@ -3,7 +3,7 @@
 from PIL import Image
 
 from puzzle_parser import PuzzleSpec
-from parser import read_file, write_problem
+from parser import read_file, write_problem, TaskSpec
 from puzzle_validator import puzzle_valid
 
 import sys
@@ -81,6 +81,7 @@ class PuzzleSolver:
 
         self.world = None
         self.used_for_boosters = set()
+        self.used_for_something = set()
 
     def get_points_order(self):
         pts = [pt for pt in spec.excluded]
@@ -134,16 +135,26 @@ class PuzzleSolver:
 
     def gen_booster_point(self):
         while True:
-            x = randint(0, self.spec.tSize)
-            y = randint(0, self.spec.tSize)
+            x = randint(0, self.spec.tSize - 1)
+            y = randint(0, self.spec.tSize - 1)
             res = (x, y)
-            if not res in self.used_for_boosters and self.world.inside(res):
+            if not res in self.used_for_boosters and self.is_good(res):
                 self.used_for_boosters.add(res)
+                self.used_for_something.add(res)
             return res
 
-    def gen_boosters(self, ch, count):
+    def gen_location(self):
+        while True:
+            x = randint(0, self.spec.tSize - 1)
+            y = randint(0, self.spec.tSize - 1)
+            res = (x, y)
+            if not res in self.used_for_something and self.is_good(res):
+                self.used_for_something.add(res)
+            return res
+
+    def gen_boosters(self, ch, count, task_spec):
         for i in range(count):
-            world.boosters.add_booster(ch, self.gen_booster_point())
+            task_spec.boosters.add((ch, self.gen_booster_point()))
 
     def is_good(self, pt):
         x, y = pt
@@ -188,9 +199,9 @@ class PuzzleSolver:
             points.append(forward_pt)
             forward = left
 
-        print('num turns = ', num_turns)
-        print(points[-5:])
-        self.show()
+        print ('num turns = ', num_turns)
+        print (points[-5:])
+        return points
 
     def solve(self):
         # create ostov tree for red
@@ -208,14 +219,24 @@ class PuzzleSolver:
             self.bfs_to_filled(pt)
             # input(">")
 
-        contour = self.generate_contour()
+        task_spec = TaskSpec()
+        task_spec.contour = self.generate_contour()
+        task_spec.boosters = set()
+        task_spec.location = self.gen_location()
 
-        self.world = World(contour, [], self.gen_booster_point())
         spec = self.spec
-        for ch, count in [('M', spec.mNum), ('F', spec.fNum), ('L', spec.dNum), ('R', spec.rNum), ('C', spec.cNum), ('X', spec.xNum)]:
-            self.gen_boosters(ch, count)
+        for ch, count in [
+            ('M', spec.mNum),
+            ('F', spec.fNum),
+            ('L', spec.dNum),
+            ('R', spec.rNum),
+            ('C', spec.cNum),
+            ('X', spec.xNum)
+        ]:
+            self.gen_boosters(ch, count, task_spec)
+        return task_spec
 
-        self.show()
+        # self.show()
 
     def show(self):
         img = Image.new('RGB', (self.size, self.size))
@@ -229,13 +250,13 @@ class PuzzleSolver:
 
 
 file = sys.argv[1]
+fout = sys.argv[2]
 s = read_file(file)
 
 spec = PuzzleSpec(s)
 
 solver = PuzzleSolver(spec)
-solver.solve()
+task_spec = solver.solve()
 
-world = solver.world
-print(puzzle_valid(spec, world))
-write_problem(fOut, world)
+# print(puzzle_valid(spec, world))
+write_problem(fout, task_spec)
