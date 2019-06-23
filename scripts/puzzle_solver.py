@@ -3,7 +3,7 @@
 from PIL import Image
 
 from puzzle_parser import PuzzleSpec
-from parser import read_file, write_problem, TaskSpec
+from parser import read_file, parse_problem, write_problem, TaskSpec
 from puzzle_validator import puzzle_valid
 
 import sys
@@ -30,6 +30,7 @@ def next_point(pt, vec):
     x, y = pt
     dx, dy = vec
     return (x + dx, y + dy)
+
 
 def prev_point(pt, vec):
     x, y = pt
@@ -138,7 +139,6 @@ class PuzzleSolver:
         x, y = pt
         self.field[x][y] = state
 
-
     def get_state(self, pt):
         x, y = pt
         return self.field[x][y]
@@ -148,7 +148,7 @@ class PuzzleSolver:
             x = randint(0, self.spec.tSize - 1)
             y = randint(0, self.spec.tSize - 1)
             res = (x, y)
-            if not res in self.used_for_boosters and self.is_good(res):
+            if res not in self.used_for_boosters and self.is_good(res):
                 self.used_for_boosters.add(res)
                 self.used_for_something.add(res)
             return res
@@ -158,7 +158,7 @@ class PuzzleSolver:
             x = randint(0, self.spec.tSize - 1)
             y = randint(0, self.spec.tSize - 1)
             res = (x, y)
-            if not res in self.used_for_something and self.is_good(res):
+            if res not in self.used_for_something and self.is_good(res):
                 self.used_for_something.add(res)
             return res
 
@@ -184,7 +184,6 @@ class PuzzleSolver:
             (prev_point(pt, forward), state)
         ]
 
-
     def is_fillable(self, pt, forward):
         right = rotate_clockwise(forward)
         left = rotate_counter_clockwise(forward)
@@ -204,13 +203,14 @@ class PuzzleSolver:
         now = start
 
         while True:
-            print ('at ', now, forward)
+            print('at ', now, forward)
             # self.set_state(now, State.CONTOUR)
             if self.is_fillable(now, forward):
-                print ('filling ', now)
+                print('filling ', now)
                 self.set_state(now, State.FILLED)
                 num_corners -= 4
-                if num_corners < 0: break
+                if num_corners < 0:
+                    break
 
             x, y = now
             right = rotate_clockwise(forward)
@@ -260,9 +260,9 @@ class PuzzleSolver:
             points.append(now)
             forward = left
 
-        print ('num turns = ', num_turns)
-        print (points[:5])
-        print (points[-5:])
+        print('num turns = ', num_turns)
+        print(points[:5])
+        print(points[-5:])
         return points, num_turns
 
     def solve(self):
@@ -284,7 +284,7 @@ class PuzzleSolver:
         contour, num_turns = self.generate_contour()
         if num_turns < self.spec.vMin:
             to_fill = self.spec.vMin - num_turns
-            print ("filling turns: ", to_fill)
+            print("filling turns: ", to_fill)
             self.fill_corners(to_fill)
             self.show()
             contour, num_turns = self.generate_contour()
@@ -311,7 +311,6 @@ class PuzzleSolver:
 
         return task_spec
 
-
     def show(self):
         img = Image.new('RGB', (self.size, self.size))
         for x in range(0, self.size):
@@ -333,5 +332,6 @@ spec = PuzzleSpec(s)
 solver = PuzzleSolver(spec)
 task_spec = solver.solve()
 
-print(puzzle_valid(spec, task_spec))
 write_problem(fout, task_spec)
+world = parse_problem(read_file(sys.argv[2]))
+print(puzzle_valid(spec, world))
