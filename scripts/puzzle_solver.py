@@ -170,10 +170,10 @@ class PuzzleSolver:
         y = randint(0, self.spec.tSize - 1)
         return (x, y)
 
-    def gen_booster_point(self):
+    def gen_booster_point(self, mappa):
         while True:
             res = self.rand_point()
-            if res not in self.used_for_boosters and self.is_good(res):
+            if res not in self.used_for_boosters and mappa.inside(res):
                 self.used_for_boosters.add(res)
                 self.used_for_something.add(res)
             return res
@@ -185,9 +185,9 @@ class PuzzleSolver:
                 self.used_for_something.add(res)
             return res
 
-    def gen_boosters(self, ch, count, task_spec):
+    def gen_boosters(self, ch, count, task_spec, mappa):
         for i in range(count):
-            task_spec.boosters.add((ch, self.gen_booster_point()))
+            task_spec.boosters.add((ch, self.gen_booster_point(mappa)))
 
     def is_good(self, pt):
         x, y = pt
@@ -334,7 +334,7 @@ class PuzzleSolver:
 
         task_spec.location = self.gen_location()
 
-        mappa = Mappa(contour)
+        mappa = Mappa(contour, [], task_spec.location)
 
         spec = self.spec
         for ch, count in [
@@ -345,7 +345,7 @@ class PuzzleSolver:
             ('C', spec.cNum),
             ('X', spec.xNum)
         ]:
-            self.gen_boosters(ch, count, task_spec)
+            self.gen_boosters(ch, count, task_spec, mappa)
 
         self.show()
 
