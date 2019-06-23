@@ -11,7 +11,7 @@ import sys
 
 from copy import deepcopy
 from collections import deque
-from random import randint
+from random import randint, shuffle
 
 from world import World, Mappa
 
@@ -103,6 +103,8 @@ class PuzzleSolver:
             assert y != 0
             assert y != self.size - 1
             self.field[x][y] = State.GOOD
+
+        shuffle(spec.excluded)
 
         for pt in spec.excluded:
             x, y = pt
@@ -341,6 +343,7 @@ class PuzzleSolver:
 
         task_spec.location = self.gen_location()
 
+        print("#points: ", len(contour))
         mappa = Mappa(contour, [], task_spec.location)
 
         spec = self.spec
