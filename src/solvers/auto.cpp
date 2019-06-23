@@ -54,17 +54,15 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
           return Result("bc0", bc0.Solve(task, bonuses));
         })));
 
-    futures.emplace_back(tp->enqueueTask<Result>(
-        std::make_shared<std::packaged_task<Result()>>([&]() {
-          BaseClones1 bc1;
-          return Result("bc1", bc1.Solve(task, 0));
-        })));
-
-    futures.emplace_back(tp->enqueueTask<Result>(
-        std::make_shared<std::packaged_task<Result()>>([&]() {
-          BaseClones1 bc2;
-          return Result("bc2", bc2.Solve(task, 1));
-        })));
+    for (unsigned i = 0; i < 2; ++i) {
+      for (unsigned dist = 1; dist < 25; dist += 10) {
+        futures.emplace_back(tp->enqueueTask<Result>(
+            std::make_shared<std::packaged_task<Result()>>([&, i, dist]() {
+              BaseClones1 bc1;
+              return Result("bc1", bc1.Solve(task, i, dist));
+            })));
+      }
+    }
 
     for (unsigned i = 0; i < 2; ++i) {
       futures.emplace_back(tp->enqueueTask<Result>(
@@ -85,10 +83,18 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
     m.AddSolution(fsolver.Solve(task, task_name), "fsr");
     // End "never comment" section
     BaseClones1 bc1;
-    m.AddSolution(bc1.Solve(task, 0), "bc1");
+    m.AddSolution(bc1.Solve(task, 0, 0), "bc1");
     BaseClones1 bc2;
-    m.AddSolution(bc2.Solve(task, 1), "bc2");
+    m.AddSolution(bc2.Solve(task, 0, 10), "bc2");
+    BaseClones1 bc3;
+    m.AddSolution(bc3.Solve(task, 0, 30), "bc3");
 
+    BaseClones1 bc4;
+    m.AddSolution(bc4.Solve(task, 1, 0), "bc4");
+    BaseClones1 bc5;
+    m.AddSolution(bc5.Solve(task, 1, 10), "bc5");
+    BaseClones1 bc6;
+    m.AddSolution(bc6.Solve(task, 1, 30), "bc6");
     // for (unsigned i = 1; i < 3; ++i) {
     //   for (unsigned j = 1; j < 3; ++j) {
     //     for (unsigned k = 0; k < 4; ++k) {

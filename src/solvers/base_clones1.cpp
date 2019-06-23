@@ -11,8 +11,10 @@
 #include <utility>
 
 namespace solvers {
-void BaseClones1::Init(const std::string& task, size_t manipindex) {
+void BaseClones1::Init(const std::string& task, size_t manipindex,
+                       int _ext_dist) {
   manip_index = manipindex;
+  ext_dist = _ext_dist;
   world.Init(task);
   unsigned size = unsigned(world.map.Size());
   auto& map = world.map;
@@ -148,7 +150,7 @@ bool BaseClones1::AssignClosestWorker(unsigned r, ActionsList& al) {
           Direction d = GetDirection(world.map, u, f);
           Worker w = world.GetWorker(wi);
 
-          if (wi == 0 &&
+          if (wi == manip_index &&
               world.boosters.extensions.Available({world.time, wi})) {
             auto p = w.GetNextManipulatorPositionNaive(0 /*TODO*/);
             al[wi].type = ActionType::ATTACH_MANIPULATOR;
@@ -164,7 +166,8 @@ bool BaseClones1::AssignClosestWorker(unsigned r, ActionsList& al) {
           //   w.PrintNeighborhood(world.map, 5);
           // }
 
-          if (d.direction % 2 != wd.direction % 2 && wi == 0 && phase == 1) {
+          if (d.direction % 2 != wd.direction % 2 && wi == manip_index &&
+              phase == 1) {
             bool need_turn = true;
             Point next = pw + d;
             for (int i = 0; i < 4; i++) {
@@ -189,7 +192,7 @@ bool BaseClones1::AssignClosestWorker(unsigned r, ActionsList& al) {
         }
       }
       if (d < best_distance) {
-        if (phase == 0 && d > 20) {
+        if (phase == 0 && d > ext_dist) {
           continue;
         }
         for (unsigned v : g.Edges(u)) {
@@ -367,8 +370,9 @@ void BaseClones1::Update() {
 
 bool BaseClones1::Wrapped() { return unwrapped.Empty(); }
 
-ActionsClones BaseClones1::Solve(const std::string& task, size_t manip_index) {
-  Init(task, manip_index);
+ActionsClones BaseClones1::Solve(const std::string& task, size_t manip_index,
+                                 int ext_dist) {
+  Init(task, manip_index, ext_dist);
   ActionsClones actions;
   for (; !Wrapped();) {
     auto al = NextMove();
