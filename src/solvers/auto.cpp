@@ -195,15 +195,16 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
     m.AddSolution(bc.Solve(task, sett, bonuses), std::string("bct"));
     */
 
-    for (int j = 1; j < 200; j *= 10) {
-      for (unsigned i = 0; i < 8; i++) {
-        BaseClones1Settings sett{-1, i & 1, j, i & 2, true, i & 4};
-        BaseClones1 bc;
-        m.AddSolution(
-            bc.Solve(task, sett, bonuses),
-            std::string("bc_") + std::to_string(i) + "_" + std::to_string(j));
-      }
-    }
+    // for (int j = 1; j < 200; j *= 10) {
+    //   for (unsigned i = 0; i < 8; i++) {
+    //     BaseClones1Settings sett{-1, i & 1, j, i & 2, true, i & 4};
+    //     BaseClones1 bc;
+    //     m.AddSolution(
+    //         bc.Solve(task, sett, bonuses),
+    //         std::string("bc_") + std::to_string(i) + "_" +
+    //         std::to_string(j));
+    //   }
+    // }
     /*
      */
 
@@ -226,20 +227,19 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
     //   m.AddSolution(cg0.Solve(task, i, bonuses), "cg0");
     // }
 
-    // clone::Base clone_base;
-    // clone::Greedy1 clone_greedy1;
-    // worker::Greedy worker_greedy;
-    // worker::Local worker_local;
-    // TaskSplitter<clone::Base, worker::Local> tsp_base_local(clone_base,
-    //                                                         worker_local);
-    // TaskSplitter<clone::Greedy1, worker::Greedy> tsp_greedy_greedy(
-    //     clone_greedy1, worker_greedy);
-    // TaskSplitter<clone::Greedy1, worker::Local>
-    // tsp_greedy_local(clone_greedy1,
-    //                                                              worker_local);
-    // m.AddSolution(tsp_base_local.Solve(task, bonuses), "tsp_bl");
-    // m.AddSolution(tsp_greedy_greedy.Solve(task, bonuses), "tsp_gg");
-    // m.AddSolution(tsp_greedy_local.Solve(task, bonuses), "tsp_gl");
+    clone::Base clone_base;
+    clone::Greedy1 clone_greedy1;
+    worker::Greedy worker_greedy;
+    worker::Local worker_local;
+    TaskSplitter<clone::Base, worker::Local> tsp_base_local(clone_base,
+                                                            worker_local);
+    TaskSplitter<clone::Greedy1, worker::Greedy> tsp_greedy_greedy(
+        clone_greedy1, worker_greedy);
+    TaskSplitter<clone::Greedy1, worker::Local> tsp_greedy_local(clone_greedy1,
+                                                                 worker_local);
+    m.AddSolution(tsp_base_local.Solve(task, bonuses), "tsp_bl");
+    m.AddSolution(tsp_greedy_greedy.Solve(task, bonuses), "tsp_gg");
+    m.AddSolution(tsp_greedy_local.Solve(task, bonuses), "tsp_gl");
   }
   return m.Solution();
 }
