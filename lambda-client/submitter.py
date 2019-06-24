@@ -102,8 +102,10 @@ def solve(task, check_prev=False):
     with open(taskIn, "w") as fTask:
         fTask.write(blockinfo["task"])
 
-    subprocess.check_call(
-        ["../src/build/cpp_solver", "-solve", "1", "-in", taskIn, "-out", taskOut])
+    args = ["../src/build/cpp_solver", "-solve", "1", "-in", taskIn, "-out", taskOut]
+    print(" ".join(args))
+    if subprocess.call(args) != 0:
+        subprocess.check_call(args + ["-nobc", "1"])
 
     if SUBMIT:
         args = [python, cli, "submit",

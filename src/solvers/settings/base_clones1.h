@@ -10,5 +10,7 @@ class BaseClones1Settings {
   size_t ext_dist;
   bool use_shifts;
   bool even_mops;
+  bool use_teleports;
+  bool all_rotate;
 };
 }  // namespace solvers

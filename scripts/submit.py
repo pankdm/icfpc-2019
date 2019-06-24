@@ -203,7 +203,7 @@ if __name__ == "__main__":
 
                 if "time" not in gold_metadata or gold_metadata["time"] > score:
                     print(f"Problem {problem} solution improved")
-                    archive = True
+                    update_archive = True
                     with open(evaluate, "rb") as src, open(gold, "wb") as dst:
                         data = src.read()
                         md5 = hashlib.md5(data).hexdigest()
@@ -225,7 +225,8 @@ if __name__ == "__main__":
                     lambda f: os.path.splitext(f)[-1] in [".sol", ".buy"], gold_files)
                 with ZipFile(archive_path, mode="w", compression=ZIP_DEFLATED, compresslevel=9) as zipfile:
                     for solution in tqdm(gold_solutions, desc="Archiving gold solutions"):
+                        filename = os.path.join(config.gold, solution)
                         zipname = os.path.basename(solution)
-                        zipfile.write(solution, arcname=zipname)
+                        zipfile.write(filename, arcname=zipname)
     else:
         sys.exit(f"Private id is not set, you can submit {archive} manually")
