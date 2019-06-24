@@ -8,7 +8,7 @@ The most productive strategy ideas were:
 
 # Mining
 
-For mining we used subset of strategies. Each of the mining blocks was processed in <5 minutes.t
+For mining we used subset of strategies. Each of the mining blocks was processed in <5 minutes. Every minute we updated binary with compiled strategies from git master.
 
 ## Map generator
 
@@ -33,3 +33,19 @@ Script best_buy.py is responsible for merging pure solutions with list of soluti
 For python scripts, use Python 3 + virtual environment, most of scripts should be launched from scripts folder, except submit.py and best_buy.py. Run `pip3 install -r scripts/requirements.txt` to install libraries. Configuration can be provided via command line or yaml configs.
 
 For C++ code, run `make` in `src` folder and launch built binary providing args as described in source code.
+
+# Team members
+- Dmitry Panin
+- Oleg Godovykh
+- Vitaly Abdrashitov
+- Alexey Poyarkov
+- Evegeniy Krasko
+- Den Raskovalov
+
+# Tools
+- C++
+- python3
+- bash
+- git
+- make
+- Slack
