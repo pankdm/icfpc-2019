@@ -3,7 +3,7 @@
 #include "base/direction.h"
 #include "base/point.h"
 #include "base/worker.h"
-#include <cassert>
+#include "common/always_assert.h"
 #include <queue>
 #include <unordered_set>
 #include <utility>
@@ -43,7 +43,7 @@ ActionsList BaseGreedy::Solve(const std::string& task) {
       }
     }
     if (q.empty()) {
-      assert(false);
+      ALWAYS_ASSERT(false);
       break;
     }
   }

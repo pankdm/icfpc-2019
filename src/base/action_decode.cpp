@@ -4,7 +4,7 @@
 #include "base/action_type.h"
 #include "base/point.h"
 #include "utils/split.h"
-#include <cassert>
+#include "common/always_assert.h"
 #include <string>
 #include <vector>
 
@@ -36,8 +36,8 @@ ActionsList ParseAL(const std::string& s) {
       case 'B': {
         al.emplace_back(ActionType::ATTACH_MANIPULATOR);
         size_t npos = s.find(')', i++);
-        assert(npos != std::string::npos);
-        assert(s[i] == '(');
+        ALWAYS_ASSERT(npos != std::string::npos);
+        ALWAYS_ASSERT(s[i] == '(');
         Point p(s.substr(i, npos - i + 1));
         i = npos;
         al.back().x = p.x;
@@ -55,8 +55,8 @@ ActionsList ParseAL(const std::string& s) {
       case 'T': {
         al.emplace_back(ActionType::SHIFT);
         size_t npos = s.find(')', i++);
-        assert(npos != std::string::npos);
-        assert(s[i] == '(');
+        ALWAYS_ASSERT(npos != std::string::npos);
+        ALWAYS_ASSERT(s[i] == '(');
         Point p(s.substr(i, npos - i + 1));
         i = npos;
         al.back().x = p.x;
@@ -66,7 +66,7 @@ ActionsList ParseAL(const std::string& s) {
         al.emplace_back(ActionType::CLONE);
         break;
       default:
-        assert(false);
+        ALWAYS_ASSERT(false);
         break;
     }
   }

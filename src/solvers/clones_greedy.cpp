@@ -7,6 +7,7 @@
 #include "base/item.h"
 #include "base/point.h"
 #include "base/sleep.h"
+#include "common/always_assert.h"
 #include "common/graph/graph/distance.h"
 #include <algorithm>
 #include <unordered_map>
@@ -89,7 +90,7 @@ bool ClonesGreedy::AssignClosestWorker(unsigned r, ActionsList& al) {
     if (acw2.HasKey(u)) {
       best_distance = d;
       unsigned wi = m[u];
-      assert(wi < al.size());
+      ALWAYS_ASSERT(wi < al.size());
       if (Sleep(al[wi])) {
         al[wi].type = GetDirection(world.map, u, f).Get();
         return true;
@@ -171,7 +172,7 @@ void ClonesGreedy::NextMove_Init(ActionsList& al) {
   unsigned windex = world.map.Index(w.x, w.y);
   // If we can apply extension, apply.
   if (world.boosters.extensions.Available({world.time, 0})) {
-    assert(l == 1);
+    ALWAYS_ASSERT(l == 1);
     al[0].type = ActionType::ATTACH_MANIPULATOR;
     auto p = w.GetNextManipulatorPositionNaive(strategy);
     al[0].x = p.first;
@@ -181,7 +182,7 @@ void ClonesGreedy::NextMove_Init(ActionsList& al) {
   CleanPOI();
   // If we didn't take something take nearest.
   if (poi.size() > 0) {
-    assert(l == 1);
+    ALWAYS_ASSERT(l == 1);
     unsigned best_distance = unsigned(-1);
     unsigned closest_poi = 0;
     for (unsigned i = 0; i < poi.size(); ++i) {
@@ -190,7 +191,7 @@ void ClonesGreedy::NextMove_Init(ActionsList& al) {
         closest_poi = i;
       }
     }
-    assert((best_distance > 0) && (best_distance < unsigned(-1)));
+    ALWAYS_ASSERT((best_distance > 0) && (best_distance < unsigned(-1)));
     Point pw(w.x, w.y);
     for (unsigned _d = 0; _d < 4; ++_d) {
       Direction d(_d);
@@ -203,13 +204,13 @@ void ClonesGreedy::NextMove_Init(ActionsList& al) {
         }
       }
     }
-    assert(!Sleep(al[0]));
+    ALWAYS_ASSERT(!Sleep(al[0]));
     return;
   }
   // Go to nearest CodeX point.
   if ((world.boosters.clones.Size() > 0) &&
       (world.map[windex].CheckItem() != Item::CODEX)) {
-    assert(l == 1);
+    ALWAYS_ASSERT(l == 1);
     al[0].type = SendToNearestCodeX(0);
     return;
   }

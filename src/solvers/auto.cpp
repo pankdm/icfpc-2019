@@ -128,8 +128,9 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
       for (int j = 0; j < 40; j += 10) {
         BaseClones1Settings sett{i & 1, i & 2, j, i & 4, true};
         BaseClones1 bc;
-        m.AddSolution(bc.Solve(task, sett, bonuses), "bc");
-        BaseClones1 bc3;
+        m.AddSolution(
+            bc.Solve(task, sett, bonuses),
+            std::string("bc_") + std::to_string(i) + "_" + std::to_string(j));
       }
     }
 
