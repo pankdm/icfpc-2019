@@ -26,7 +26,7 @@ tasks = [
 
 
 shard = int(sys.argv[1])
-NUM_SHARDS = int(sys.arv[2])
+NUM_SHARDS = int(sys.argv[2])
 
 assert 0 <= shard < NUM_SHARDS
 
