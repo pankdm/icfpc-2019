@@ -34,6 +34,9 @@ class KnapsackItem:
     def __str__(self):
         return f"Item({self.roi:.2f}, {self.deltaroi:.2f}, {self.spent}, {self.problem}, {self.path}, {self.files})"
 
+    def to_short_string(self):
+        return f"Item({self.roi:.2f}, {self.deltaroi:.2f}, {self.spent}, {self.problem})"
+
 
 def solve_knapsack(balance, knapsack):
     knapsack.sort(key=lambda x: x.deltaroi, reverse=True)
@@ -57,6 +60,7 @@ def solve_knapsack(balance, knapsack):
             if os.path.exists(name):
                 item.files.append((name, f"prob-{item.problem:03}{ext}"))
 
+        print (f"{item.roi:.2f}    taking item {item.to_short_string()}")
         best_buy[item.problem] = item
         balance -= item.spent
 
@@ -219,6 +223,7 @@ if __name__ == "__main__":
         sys.exit("No gold merge directory exists, and unable to create")
 
     print(f"Submitting new solutions")
+    # sys.exit("early exit")
 
     timestamp = time.strftime("%Y-%m-%d_%H-%M-%S")
     archive = os.path.join(config.submission, timestamp + ".zip")
