@@ -21,6 +21,14 @@ from api import read_file, verify_solution
 
 SERVER = "https://monadic-lab.org"
 
+
+class KnapsackItem:
+    def __init__(self):
+        self.roi = None
+        self.spent = None
+        self.problem = None
+        self.path = None
+
 if __name__ == "__main__":
     with open("best_buy.yaml", "r") as config_file:
         yaml_config = safe_load(config_file)
@@ -101,6 +109,11 @@ if __name__ == "__main__":
                 delta = (max_score * (gold_score - score) / gold_score)
                 roi = (delta - spent) / spent
 
+                item = KnapsackItem
+                item.roi = roi
+                item.spent = spent
+                item.problem = problem
+                item.path = path
                 knapsack.append((roi, spent, problem, path))
 
     knapsack.sort(key=lambda x: x[0], reverse=True)
