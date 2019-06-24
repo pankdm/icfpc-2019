@@ -11,6 +11,7 @@ void CommandLine::Parse(int argc, char* const argv[]) {
   int_args["solve"] = 0;
   int_args["start"] = 1;
   int_args["stop"] = 300;
+  int_args["nobc"] = 0;
   args["current_best"] = "";
 
   int index = 1;

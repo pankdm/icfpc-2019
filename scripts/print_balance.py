@@ -3,7 +3,7 @@
 import json
 import os
 
-for i in range(1, 100):
+for i in range(1, 200):
     filename = "../lambda-client/blocks/%d/balances.json" % i
     if not os.path.isfile(filename):
         continue

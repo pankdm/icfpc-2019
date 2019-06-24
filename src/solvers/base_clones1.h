@@ -1,6 +1,8 @@
 #pragma once
 
 #include "base/action.h"
+#include "base/point.h"
+#include "base/world.h"
 #include "base/world_ext.h"
 #include "solvers/settings/base_clones1.h"
 #include "solvers/solver.h"
@@ -23,9 +25,14 @@ class BaseClones1 : public Solver {
   std::vector<POI> poi;
   UnsignedSet poi_assigned;
 
+  bool reset_beacon{};
+  Point beacon{-1, -1};
+  std::vector<int> beaconDist;
+
   std::vector<std::pair<unsigned, unsigned>> target;  // Size-Representative
   UnsignedSet acw1, acw2;
   BaseClones1Settings sett;
+  double beaconAlpha{0.05};
 
  protected:
   void Init(const std::string& task, BaseClones1Settings sett);
@@ -35,6 +42,9 @@ class BaseClones1 : public Solver {
   Action SendToNearestUnwrapped(unsigned windex);
   void NextMove_Clone(ActionsList& al);
   void NextMove_Wrap(ActionsList& al);
+  bool NextMove_SetBeacon(unsigned windex, Action& action);
+  bool NextMove_Shift(unsigned windex, unsigned dest_index,
+                      unsigned now_distance, Action& action);
   ActionsList NextMove();
 
  public:

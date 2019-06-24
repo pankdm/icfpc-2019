@@ -165,3 +165,5 @@ dmypy.json
 .DS_Store
 
 blocks
+
+.vscode
