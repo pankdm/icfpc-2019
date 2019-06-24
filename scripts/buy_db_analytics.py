@@ -18,8 +18,8 @@ def calculate_roi(n, index, base_yaml, compare_yaml):
     buy = compare_yaml["buy"]
     spent = compare_yaml["spent"]
     roi = (delta - spent) / spent
-    sign = "+" if delta > 0 else "-"
-    msg = (f"Task {n},{index}: {buy} ({spent}): " +
+    sign = "+" if delta > 0 else ""
+    msg = (f"Task {n},{index}: {buy} ({spent}) " +
            f"{old_score} -> {new_score} = ({sign}{delta:.1f}), max {max_score}, " +
            f"ROI = {roi * 100:.1f}%")
     # print (msg)
@@ -40,6 +40,9 @@ def get_best_roi_clone(n, buy):
         s = re.match("(\d+).meta.yaml", f)
         if s:
             compare_yaml = read_yaml(folder + f)
+            if not compare_yaml:
+                continue
+
             roi, msg = calculate_roi(n, s.group(1), base_yaml, compare_yaml)
             if compare_yaml["buy"] != buy:
                 continue
@@ -65,6 +68,9 @@ def process_task(n):
         s = re.match("(\d+).meta.yaml", f)
         if s:
             compare_yaml = read_yaml(folder + f)
+            if not compare_yaml:
+                continue
+
             roi, msg = calculate_roi(n, s.group(1), base_yaml, compare_yaml)
             rois.append((roi, msg))
 
