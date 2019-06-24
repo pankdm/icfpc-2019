@@ -45,10 +45,20 @@ class Collector:
         self.collect_ranking()
 
         index = self.our_index
+        start_index = max(index - 6, 0)
 
-        prev = self.ranking[index - 1]
-        cur = self.ranking[index]
-        nxt = self.ranking[index + 1]
+        # header
+        table_data = [
+            ['Rank', 'Team', 'Score', 'Score + LAM'] ]
+
+        def add_table(i, our):
+            prefix = '>> ' if our else '   '
+            str_i = prefix + str(i + 1)
+            now = self.ranking[i]
+            table_data.append(now.to_table(str_i))
+
+        for i in range(start_index, index + 2):
+            add_table(i, i == index)
 
         # msg = "\n".join([
         #     "```",
@@ -58,21 +68,16 @@ class Collector:
         #     f"   #{index + 2} | {nxt.score} |  {nxt.score_lam}    |",
         #     "```"
         # ])
-
-        table_data = [
-            ['Rank', 'Team', 'Score', 'Score + LAM'],
-            prev.to_table('   ' + str(index)),
-            cur.to_table('>> ' + str(index + 1)),
-            nxt.to_table('   ' + str(index + 2))
-        ]
-
         table = AsciiTable(table_data)
+
         msg = "\n".join([
             '```',
             table.table,
             '```'
         ])
-        post_to_slack(msg)
+
+        print(msg)
+        # post_to_slack(msg)
 
 
 while True:
