@@ -328,7 +328,6 @@ Action BaseClones1::SendToNearestUnwrapped(unsigned windex) {
   }
   for (; !q.empty(); q.pop()) {
     QItem now = q.front();
-    q.pop();
     int index = now.pointIndex;;
     Direction d = now.d;
     if (world.Unwrapped(index) || world.map.HasExtension(index)) {
