@@ -8,7 +8,7 @@ The most productive strategy ideas were:
 
 # Mining
 
-For mining we used subset of strategies. Each of the mining blocks was processed in <5 minutes.t
+For mining we used subset of strategies. Each of the mining blocks was processed in <5 minutes.
 
 ## Map generator
 
@@ -30,7 +30,7 @@ buy_db/
            |--- 1.sol
            |--- 1.buy
 ```
-Basically, the optimizer was treating solvers as block box and feeding various booster options,
+Basically, the optimizer was treating solvers as black box and feeding various booster options,
 evaluating and appending results into db together with metadata.
 Then, on top special scripts could provide analytics or selection of best solutions (see best_buy.py section)
 
