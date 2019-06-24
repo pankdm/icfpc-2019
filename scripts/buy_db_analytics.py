@@ -73,7 +73,13 @@ def process_task(n):
 
             roi, msg = calculate_roi(n, s.group(1), base_yaml, compare_yaml)
             buy = compare_yaml["buy"]
-            rois[buy] = (roi, msg)
+            if buy in rois:
+                prev = rois[buy]
+                if roi > prev[0]:
+                    rois[buy] = (roi, msg)
+            else:
+                rois[buy] = (roi, msg)
+
 
     rois_values = list(rois.values())
     rois_values.sort(key = lambda x : x[0], reverse=True)
