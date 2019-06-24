@@ -4,6 +4,7 @@
 #include "base/action_type.h"
 #include "base/direction.h"
 #include "base/point.h"
+#include "common/always_assert.h"
 #include "common/graph/graph/distance.h"
 #include <algorithm>
 #include <unordered_map>
@@ -149,7 +150,7 @@ bool BaseClones1::AssignClosestWorker(unsigned r, ActionsList& al) {
       if (acw2.HasKey(u)) {
         best_distance = d;
         unsigned wi = m[u];
-        assert(wi < al.size());
+        ALWAYS_ASSERT(wi < al.size());
         if (al[wi].type == ActionType::DO_NOTHING) {
           w = world.GetWorker(wi);
           Direction d = GetDirection(world.map, u, f);
@@ -358,8 +359,8 @@ void BaseClones1::NextMove_Clone(ActionsList& al) {
           }
         }
       }
-      assert((best_distance == 0) ||
-             (al[windex].type != ActionType::DO_NOTHING));
+      ALWAYS_ASSERT((best_distance == 0) ||
+                    (al[windex].type != ActionType::DO_NOTHING));
     }
   }
 }

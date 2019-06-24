@@ -1,7 +1,7 @@
 #include "base/direction.h"
 
 #include "base/map.h"
-#include <cassert>
+#include "common/always_assert.h"
 #include <cmath>
 #include <vector>
 
@@ -40,14 +40,14 @@ void Direction::Set(ActionType t) {
       direction = 3;
       break;
     default:
-      assert(false);
+      ALWAYS_ASSERT(false);
   }
 }
 
 Direction GetDirection(const Map& map, int from, int to) {
   int d = from - to;
   int dabs = std::abs(d);
-  assert((dabs == 1) || (dabs == map.ysize));
+  ALWAYS_ASSERT((dabs == 1) || (dabs == map.ysize));
   if (to == from + 1)
     return 1;
   else if (to == from - 1)

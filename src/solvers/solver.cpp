@@ -1,15 +1,15 @@
 #include "solvers/solver.h"
 
-#include <cassert>
+#include "common/always_assert.h"
 
 namespace solvers {
 ActionsList Solver::Solve(const std::string& task) {
-  assert(false);
+  ALWAYS_ASSERT(false);
   return {};
 }
 
 ActionsList Solver::Solve(const std::string& task, const std::string& bonuses) {
-  assert(false);
+  ALWAYS_ASSERT(false);
   return {};
 }
 
