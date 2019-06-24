@@ -37,4 +37,4 @@ for task in tasks:
             for b in task.boosters:
                 print ()
                 print (f"Task {i}, buy {b}")
-                solve_one(i, b)
+                # solve_one(i, b)
