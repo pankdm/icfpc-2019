@@ -139,6 +139,8 @@ if __name__ == "__main__":
             spent, score, max_score = 0, gold_score, 0
             with open(path, "r") as f:
                 yaml = safe_load(f)
+                if not yaml:
+                    continue
                 spent, score, max_score = yaml["spent"], yaml["time"], yaml["max_score"]
 
             if spent != 0:
