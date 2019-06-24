@@ -312,15 +312,14 @@ bool BaseClones1::NextMove_SetBeacon(unsigned windex, Action& result) {
 }
 
 bool BaseClones1::NextMove_FastWheels(unsigned windex, Action& result) {
-  return false;
-
   if (sett.use_fast_wheels && !fast_wheels) {
     const auto& w = world.GetWorker(windex);
     if (sett.is_manip(windex) &&
         world.boosters.fast_wheels.Available({world.time, windex})) {
-      Action a(ActionType::ATTACH_FAST_WHEELS, w.x, w.y);
+      Action a(ActionType::ATTACH_FAST_WHEELS);
       result = a;
       fast_wheels = true;
+      std::cerr << "attach" << std::endl;
       return true;
     }
   }

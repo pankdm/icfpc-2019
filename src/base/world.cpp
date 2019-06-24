@@ -87,7 +87,14 @@ void World::Apply(const ActionsList& actions) {
   for (const Action& action : actions) Apply(action);
 }
 
-bool World::Solved() const { return map.Wrapped(); }
+bool World::Solved() const {
+  for (const auto& w : workers) {
+    if (!w.valid) {
+      return false;
+    }
+  }
+  return map.Wrapped();
+}
 
 unsigned World::WCount() const { return workers.size(); }
 
