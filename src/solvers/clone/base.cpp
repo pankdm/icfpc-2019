@@ -4,7 +4,7 @@
 
 namespace solvers {
 namespace clone {
-void Base::Init(WorldExt& world) { pworld = &world; }
+void Base::Init(WorldTaskSplit& world) { pworld = &world; }
 
 Action Base::NextMove(unsigned index) { return ActionType::END; }
 

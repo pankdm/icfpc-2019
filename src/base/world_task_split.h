@@ -1,5 +1,6 @@
 #pragma once
 
+#include "base/poi_list.h"
 #include "base/world_ext.h"
 #include "common/unsigned_set.h"
 #include <vector>
@@ -9,6 +10,7 @@ class WorldTaskSplit : public WorldExt {
   std::vector<unsigned> task_id;
   std::vector<UnsignedSet> tasks;
   UnsignedSet task_update_required;
+  std::vector<POIList> items;
 
  protected:
   void BuildDSForSet();
@@ -24,6 +26,14 @@ class WorldTaskSplit : public WorldExt {
   void UpdateTask(unsigned task_id);
   bool UpdateTaskRequired(unsigned task_id);
   UnsignedSet& UnwrappedSet();
+
+ protected:
+  void InitPOI();
+
+ public:
+  const POIList& GetPOIList(Item item) const;
+  void UpdatePOIList(Item item);
+  void UpdateAllPOI();
 
  public:
   void SetNewTasks(const std::vector<UnsignedSet>& new_tasks);

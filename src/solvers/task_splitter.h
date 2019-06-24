@@ -20,7 +20,7 @@ class TaskSplitter : public Solver {
   void Init(const std::string& task, const std::string& bonuses) {
     world.Init(task);
     world.InitBonuses(bonuses);
-    world.SetNewTasks(std::vector<UnsignedSet>(1, world.UnwrappedSet()));
+    // world.SetNewTasks(std::vector<UnsignedSet>(1, world.UnwrappedSet()));
     unsigned max_workers =
         world.boosters.clones.Size() + world.map.Count(Item::CLONE) + 1;
     clone_solver.Init(world);
