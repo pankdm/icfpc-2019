@@ -4,6 +4,7 @@
 #include "base/action_type.h"
 #include "base/direction.h"
 #include "base/point.h"
+#include "solvers/paths/path_to_target.h"
 #include "common/always_assert.h"
 #include "common/unsigned_set.h"
 #include <algorithm>
@@ -85,47 +86,13 @@ void BaseGreedy2::SetTarget(unsigned dist_weight) {
 }
 
 Action BaseGreedy2::NextMove() {
-  thread_local UnsignedSet s;
-  thread_local std::queue<std::pair<int, Direction>> q;
-  if (s.Size() < world.map.Size()) {
-    s.Resize(world.map.Size());
-  } else {
-    s.Clear();
-  }
-  for (; !q.empty();) q.pop();
   if (world.UpdateDSRequired()) {
     world.UpdateDS();
     SetTarget();
   }
-  Point pw(world.GetWorker().x, world.GetWorker().y);
-  for (unsigned _d = 0; _d < 4; ++_d) {
-    Direction d(_d);
-    Point pd = pw + d;
-    if (world.map.ValidToMove(pd.x, pd.y)) {
-      int index = world.map.Index(pd.x, pd.y);
-      q.push(std::make_pair(index, d));
-      s.Insert(index);
-    }
-  }
-  for (; !q.empty(); q.pop()) {
-    int index = q.front().first;
-    Direction d = q.front().second;
-    if (target.HasKey(index)) {
-      Action a(d.Get());
-      world.Apply(a);
-      return a;
-    }
-    for (int inext : world.GEdges(index)) {
-      if (!s.HasKey(inext)) {
-        q.push(std::make_pair(inext, d));
-        s.Insert(inext);
-      }
-    }
-  }
-  std::cout << std::endl;
-  world.map.Print();
-  ALWAYS_ASSERT(false);
-  return Action(ActionType::END);
+  Action a = PathToTarget(world.GetWorker(), world, target);
+  world.Apply(a);
+  return a;
 }
 
 ActionsList BaseGreedy2::Solve(const std::string& task) {
