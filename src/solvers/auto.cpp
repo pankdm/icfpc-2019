@@ -7,9 +7,12 @@
 #include "solvers/base_clones1.h"
 #include "solvers/base_greedy2.h"
 #include "solvers/base_greedy3.h"
+#include "solvers/clone/base.h"
 #include "solvers/clones_greedy.h"
 #include "solvers/file.h"
 #include "solvers/merger.h"
+#include "solvers/task_splitter.h"
+#include "solvers/worker/greedy.h"
 
 namespace solvers {
 ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
@@ -178,6 +181,12 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
     //   ClonesGreedy cg0;
     //   m.AddSolution(cg0.Solve(task, i, bonuses), "cg0");
     // }
+
+    // clone::Base clone_solver;
+    // worker::Greedy worker_solver;
+    // TaskSplitter<clone::Base, worker::Greedy> tsp(clone_solver,
+    //                                               worker_solver);
+    // m.AddSolution(tsp.Solve(task, bonuses), "tsp");
   }
   return m.Solution();
 }
