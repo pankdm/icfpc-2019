@@ -15,6 +15,7 @@
 #include "solvers/task_splitter.h"
 #include "solvers/worker/greedy.h"
 #include "solvers/worker/local.h"
+#include "solvers/worker/local2.h"
 
 namespace solvers {
 ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
@@ -227,19 +228,20 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
     //   m.AddSolution(cg0.Solve(task, i, bonuses), "cg0");
     // }
 
+    // clone::Greedy1 clone_greedy1;
+    // worker::Greedy worker_greedy;
     clone::Base clone_base;
-    clone::Greedy1 clone_greedy1;
-    worker::Greedy worker_greedy;
-    worker::Local worker_local;
-    TaskSplitter<clone::Base, worker::Local> tsp_base_local(clone_base,
-                                                            worker_local);
-    TaskSplitter<clone::Greedy1, worker::Greedy> tsp_greedy_greedy(
-        clone_greedy1, worker_greedy);
-    TaskSplitter<clone::Greedy1, worker::Local> tsp_greedy_local(clone_greedy1,
-                                                                 worker_local);
+    worker::Local2 worker_local;
+    TaskSplitter<clone::Base, worker::Local2> tsp_base_local(clone_base,
+                                                             worker_local);
+    // TaskSplitter<clone::Greedy1, worker::Greedy> tsp_greedy_greedy(
+    //     clone_greedy1, worker_greedy);
+    // TaskSplitter<clone::Greedy1, worker::Local>
+    // tsp_greedy_local(clone_greedy1,
+    //                                                              worker_local);
     m.AddSolution(tsp_base_local.Solve(task, bonuses), "tsp_bl");
-    m.AddSolution(tsp_greedy_greedy.Solve(task, bonuses), "tsp_gg");
-    m.AddSolution(tsp_greedy_local.Solve(task, bonuses), "tsp_gl");
+    // m.AddSolution(tsp_greedy_greedy.Solve(task, bonuses), "tsp_gg");
+    // m.AddSolution(tsp_greedy_local.Solve(task, bonuses), "tsp_gl");
   }
   return m.Solution();
 }
