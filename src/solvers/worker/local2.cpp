@@ -1,6 +1,7 @@
 #include "solvers/worker/local2.h"
 
 #include "base/point.h"
+#include "solvers/paths/path_to_poi.h"
 #include "solvers/paths/path_to_target.h"
 #include "common/always_assert.h"
 #include <algorithm>
@@ -38,12 +39,12 @@ void Local2::UpdateTarget() {
     unsigned index = q.front().first;
     unsigned dist = q.front().second;
     if (task.HasKey(index)) {
-      int MOP_DIST = 5;
-      if (dist < MOP_DIST &&
-          pworld->map[index].CheckItem() == Item::EXTENSION) {
-        target.Insert(index);
-        return;
-      }
+      // int MOP_DIST = 5;
+      // if (dist < MOP_DIST &&
+      //     pworld->map[index].CheckItem() == Item::EXTENSION) {
+      //   target.Insert(index);
+      //   return;
+      // }
       unsigned r = pworld->DSFind(index);
       if (rep_to_score.find(r) == rep_to_score.end()) {
         unsigned score = dist * DIST_WEIGHT + rep_to_size[r];
@@ -99,6 +100,30 @@ Action Local2::NextMove() {
   Action a = PathToTarget(Base::Get(), *pworld, target);
   if (a.type == ActionType::DO_NOTHING) {
     return a;
+  }
+
+  unsigned min_index = unsigned(-1), max_index = 0;
+  for (unsigned u : task.List()) {
+    min_index = std::min(u, min_index);
+    max_index = std::max(u, max_index);
+  }
+  unsigned best_distance_to_poi = unsigned(-1);
+  unsigned poi_index = 0;
+  for (unsigned i = 0; i < pworld->GetPOIList(Item::EXTENSION).items.size();
+       ++i) {
+    auto& poi = pworld->GetPOIList(Item::EXTENSION).items[i];
+    if ((poi.location >= min_index) && (poi.location <= max_index)) {
+      auto w = Get();
+      unsigned windex = pworld->Index(w.x, w.y);
+      if (poi.vd[windex] < best_distance_to_poi) {
+        best_distance_to_poi = poi.vd[windex];
+        poi_index = i;
+      }
+    }
+  }
+  if (best_distance_to_poi < (unsigned(-1))) {
+    return PathToPOI(Get(), *pworld,
+                     pworld->GetPOIList(Item::EXTENSION).items[poi_index]);
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
