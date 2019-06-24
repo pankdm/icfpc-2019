@@ -93,9 +93,12 @@ class TaskSplitter : public Solver {
           split_required = true;
       }
     }
-    if ((assigned_workers > world.TotalTasks()) || split_required) {
+    if (world.UList().size() <= 2 * assigned_workers) {
+      if (world.TotalTasks() != 1) SplitTasks(1);
+    } else if ((assigned_workers > world.TotalTasks()) || split_required) {
       SplitTasks(assigned_workers);
     }
+
     for (unsigned i = 0; i < al.size(); ++i) {
       if (al[i].type == ActionType::END) {
         al[i] = worker_solvers[i].NextMove();
