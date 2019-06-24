@@ -13,6 +13,7 @@ from parser import parse_problem, parse_solution
 
 STORAGE = "../buy_db"
 PROBLEMS = "../problems/all"
+TAG = "fair_mops"
 
 def get_new_id(folder):
     files = os.listdir(folder)
@@ -86,7 +87,8 @@ def solve_one(n, boosters):
             "buy": boosters,
             "spent": money_spent(boosters),
             "max_score": get_max_score(world),
-            "ts": int(time.time())
+            "ts": int(time.time()),
+            "tag": tag,
         }
         dump(metadata, meta_file)
 
