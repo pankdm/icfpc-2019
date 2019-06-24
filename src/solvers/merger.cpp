@@ -25,15 +25,17 @@ void Merger::AddSolution(const ActionsClones& s,
     best_solutions = s;
   }
 
-  char dbuffer[1024];
-  sprintf(dbuffer, "solutions");
-  mkdir(dbuffer, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-  sprintf(dbuffer, "solutions/%s", solution_name.c_str());
-  mkdir(dbuffer, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-  char buffer[1024];
-  sprintf(buffer, "%s/%s.sol", dbuffer, task_name.c_str());
-  std::ofstream out(buffer);
-  out << s;
+  if (score) {
+    char dbuffer[1024];
+    sprintf(dbuffer, "solutions");
+    mkdir(dbuffer, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    sprintf(dbuffer, "solutions/%s", solution_name.c_str());
+    mkdir(dbuffer, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    char buffer[1024];
+    sprintf(buffer, "%s/%s.sol", dbuffer, task_name.c_str());
+    std::ofstream out(buffer);
+    out << s;
+  }
 }
 
 void Merger::AddSolution(const ActionsList& s,
