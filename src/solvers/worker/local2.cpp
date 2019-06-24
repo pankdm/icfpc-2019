@@ -25,7 +25,7 @@ void Local2::Init(unsigned _windex, unsigned _tindex, WorldTaskSplit& world) {
 }
 
 void Local2::ResetTask(unsigned new_index, UnsignedSet& new_task) {
-  Base::ResetTask(new_index, new_task);
+  Base::ResetTask(new_index);
   UpdateTarget();
 }
 
