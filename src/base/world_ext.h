@@ -26,6 +26,7 @@ class WorldExt : public World {
   const std::vector<unsigned>& UList() const;
   bool Unwrapped(unsigned index) const;
   bool Unwrapped(int x, int y) const;
+  const UnsignedSet& UnwrappedSet() const;
 
  protected:
   void BuildDSForSet();
