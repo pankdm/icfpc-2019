@@ -18,14 +18,13 @@ class TaskSplitter : public Solver {
   bool clone_stage_done;
 
  protected:
-  void AssignTasks() {
+  void AssignTasks(unsigned new_tasks) {
     ALWAYS_ASSERT(world.WCount() <= worker_solvers.size());
     unsigned task_id = 0;
     for (unsigned i = 0; i < world.WCount(); ++i) {
       auto& w = world.GetWorker(i);
       if (w.task_assigned) {
-        worker_solvers[i].ResetTask(task_id++);
-        task_id %= world.TotalTasks();
+        worker_solvers[i].ResetTask(task_id++ % new_tasks);
       }
     }
   }
@@ -33,6 +32,7 @@ class TaskSplitter : public Solver {
   void SplitTasks(unsigned new_tasks) {
     thread_local std::vector<UnsignedSet> tasks;
     auto v = world.UList();
+    if (v.size() < new_tasks) return;
     new_tasks = std::min(new_tasks, unsigned(v.size()));
     std::sort(v.begin(), v.end());
     tasks.resize(new_tasks);
@@ -45,7 +45,7 @@ class TaskSplitter : public Solver {
       }
     }
     world.SetNewTasks(tasks);
-    AssignTasks();
+    AssignTasks(new_tasks);
   }
 
   void Init(const std::string& task, const std::string& bonuses) {
@@ -61,6 +61,7 @@ class TaskSplitter : public Solver {
   ActionsList NextMove() {
     ALWAYS_ASSERT(world.WCount() <= worker_solvers.size());
     unsigned assigned_workers = 0;
+    bool split_required = false;
     ActionsList al(world.WCount(), ActionType::END);
     if (!clone_stage_done) {
       bool still_working = false;
@@ -70,6 +71,8 @@ class TaskSplitter : public Solver {
         auto& w = world.GetWorker(i);
         if (w.task_assigned) {
           assigned_workers += 1;
+          if (world.GetTask(worker_solvers[i].tindex).Empty())
+            split_required = true;
           ALWAYS_ASSERT(al[i].type == ActionType::END);
         } else {
           if (al[i].type == ActionType::END) {
@@ -83,16 +86,16 @@ class TaskSplitter : public Solver {
       if (!still_working) {
         clone_stage_done = true;
       }
-    }
-    if (assigned_workers > world.TotalTasks()) {
-      SplitTasks(assigned_workers);
-    }
-    for (unsigned i = 0; i < al.size(); ++i) {
-      if (al[i].type == ActionType::END) {
-        al[i] = worker_solvers[i].NextMove();
+    } else {
+      assigned_workers = world.WCount();
+      for (unsigned i = 0; i < world.WCount(); ++i) {
+        if (world.GetTask(worker_solvers[i].tindex).Empty())
+          split_required = true;
       }
     }
-
+    if ((assigned_workers > world.TotalTasks()) || split_required) {
+      SplitTasks(assigned_workers);
+    }
     for (unsigned i = 0; i < al.size(); ++i) {
       if (al[i].type == ActionType::END) {
         al[i] = worker_solvers[i].NextMove();
