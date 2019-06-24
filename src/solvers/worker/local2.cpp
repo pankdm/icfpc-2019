@@ -83,34 +83,34 @@ Action Local2::NextMove() {
     pworld->UpdateTask(tindex);
     UpdateTarget();
   }
-  if (pworld->boosters.extensions.Available({pworld->time, windex})) {
-    auto p = Get().GetNextManipulatorPositionNaive(0);
-    pworld->boosters.extensions.LockUntilPicked();
-    Action a(ActionType::ATTACH_MANIPULATOR, p.first, p.second);
-    return a;
-  }
+  // if (pworld->boosters.extensions.Available({pworld->time, windex})) {
+  //   auto p = Get().GetNextManipulatorPositionNaive(0);
+  //   pworld->boosters.extensions.LockUntilPicked();
+  //   Action a(ActionType::ATTACH_MANIPULATOR, p.first, p.second);
+  //   return a;
+  // }
 
   Action a = PathToTarget(Base::Get(), *pworld, target);
 
-  bool need_turn = true;
-  Direction d(a.type);
-  Direction wd = Get().direction;
-  Point pw(Get().x, Get().y);
-  Point next = pw + d;
-  for (int i = 0; i < 4; i++) {
-    if (!pworld->map.Inside(next.x, next.y) ||
-        pworld->map.Get(next.x, next.y).WrappedOrBlocked()) {
-      need_turn = false;
-    }
-    next = next + d;
-  }
-  if (need_turn) {
-    if (d.direction == wd.direction - 1) {
-      return Action(ActionType::ROTATE_CLOCKWISE);
-    } else {
-      return Action(ActionType::ROTATE_COUNTERCLOCKWISE);
-    }
-  }
+  // bool need_turn = true;
+  // Direction d(a.type);
+  // Direction wd = Get().direction;
+  // Point pw(Get().x, Get().y);
+  // Point next = pw + d;
+  // for (int i = 0; i < 4; i++) {
+  //   if (!pworld->map.Inside(next.x, next.y) ||
+  //       pworld->map.Get(next.x, next.y).WrappedOrBlocked()) {
+  //     need_turn = false;
+  //   }
+  //   next = next + d;
+  // }
+  // if (need_turn) {
+  //   if (d.direction == wd.direction - 1) {
+  //     return Action(ActionType::ROTATE_CLOCKWISE);
+  //   } else {
+  //     return Action(ActionType::ROTATE_COUNTERCLOCKWISE);
+  //   }
+  // }
   return a;
 }
 }  // namespace worker
