@@ -4,6 +4,7 @@
 #include "base/action_type.h"
 #include "base/direction.h"
 #include "base/point.h"
+#include "base/sleep.h"
 #include "common/always_assert.h"
 #include "common/graph/graph/distance.h"
 #include <algorithm>
@@ -15,34 +16,18 @@ namespace solvers {
 void BaseClones1::Init(const std::string& task, BaseClones1Settings _sett) {
   sett = _sett;
   world.Init(task);
-  unsigned size = unsigned(world.map.Size());
+  unsigned size = world.Size();
   auto& map = world.map;
-  map.save_wraps = true;
-  g.Resize(size);
-  unwrapped.Clear();
-  unwrapped.Resize(size);
-  for (int x = 0; x < map.xsize; ++x) {
-    for (int y = 0; y < map.ysize; ++y) {
-      if (map.ValidToMove(x, y)) {
-        int index = map.Index(x, y);
-        if (map.ValidToMove(x + 1, y)) g.AddEdge(index, map.Index(x + 1, y));
-        if (map.ValidToMove(x, y + 1)) g.AddEdge(index, map.Index(x, y + 1));
-        if (!map[index].Wrapped()) unwrapped.Insert(index);
-      }
-    }
-  }
   for (int index = 0; index < map.Size(); ++index) {
     Item item = map[index].CheckItem();
     if ((item == Item::CLONE) || (item == Item::CODEX)) {
-      poi.emplace_back(POI{item, index, DistanceFromSource(g, index)});
+      poi.emplace_back(POI{item, index, DistanceFromSource(world.G(), index)});
     }
   }
   poi_assigned.Resize(poi.size());
-  ds_rebuid_required.Resize(size);
-  ds_rebuid.Resize(size);
   acw1.Resize(size);
   acw2.Resize(size);
-  BuildDS();
+  UpdateTarget();
 }
 
 void BaseClones1::CleanPOI() {
@@ -57,46 +42,15 @@ void BaseClones1::CleanPOI() {
   }
 }
 
-void BaseClones1::BuildDSUnsignedSet() {
-  for (unsigned u : ds_rebuid.List()) {
-    for (unsigned t : g.Edges(u)) {
-      if ((t > u) && unwrapped.HasKey(t)) {
-        ds.Union(u, t);
-      }
-    }
-  }
-}
-
-void BaseClones1::BuildDS() {
-  ds.Init(world.map.Size());
-  ds_rebuid = unwrapped;
-  BuildDSUnsignedSet();
-  UpdateTarget();
-}
-
-void BaseClones1::RebuildDS() {
-  ds_rebuid.Clear();
-  for (unsigned u : unwrapped.List()) {
-    if (ds_rebuid_required.HasKey(ds.Find(u))) ds_rebuid.Insert(u);
-  }
-  ds.unions -= (ds_rebuid.Size() - ds_rebuid_required.Size());
-  for (unsigned u : ds_rebuid.List()) {
-    ds.p[u] = u;
-    ds.rank[u] = 0;
-    ds.vsize[u] = 1;
-  }
-  BuildDSUnsignedSet();
-}
-
 void BaseClones1::UpdateTarget() {
   thread_local std::unordered_set<unsigned> s;
   s.clear();
   target.clear();
-  for (unsigned u : unwrapped.List()) {
-    unsigned p = ds.Find(u);
+  for (unsigned u : world.UList()) {
+    unsigned p = world.DSFind(u);
     if (s.find(p) == s.end()) {
       s.insert(p);
-      target.emplace_back(std::make_pair(ds.GetSize(p), p));
+      target.emplace_back(std::make_pair(world.DSSize(p), p));
     }
   }
   sort(target.begin(), target.end());
@@ -114,11 +68,11 @@ bool BaseClones1::AssignClosestWorker(unsigned r, ActionsList& al) {
     for (; !q.empty();) q.pop();
     acw1.Clear();
     acw2.Clear();
-    for (unsigned u : unwrapped.List()) {
+    for (unsigned u : world.UList()) {
       if (phase == 0 && !world.map.HasExtension(u)) {
         continue;
       }
-      if (ds.Find(u) == r) {
+      if (world.DSFind(u) == r) {
         q.push({0, u, 0});
         acw1.Insert(u);
       }
@@ -151,7 +105,7 @@ bool BaseClones1::AssignClosestWorker(unsigned r, ActionsList& al) {
         best_distance = d;
         unsigned wi = m[u];
         ALWAYS_ASSERT(wi < al.size());
-        if (al[wi].type == ActionType::DO_NOTHING) {
+        if (Sleep(al[wi])) {
           w = world.GetWorker(wi);
           Direction d = GetDirection(world.map, u, f);
           Worker w = world.GetWorker(wi);
@@ -237,7 +191,7 @@ bool BaseClones1::AssignClosestWorker(unsigned r, ActionsList& al) {
         if (phase == 0 && d > sett.ext_dist) {
           continue;
         }
-        for (unsigned v : g.Edges(u)) {
+        for (unsigned v : world.GEdges(u)) {
           if (!acw1.HasKey(v)) {
             acw1.Insert(v);
             q.push({d + 1, v, u});
@@ -259,7 +213,7 @@ Action BaseClones1::SendToNearestUnwrapped(unsigned windex) {
   }
   thread_local std::queue<std::pair<int, Direction>> q;
   for (; !q.empty();) {
-      q.pop();
+    q.pop();
   }
   acw1.Clear();
 
@@ -276,8 +230,9 @@ Action BaseClones1::SendToNearestUnwrapped(unsigned windex) {
   for (; !q.empty(); q.pop()) {
     int index = q.front().first;
     Direction d = q.front().second;
-    if (unwrapped.HasKey(index) || world.map.HasExtension(index)) {
-      if (d.direction % 2 != w.direction.direction % 2 && windex == sett.manip_index) {
+    if (world.Unwrapped(index) || world.map.HasExtension(index)) {
+      if (d.direction % 2 != w.direction.direction % 2 &&
+          windex == sett.manip_index) {
         bool need_turn = true;
         Point next = pw + d;
         for (int i = 0; i < 2; i++) {
@@ -297,7 +252,7 @@ Action BaseClones1::SendToNearestUnwrapped(unsigned windex) {
       }
       return Action(d.Get());
     }
-    for (int inext : g.Edges(index)) {
+    for (int inext : world.GEdges(index)) {
       if (!acw1.HasKey(inext)) {
         q.push(std::make_pair(inext, d));
         acw1.Insert(inext);
@@ -332,7 +287,7 @@ void BaseClones1::NextMove_Clone(ActionsList& al) {
           (!unused_boosters && (poi[i].item == Item::CODEX)))
         continue;
       for (unsigned j = 0; j < l; ++j) {
-        if (al[j].type != ActionType::DO_NOTHING) continue;
+        if (!Sleep(al[j])) continue;
         auto& w = world.GetWorker(j);
         int mindex = world.map.Index(w.x, w.y);
         unsigned distance = poi[i].vd[mindex];
@@ -361,8 +316,7 @@ void BaseClones1::NextMove_Clone(ActionsList& al) {
           }
         }
       }
-      ALWAYS_ASSERT((best_distance == 0) ||
-                    (al[windex].type != ActionType::DO_NOTHING));
+      ALWAYS_ASSERT((best_distance == 0) || !Sleep(al[windex].type));
     }
   }
 }
@@ -371,27 +325,26 @@ void BaseClones1::NextMove_Wrap(ActionsList& al) {
   unsigned l = al.size();
   unsigned waiting_workers = 0;
   for (auto& action : al) {
-    if (action.type == ActionType::DO_NOTHING) {
-        waiting_workers += 1;
+    if (Sleep(action)) {
+      waiting_workers += 1;
     }
   }
   if (waiting_workers == 0) return;
-  if (!ds_rebuid_required.Empty()) {
-    RebuildDS();
-    ds_rebuid_required.Clear();
+  if (world.UpdateDSRequired()) {
+    world.UpdateDS();
     UpdateTarget();
   }
   for (auto& tp : target) {
     if (waiting_workers == 0) {
-        break;
+      break;
     }
     if (AssignClosestWorker(tp.second, al)) {
-        waiting_workers -= 1;
+      waiting_workers -= 1;
     }
   }
   // Do something with remaining workers
   for (unsigned i = 0; i < l; ++i) {
-    if (al[i].type == ActionType::DO_NOTHING) {
+    if (Sleep(al[i])) {
       al[i] = SendToNearestUnwrapped(i);
     }
   }
@@ -403,22 +356,8 @@ ActionsList BaseClones1::NextMove() {
   NextMove_Clone(al);
   NextMove_Wrap(al);
   world.ApplyC(al);
-  Update();
   return al;
 }
-
-void BaseClones1::Update() {
-  auto& q = world.map.wraps_history;
-  for (; !q.empty(); q.pop()) {
-    int index = q.front();
-    if (unwrapped.HasKey(index)) {
-      unwrapped.Remove(index);
-      ds_rebuid_required.Insert(ds.Find(index));
-    }
-  }
-}
-
-bool BaseClones1::Wrapped() { return unwrapped.Empty(); }
 
 ActionsClones BaseClones1::Solve(const std::string& task,
                                  BaseClones1Settings sett,
@@ -426,25 +365,16 @@ ActionsClones BaseClones1::Solve(const std::string& task,
   Init(task, sett);
   world.InitBonuses(bonuses);
   ActionsClones actions;
-  for (; !Wrapped();) {
+  for (; !world.Solved();) {
     auto al = NextMove();
-    if (al.size() == 0) break;
+    if (Sleep(al)) break;
     if (actions.size() < al.size()) {
       actions.resize(al.size());
     }
-    bool do_nothing = true;
-    for (unsigned i = 0; i < al.size(); ++i) {
-      if (al[i].type != ActionType::DO_NOTHING) {
-          do_nothing = false;
-      }
-      actions[i].emplace_back(al[i]);
-    }
-    if (do_nothing) {
-        break;
-    }
+    for (unsigned i = 0; i < al.size(); ++i) actions[i].emplace_back(al[i]);
   }
   if (actions.size() < world.WCount()) {
-      actions.resize(world.WCount());
+    actions.resize(world.WCount());
   }
   return actions;
 }
