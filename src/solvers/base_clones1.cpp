@@ -136,7 +136,8 @@ bool BaseClones1::AssignClosestWorker(unsigned r, ActionsList& al) {
           Direction wd = w.direction;
           Point pw(w.x, w.y);
 
-          if (wi == sett.manip_index && sett.use_shifts) {
+          if ((wi == sett.manip_index || sett.all_rotate_and_shift) &&
+              sett.use_shifts) {
             for (int i = 0; i < 2; i++) {
               Direction d((1 + 2 * i + w.direction.direction) % 4);
               int score = 0;
@@ -187,7 +188,8 @@ bool BaseClones1::AssignClosestWorker(unsigned r, ActionsList& al) {
           }
 
           if (d.direction != wd.direction &&
-              (wi == sett.manip_index || sett.all_rotate) && phase == 1) {
+              (wi == sett.manip_index || sett.all_rotate_and_shift) &&
+              phase == 1) {
             bool need_turn = true;
             Point next = pw + d;
             for (int i = 0; i < 4; i++) {
