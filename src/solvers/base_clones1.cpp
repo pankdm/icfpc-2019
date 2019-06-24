@@ -180,15 +180,14 @@ bool BaseClones1::AssignClosestWorker(unsigned r, ActionsList& al) {
                 }
               }
               if (score == MAX) {
-                w.PrintNeighborhood(world.map, 4);
                 al[wi].type = d.Get();
                 return true;
               }
             }
           }
 
-          if (d.direction != wd.direction && wi == sett.manip_index &&
-              phase == 1) {
+          if (d.direction != wd.direction &&
+              (wi == sett.manip_index || sett.all_rotate) && phase == 1) {
             bool need_turn = true;
             Point next = pw + d;
             for (int i = 0; i < 4; i++) {
