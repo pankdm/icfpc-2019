@@ -312,6 +312,8 @@ bool BaseClones1::NextMove_SetBeacon(unsigned windex, Action& result) {
 }
 
 bool BaseClones1::NextMove_FastWheels(unsigned windex, Action& result) {
+  return false;
+
   if (sett.use_fast_wheels && !fast_wheels) {
     const auto& w = world.GetWorker(windex);
     if (sett.is_manip(windex) &&
