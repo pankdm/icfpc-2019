@@ -60,7 +60,7 @@ def process_task(n):
     base = f"{GOLD}/prob-{n:03}.meta.yaml"
     base_yaml = read_yaml(base)
 
-    rois = []
+    rois = {}
 
     folder = f"../buy_db/task{n}/"
     files = os.listdir(folder)
@@ -72,12 +72,14 @@ def process_task(n):
                 continue
 
             roi, msg = calculate_roi(n, s.group(1), base_yaml, compare_yaml)
-            rois.append((roi, msg))
+            buy = compare_yaml["buy"]
+            rois[buy] = (roi, msg)
 
-    rois.sort(key = lambda x : x[0], reverse=True)
+    rois_values = list(rois.values())
+    rois_values.sort(key = lambda x : x[0], reverse=True)
     if FULL_ANALYTICS:
         print()
-        for roi in rois:
+        for roi in rois_values:
             print (roi[1])
     else:
         print (f"{rois[0][1]}")
