@@ -6,6 +6,7 @@
 #include "base/item.h"
 #include "base/manipulator.h"
 #include "base/map.h"
+#include "common/always_assert.h"
 #include <cassert>
 #include <cmath>
 #include <iostream>
@@ -77,11 +78,11 @@ std::pair<int, int> Worker::GetNextManipulatorPositionNaive(
           j++;
         }
       } else {
-        assert(false);
+        ALWAYS_ASSERT(false);
       }
     }
   }
-  assert(false);
+  ALWAYS_ASSERT(false);
   return {0, 0};
 }
 
@@ -156,7 +157,7 @@ void Worker::Move(const Direction& d, Map& map, unsigned time,
                   bool drill_enabled) {
   x += d.DX();
   y += d.DY();
-  assert(map.ValidToMove(x, y, drill_enabled));
+  ALWAYS_ASSERT(map.ValidToMove(x, y, drill_enabled));
   if (drill_enabled) map.Drill(x, y);
   Item item = map(x, y).GetItem();
   if ((item != Item::BEACON) && (item != Item::CODEX) && (item != Item::NONE)) {
@@ -183,7 +184,7 @@ void Worker::Move(const Direction& d, Map& map, unsigned time,
     case Item::CODEX:
       break;
     default:
-      assert(false);
+      ALWAYS_ASSERT(false);
   }
 }
 
@@ -198,7 +199,7 @@ void Worker::RotateCounterClockwise() {
 }
 
 void Worker::AddManipulator(const Manipulator& m, unsigned time) {
-  assert(pboosters->extensions.Available(Time(time)));
+  ALWAYS_ASSERT(pboosters->extensions.Available(Time(time)));
   bool valid = false;
   for (const Manipulator& cm : manipulators) {
     if (std::abs(cm.X() - m.X()) + std::abs(cm.Y() - m.Y()) == 1) {
@@ -206,7 +207,7 @@ void Worker::AddManipulator(const Manipulator& m, unsigned time) {
       break;
     }
   }
-  assert(valid);
+  ALWAYS_ASSERT(valid);
   pboosters->extensions.Use();
   AddManipulatorI(m.X(), m.Y());
 }
@@ -242,30 +243,30 @@ void Worker::Apply(unsigned time, Map& map, const Action& action) {
       Wrap(map);
       break;
     case ActionType::ATTACH_FAST_WHEELS:
-      assert(pboosters->fast_wheels.Available(Time(time)));
+      ALWAYS_ASSERT(pboosters->fast_wheels.Available(Time(time)));
       pboosters->fast_wheels.Use();
       time_fast_wheels = time + TIME_FAST_WHEELS + 1;
       break;
     case ActionType::USING_DRILL:
-      assert(pboosters->fast_wheels.Available(Time(time)));
+      ALWAYS_ASSERT(pboosters->fast_wheels.Available(Time(time)));
       pboosters->fast_wheels.Use();
       time_drill = time + TIME_DRILL + 1;
       break;
     case ActionType::SET_BEACON:
-      assert(pboosters->teleporters.Available(Time(time)));
+      ALWAYS_ASSERT(pboosters->teleporters.Available(Time(time)));
       pboosters->teleporters.Use();
       map.SetBeacon(x, y);
       break;
     case ActionType::SHIFT:
-      assert(map.HasBeacon(action.x, action.y));
+      ALWAYS_ASSERT(map.HasBeacon(action.x, action.y));
       x = action.x;
       y = action.y;
       Wrap(map);
       break;
     case ActionType::CLONE:
-      assert(false);
+      ALWAYS_ASSERT(false);
       break;
     default:
-      assert(false);
+      ALWAYS_ASSERT(false);
   }
 }

@@ -6,7 +6,6 @@
 #include "base/worker.h"
 #include "utils/split.h"
 #include "common/always_assert.h"
-#include <cassert>
 #include <vector>
 
 void World::Init(const std::string& desc) {
@@ -16,7 +15,7 @@ void World::Init(const std::string& desc) {
   map.Init(vs[0]);
   for (auto& block_desc : Split(vs[2], ';')) map.AddBlock(block_desc);
   for (auto& boost_desc : Split(vs[3], ';')) {
-    assert(boost_desc.size() >= 1);
+    ALWAYS_ASSERT(boost_desc.size() >= 1);
     Point pboost(boost_desc.substr(1));
     Item item = Item::UNKNOWN;
     switch (boost_desc[0]) {
@@ -39,7 +38,7 @@ void World::Init(const std::string& desc) {
         item = Item::CLONE;
         break;
     }
-    assert(item != Item::UNKNOWN);
+    ALWAYS_ASSERT(item != Item::UNKNOWN);
     map(pboost.x, pboost.y).AddItem(item);
     if (map.items_coords.count(item) == 0) {
       map.items_coords[item] = std::set<std::pair<int, int>>();
@@ -70,13 +69,13 @@ void World::InitBonuses(const std::string& bonuses) {
         boosters.clones.Add(BoosterTime());
         break;
       default:
-        assert(false);
+        ALWAYS_ASSERT(false);
     }
   }
 }
 
 Worker& World::GetWorker(unsigned index) {
-  assert(index < workers.size());
+  ALWAYS_ASSERT(index < workers.size());
   return workers[index];
 }
 
@@ -95,8 +94,8 @@ unsigned World::WCount() const { return workers.size(); }
 void World::ApplyC(unsigned index, const Action& action) {
   if (action.type == ActionType::CLONE) {
     auto& worker = GetWorker(index);
-    assert(boosters.clones.Available(worker.Time(time)));
-    assert(map.Get(worker.x, worker.y).CheckItem() == Item::CODEX);
+    ALWAYS_ASSERT(boosters.clones.Available(worker.Time(time)));
+    ALWAYS_ASSERT(map.Get(worker.x, worker.y).CheckItem() == Item::CODEX);
     boosters.clones.Use();
     Worker wnew;
     wnew.Init(boosters, map, worker.x, worker.y, workers.size());
@@ -107,7 +106,7 @@ void World::ApplyC(unsigned index, const Action& action) {
 }
 
 void World::ApplyC(const ActionsList& actions) {
-  assert(actions.size() == WCount());
+  ALWAYS_ASSERT(actions.size() == WCount());
   ++time;
   for (unsigned i = 0; i < actions.size(); ++i) {
     ApplyC(i, actions[i]);

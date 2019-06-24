@@ -58,7 +58,7 @@ void WorldExt::BuildDS() {
 
 void WorldExt::UpdateDS() {
   if (ds_update_required.Empty()) return;
-  assert(ds_update_set.Empty());
+  ALWAYS_ASSERT(ds_update_set.Empty());
   for (unsigned u : unwrapped.List()) {
     if (ds_update_required.HasKey(ds.Find(u))) ds_update_set.Insert(u);
   }

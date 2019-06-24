@@ -1,6 +1,8 @@
 #include "solvers/base_greedy3.h"
+
 #include "base/action_type.h"
 #include "base/point.h"
+#include "common/always_assert.h"
 
 namespace solvers {
 
@@ -153,7 +155,7 @@ Action BaseGreedy3::NextMove() {
   }
   std::cout << std::endl;
   world.map.Print();
-  assert(false);
+  ALWAYS_ASSERT(false);
   return Action(ActionType::END);
 }
 
