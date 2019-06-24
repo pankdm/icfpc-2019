@@ -5,7 +5,7 @@
 
 namespace solvers {
 namespace worker {
-class Local : public Base {
+class Local2 : public Base {
  protected:
   UnsignedSet target;
 
