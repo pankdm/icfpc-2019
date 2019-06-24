@@ -14,7 +14,7 @@ class Local : public Base {
 
  public:
   void Init(unsigned _windex, unsigned _tindex, WorldTaskSplit& world);
-  void ResetTask(unsigned new_index, UnsignedSet& new_task);
+  void ResetTask(unsigned new_index);
   Action NextMove();
 };
 }  // namespace worker
