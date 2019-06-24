@@ -39,31 +39,31 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
           })));
     }
 
-    futures.emplace_back(tp->enqueueTask<Result>(
-        std::make_shared<std::packaged_task<Result()>>([&]() {
-          BaseGreedy2 bg2;
-          return Result("bg2", to_action_clones(bg2.Solve(task)));
-        })));
+    // futures.emplace_back(tp->enqueueTask<Result>(
+    //     std::make_shared<std::packaged_task<Result()>>([&]() {
+    //       BaseGreedy2 bg2;
+    //       return Result("bg2", to_action_clones(bg2.Solve(task)));
+    //     })));
 
-    futures.emplace_back(tp->enqueueTask<Result>(
-        std::make_shared<std::packaged_task<Result()>>([&]() {
-          BaseGreedy3 bg3(BaseGreedy3Settings{true, true, 0, 0});
-          return Result("bg3", to_action_clones(bg3.Solve(task)));
-        })));
+    // futures.emplace_back(tp->enqueueTask<Result>(
+    //     std::make_shared<std::packaged_task<Result()>>([&]() {
+    //       BaseGreedy3 bg3(BaseGreedy3Settings{true, true, 0, 0});
+    //       return Result("bg3", to_action_clones(bg3.Solve(task)));
+    //     })));
 
-    futures.emplace_back(tp->enqueueTask<Result>(
-        std::make_shared<std::packaged_task<Result()>>([&]() {
-          BaseGreedy3 bg4(BaseGreedy3Settings{true, true, 100, 2});
-          return Result("bg4", to_action_clones(bg4.Solve(task)));
-        })));
+    // futures.emplace_back(tp->enqueueTask<Result>(
+    //     std::make_shared<std::packaged_task<Result()>>([&]() {
+    //       BaseGreedy3 bg4(BaseGreedy3Settings{true, true, 100, 2});
+    //       return Result("bg4", to_action_clones(bg4.Solve(task)));
+    //     })));
 
-    for (unsigned i = 0; i < 2; ++i) {
-      futures.emplace_back(tp->enqueueTask<Result>(
-          std::make_shared<std::packaged_task<Result()>>([&, i]() {
-            ClonesGreedy cg0;
-            return Result("cg0", cg0.Solve(task, i, bonuses));
-          })));
-    }
+    // for (unsigned i = 0; i < 2; ++i) {
+    //   futures.emplace_back(tp->enqueueTask<Result>(
+    //       std::make_shared<std::packaged_task<Result()>>([&, i]() {
+    //         ClonesGreedy cg0;
+    //         return Result("cg0", cg0.Solve(task, i, bonuses));
+    //       })));
+    // }
 
     if (!cmd.int_args["nobc"]) {
       futures.emplace_back(tp->enqueueTask<Result>(
@@ -73,63 +73,63 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
             return Result("bc1", bc1.Solve(task, sett, bonuses));
           })));
 
-      futures.emplace_back(tp->enqueueTask<Result>(
-          std::make_shared<std::packaged_task<Result()>>([&]() {
-            BaseClones bc0;
-            return Result("bc0", bc0.Solve(task, bonuses));
-          })));
+      // futures.emplace_back(tp->enqueueTask<Result>(
+      //     std::make_shared<std::packaged_task<Result()>>([&]() {
+      //       BaseClones bc0;
+      //       return Result("bc0", bc0.Solve(task, bonuses));
+      //     })));
 
-      futures.emplace_back(tp->enqueueTask<Result>(
-          std::make_shared<std::packaged_task<Result()>>([&]() {
-            BaseClones1 bc2;
-            BaseClones1Settings sett{1, 0, 100, true, false};
-            return Result("bc2", bc2.Solve(task, sett, bonuses));
-          })));
+      // futures.emplace_back(tp->enqueueTask<Result>(
+      //     std::make_shared<std::packaged_task<Result()>>([&]() {
+      //       BaseClones1 bc2;
+      //       BaseClones1Settings sett{1, 0, 100, true, false};
+      //       return Result("bc2", bc2.Solve(task, sett, bonuses));
+      //     })));
 
-      futures.emplace_back(tp->enqueueTask<Result>(
-          std::make_shared<std::packaged_task<Result()>>([&]() {
-            BaseClones1 bc3;
-            BaseClones1Settings sett{0, 1, 100, true, false};
-            return Result("bc3", bc3.Solve(task, sett, bonuses));
-          })));
+      // futures.emplace_back(tp->enqueueTask<Result>(
+      //     std::make_shared<std::packaged_task<Result()>>([&]() {
+      //       BaseClones1 bc3;
+      //       BaseClones1Settings sett{0, 1, 100, true, false};
+      //       return Result("bc3", bc3.Solve(task, sett, bonuses));
+      //     })));
 
-      futures.emplace_back(tp->enqueueTask<Result>(
-          std::make_shared<std::packaged_task<Result()>>([&]() {
-            BaseClones1 bc1;
-            BaseClones1Settings sett{0, 0, 10, true, false};
-            return Result("bc4", bc1.Solve(task, sett, bonuses));
-          })));
+      // futures.emplace_back(tp->enqueueTask<Result>(
+      //     std::make_shared<std::packaged_task<Result()>>([&]() {
+      //       BaseClones1 bc1;
+      //       BaseClones1Settings sett{0, 0, 10, true, false};
+      //       return Result("bc4", bc1.Solve(task, sett, bonuses));
+      //     })));
 
-      futures.emplace_back(tp->enqueueTask<Result>(
-          std::make_shared<std::packaged_task<Result()>>([&]() {
-            BaseClones1 bc2;
-            BaseClones1Settings sett{1, 0, 10, true, false};
-            return Result("bc5", bc2.Solve(task, sett, bonuses));
-          })));
+      // futures.emplace_back(tp->enqueueTask<Result>(
+      //     std::make_shared<std::packaged_task<Result()>>([&]() {
+      //       BaseClones1 bc2;
+      //       BaseClones1Settings sett{1, 0, 10, true, false};
+      //       return Result("bc5", bc2.Solve(task, sett, bonuses));
+      //     })));
 
-      futures.emplace_back(tp->enqueueTask<Result>(
-          std::make_shared<std::packaged_task<Result()>>([&]() {
-            BaseClones1 bc3;
-            BaseClones1Settings sett{0, 1, 10, true, false};
-            return Result("bc6", bc3.Solve(task, sett, bonuses));
-          })));
+      // futures.emplace_back(tp->enqueueTask<Result>(
+      //     std::make_shared<std::packaged_task<Result()>>([&]() {
+      //       BaseClones1 bc3;
+      //       BaseClones1Settings sett{0, 1, 10, true, false};
+      //       return Result("bc6", bc3.Solve(task, sett, bonuses));
+      //     })));
 
-      futures.emplace_back(tp->enqueueTask<Result>(
-          std::make_shared<std::packaged_task<Result()>>([&]() {
-            BaseClones1 bc3;
-            BaseClones1Settings sett{0, 0, 10, true, false, true};
-            return Result("bc_t", bc3.Solve(task, sett, bonuses));
-          })));
+      // futures.emplace_back(tp->enqueueTask<Result>(
+      //     std::make_shared<std::packaged_task<Result()>>([&]() {
+      //       BaseClones1 bc3;
+      //       BaseClones1Settings sett{0, 0, 10, true, false, true};
+      //       return Result("bc_t", bc3.Solve(task, sett, bonuses));
+      //     })));
 
-      futures.emplace_back(tp->enqueueTask<Result>(
-          std::make_shared<std::packaged_task<Result()>>([&]() {
-            BaseClones1 bc3;
-            BaseClones1Settings sett{0, 0, 100, true, false, true};
-            return Result("bc_t", bc3.Solve(task, sett, bonuses));
-          })));
+      // futures.emplace_back(tp->enqueueTask<Result>(
+      //     std::make_shared<std::packaged_task<Result()>>([&]() {
+      //       BaseClones1 bc3;
+      //       BaseClones1Settings sett{0, 0, 100, true, false, true};
+      //       return Result("bc_t", bc3.Solve(task, sett, bonuses));
+      //     })));
     }
     /*
-    */
+     */
 
     for (auto& f : futures) {
       auto res = f.get();
@@ -158,7 +158,7 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
       }
     }
     /*
-    */
+     */
 
     // for (unsigned i = 1; i < 3; ++i) {
     //   for (unsigned j = 1; j < 3; ++j) {

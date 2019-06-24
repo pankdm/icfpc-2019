@@ -140,10 +140,21 @@ bool BaseClones1::AssignClosestWorker(unsigned r, ActionsList& al) {
             for (int i = 0; i < 2; i++) {
               Direction d((1 + 2 * i + w.direction.direction) % 4);
               int score = 0;
-              Point base = pw;
               Direction wd = w.direction;
               int MAX = 4;
+              bool ok = true;
               for (int iter = 0; iter < MAX; iter++) {
+                if (!world.map.ValidToMove(w.x + d.DX() + wd.DX() * iter,
+                                           w.y + d.DY() + wd.DY() * iter)) {
+                  ok = false;
+                }
+              }
+              if (!ok) {
+                continue;
+              }
+              Point base = pw;
+              for (int iter = 0; iter < MAX; iter++) {
+                int shift_results[4];
                 if (iter > 0) {
                   base = base + wd;
                 }
@@ -153,23 +164,23 @@ bool BaseClones1::AssignClosestWorker(unsigned r, ActionsList& al) {
                 if (iter > 1 && world.map.Get(base.x, base.y).Wrapped()) {
                   continue;
                 }
-                int sz = w.CellsToNewlyWrap(world.map, wd.DX() * iter,
-                                            wd.DY() * iter)
-                             .size();
-                Point pd = base + d;
-                if (!world.map.ValidToMove(pd.x, pd.y)) {
-                  continue;
+                for (int shift = -1; shift < 3; shift++) {
+                  shift_results[shift + 1] =
+                      w.CellsToNewlyWrap(world.map,
+                                         wd.DX() * iter + d.DX() * shift,
+                                         wd.DY() * iter + d.DY() * shift)
+                          .size();
                 }
-                int new_sz =
-                    w.CellsToNewlyWrap(world.map, wd.DX() * iter + d.DX(),
-                                       wd.DY() * iter + d.DY())
-                        .size();
-                if (new_sz > sz) {
+                if (shift_results[2] > shift_results[1]) {
+                  score++;  // Immediate gain
+                } else if (shift_results[0] == shift_results[1] &&
+                           shift_results[1] == shift_results[2] &&
+                           shift_results[2] > shift_results[3]) {
                   score++;
                 }
               }
               if (score == MAX) {
-                // w.PrintNeighborhood(world.map, 4);
+                w.PrintNeighborhood(world.map, 4);
                 al[wi].type = d.Get();
                 return true;
               }
@@ -243,21 +254,21 @@ bool BaseClones1::NextMove_SetBeacon(unsigned windex, Action& result) {
         q.push(world.map.Index(w.x, w.y));
 
         while (!q.empty()) {
-            int now = q.front();
-            Point pnow(world.map.X(now), world.map.Y(now));
-            q.pop();
+          int now = q.front();
+          Point pnow(world.map.X(now), world.map.Y(now));
+          q.pop();
 
-            for (unsigned _d = 0; _d < 4; ++_d) {
-              Direction d(_d);
-              Point pd = pnow + d;
-              if (world.map.ValidToMove(pd.x, pd.y)) {
-                int pdi = world.map.Index(pd.x, pd.y);
-                if (beaconDist[pdi] == -1) {
-                    beaconDist[pdi] = beaconDist[now] + 1;
-                    q.push(pdi);
-                }
+          for (unsigned _d = 0; _d < 4; ++_d) {
+            Direction d(_d);
+            Point pd = pnow + d;
+            if (world.map.ValidToMove(pd.x, pd.y)) {
+              int pdi = world.map.Index(pd.x, pd.y);
+              if (beaconDist[pdi] == -1) {
+                beaconDist[pdi] = beaconDist[now] + 1;
+                q.push(pdi);
               }
             }
+          }
         }
 
         result = a;
@@ -328,10 +339,10 @@ Action BaseClones1::SendToNearestUnwrapped(unsigned windex) {
   }
   for (; !q.empty(); q.pop()) {
     QItem now = q.front();
-    int index = now.pointIndex;;
+    int index = now.pointIndex;
+    ;
     Direction d = now.d;
     if (world.Unwrapped(index) || world.map.HasExtension(index)) {
-
       Action temp;
       if (NextMove_Shift(windex, index, now.distance, temp)) {
         return temp;
