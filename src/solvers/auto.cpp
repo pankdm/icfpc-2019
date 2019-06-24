@@ -203,15 +203,15 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
     m.AddSolution(bc.Solve(task, sett, bonuses), std::string("bct"));
     */
 
-    // for (int j = 1; j < 200; j *= 10) {
-    //   for (unsigned i = 0; i < 32; i++) {
-    //     BaseClones1Settings sett{-1, i & 1, j, i & 2, true, i & 4, i & 8, i &
-    //     16}; BaseClones1 bc; m.AddSolution(
-    //         bc.Solve(task, sett, bonuses),
-    //         std::string("bc_") + std::to_string(i) + "_" +
-    //         std::to_string(j));
-    //   }
-    // }
+    for (int j = 1; j < 200; j *= 10) {
+      for (unsigned i = 0; i < 32; i++) {
+        BaseClones1Settings sett{-1, i & 1, j, i & 2, true, i & 4, i & 8, i &
+        16}; BaseClones1 bc; m.AddSolution(
+            bc.Solve(task, sett, bonuses),
+            std::string("bc_") + std::to_string(i) + "_" +
+            std::to_string(j));
+      }
+    }
     /*
      */
 
