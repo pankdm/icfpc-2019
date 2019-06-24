@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <cstdio>
+#include <cstdlib>
 
 #define ALWAYS_ASSERT(cond) \
   if (!(cond)) {            \
