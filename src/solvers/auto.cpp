@@ -150,7 +150,7 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
 
     for (unsigned i = 0; i < 16; i++) {
       for (int j = 0; j < 40; j += 10) {
-        BaseClones1Settings sett{i & 1, i & 2, j, i & 4, true, i & 8};
+        BaseClones1Settings sett{i & 1, i & 2, j, i & 4, true, i & 8, true};
         BaseClones1 bc;
         m.AddSolution(
             bc.Solve(task, sett, bonuses),
