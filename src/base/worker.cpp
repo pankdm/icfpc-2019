@@ -199,7 +199,7 @@ void Worker::RotateCounterClockwise() {
 }
 
 void Worker::AddManipulator(const Manipulator& m, unsigned time) {
-  ALWAYS_ASSERT(pboosters->extensions.Available(Time(time)));
+  ALWAYS_ASSERT(pboosters->extensions.AvailableOrLocked(Time(time)));
   bool valid = false;
   for (const Manipulator& cm : manipulators) {
     if (std::abs(cm.X() - m.X()) + std::abs(cm.Y() - m.Y()) == 1) {
