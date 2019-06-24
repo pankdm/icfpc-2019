@@ -15,6 +15,7 @@ class Worker {
   int x;
   int y;
   unsigned index;
+  bool task_assigned = false;
 
   std::vector<Manipulator> manipulators;
 
