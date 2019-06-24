@@ -22,6 +22,7 @@ class ClonesGreedy : public Solver {
   WorldExt world;
   std::vector<POI> poi;
   UnsignedSet poi_assigned;
+  UnsignedSet codex_set;
 
   std::vector<std::pair<unsigned, unsigned>> target;  // Size-Representative
   UnsignedSet acw1, acw2;
@@ -31,8 +32,6 @@ class ClonesGreedy : public Solver {
   void CleanPOI();
   void UpdateTarget();
   bool AssignClosestWorker(unsigned r, ActionsList& al);
-  ActionType SendToNearestCodeX(unsigned windex);
-  ActionType SendToNearestUnwrapped(unsigned windex);
   void NextMove_Init(ActionsList& al);
   void NextMove_Wrap(ActionsList& al);
   ActionsList NextMove();

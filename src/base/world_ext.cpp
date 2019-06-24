@@ -24,6 +24,8 @@ bool WorldExt::Unwrapped(unsigned index) const {
 
 bool WorldExt::Unwrapped(int x, int y) const { return Unwrapped(Index(x, y)); }
 
+const UnsignedSet& WorldExt::UnwrappedSet() const { return unwrapped; }
+
 void WorldExt::BuildDSForSet() {
   for (unsigned u : ds_update_set.List()) {
     ds.p[u] = u;

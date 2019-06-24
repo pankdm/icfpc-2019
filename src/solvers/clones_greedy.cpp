@@ -7,6 +7,7 @@
 #include "base/item.h"
 #include "base/point.h"
 #include "base/sleep.h"
+#include "solvers/paths/path_to_target.h"
 #include "common/always_assert.h"
 #include "common/graph/graph/distance.h"
 #include <algorithm>
@@ -19,11 +20,13 @@ void ClonesGreedy::Init(const std::string& task) {
   world.Init(task);
   unsigned size = world.Size();
   auto& map = world.map;
+  codex_set.Resize(size);
   for (int index = 0; index < map.Size(); ++index) {
     Item item = map[index].CheckItem();
     if ((item == Item::CLONE) || (item == Item::EXTENSION)) {
       poi.emplace_back(POI{item, index, DistanceFromSource(world.G(), index)});
     }
+    if (item == Item::CODEX) codex_set.Insert(index);
   }
   poi_assigned.Resize(poi.size());
   acw1.Resize(size);
@@ -108,64 +111,6 @@ bool ClonesGreedy::AssignClosestWorker(unsigned r, ActionsList& al) {
   return false;
 }
 
-ActionType ClonesGreedy::SendToNearestCodeX(unsigned windex) {
-  thread_local std::queue<std::pair<int, Direction>> q;
-  for (; !q.empty();) q.pop();
-  acw1.Clear();
-  auto& w = world.GetWorker(windex);
-  Point pw(w.x, w.y);
-  for (unsigned _d = 0; _d < 4; ++_d) {
-    Direction d(_d);
-    Point pd = pw + d;
-    if (world.map.ValidToMove(pd.x, pd.y)) {
-      int index = world.map.Index(pd.x, pd.y);
-      q.push(std::make_pair(index, d));
-      acw1.Insert(index);
-    }
-  }
-  for (; !q.empty(); q.pop()) {
-    int index = q.front().first;
-    Direction d = q.front().second;
-    if (world.map[index].CheckItem() == Item::CODEX) return d.Get();
-    for (int inext : world.GEdges(index)) {
-      if (!acw1.HasKey(inext)) {
-        q.push(std::make_pair(inext, d));
-        acw1.Insert(inext);
-      }
-    }
-  }
-  return ActionType::DO_NOTHING;
-}
-
-ActionType ClonesGreedy::SendToNearestUnwrapped(unsigned windex) {
-  thread_local std::queue<std::pair<int, Direction>> q;
-  for (; !q.empty();) q.pop();
-  acw1.Clear();
-  auto& w = world.GetWorker(windex);
-  Point pw(w.x, w.y);
-  for (unsigned _d = 0; _d < 4; ++_d) {
-    Direction d(_d);
-    Point pd = pw + d;
-    if (world.map.ValidToMove(pd.x, pd.y)) {
-      int index = world.map.Index(pd.x, pd.y);
-      q.push(std::make_pair(index, d));
-      acw1.Insert(index);
-    }
-  }
-  for (; !q.empty(); q.pop()) {
-    int index = q.front().first;
-    Direction d = q.front().second;
-    if (world.Unwrapped(index)) return d.Get();
-    for (int inext : world.GEdges(index)) {
-      if (!acw1.HasKey(inext)) {
-        q.push(std::make_pair(inext, d));
-        acw1.Insert(inext);
-      }
-    }
-  }
-  return ActionType::DO_NOTHING;
-}
-
 void ClonesGreedy::NextMove_Init(ActionsList& al) {
   unsigned l = al.size();
   auto& w = world.GetWorker(0);
@@ -211,7 +156,7 @@ void ClonesGreedy::NextMove_Init(ActionsList& al) {
   if ((world.boosters.clones.Size() > 0) &&
       (world.map[windex].CheckItem() != Item::CODEX)) {
     ALWAYS_ASSERT(l == 1);
-    al[0].type = SendToNearestCodeX(0);
+    al[0] = PathToTarget(w, world, codex_set);
     return;
   }
   // Make clones
@@ -238,7 +183,8 @@ void ClonesGreedy::NextMove_Wrap(ActionsList& al) {
   }
   // Do something with remaining workers
   for (unsigned i = 0; i < l; ++i) {
-    if (Sleep(al[i])) al[i].type = SendToNearestUnwrapped(i);
+    if (Sleep(al[i]))
+      al[i] = PathToTarget(world.GetWorker(i), world, world.UnwrappedSet());
   }
 }
 
