@@ -47,6 +47,8 @@ def solve_knapsack(balance, knapsack):
             continue
 
         if item.problem in best_buy:
+            print(
+                f"Updating solution for {item.problem}, cost {best_buy[item.problem].spent} → {item.spent}")
             balance += best_buy[item.problem].spent
 
         prefix = item.path.replace(".meta.yaml", "")
@@ -214,7 +216,6 @@ if __name__ == "__main__":
         sys.exit("No gold merge directory exists, and unable to create")
 
     print(f"Submitting new solutions")
-    # sys.exit("early exit")
 
     timestamp = time.strftime("%Y-%m-%d_%H-%M-%S")
     archive = os.path.join(config.submission, timestamp + ".zip")
