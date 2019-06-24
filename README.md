@@ -16,6 +16,25 @@ Map generation is pretty simple. As soon as map quality and difficulty doesn't b
 
 We're building kind of Spanning tree, where we're trying to connect points from oSqr to the border of the area. By construction, it resolves almost every constraint, and remaining parts are fulfilled later. For example, to ensure we have enough vertices, every time we have 3+ pixels straight edge, we can add one pixel wide "hair", increasing amount of vertices by 4. Fortunately, we never faced situation when we need to reduce amound of vertices. All the boosters are put randomily, because, again, there are no incentives to build complicated map, or map specially tailored to our solvers.
 
+# Infrastructure
+
+## Storage
+
+For storing solutions we used our own buy_db database implemented via file system:
+
+```
+buy_db/
+   |---- task1/
+   |---- task2/
+           |--- 1.meta.yaml
+           |--- 1.sol
+           |--- 1.buy
+```
+Basically, the optimizer was treating solvers as black box and feeding various booster options,
+evaluating and appending results into db together with metadata.
+Then, on top special scripts could provide analytics or selection of best solutions (see best_buy.py section)
+
+
 # Tooling
 
 ## submit.py
