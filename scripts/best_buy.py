@@ -219,7 +219,7 @@ if __name__ == "__main__":
 
                 if "time" not in merge_metadata or merge_metadata["time"] > score:
                     print(f"Problem {problem} solution improved")
-                    archive = True
+                    update_archive = True
                     for from_name, to_name in best_buy[problem]:
                         with open(from_name, "rb") as src, open(os.path.join(config.merge, to_name), "wb") as dst:
                             dst.write(src.read())
@@ -240,6 +240,7 @@ if __name__ == "__main__":
                 with ZipFile(archive_path, mode="w", compression=ZIP_DEFLATED, compresslevel=9) as zipfile:
                     for solution in tqdm(merge_solutions, desc="Archiving gold solutions"):
                         zipname = os.path.basename(solution)
-                        zipfile.write(solution, arcname=zipname)
+                        filename = os.path.join(config.merge, solution)
+                        zipfile.write(filename, arcname=zipname)
     else:
         sys.exit(f"Private id is not set, you can submit {archive} manually")
