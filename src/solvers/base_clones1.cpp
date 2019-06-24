@@ -275,7 +275,7 @@ Action BaseClones1::SendToNearestUnwrapped(unsigned windex) {
     int index = q.front().first;
     Direction d = q.front().second;
     if (unwrapped.HasKey(index) || world.map.HasExtension(index)) {
-      if (d.direction % 2 != w.direction.direction % 2 && windex == 0) {
+      if (d.direction % 2 != w.direction.direction % 2 && windex == sett.manip_index) {
         bool need_turn = true;
         Point next = pw + d;
         for (int i = 0; i < 2; i++) {
