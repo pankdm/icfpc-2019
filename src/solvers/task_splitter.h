@@ -4,6 +4,7 @@
 #include "base/sleep.h"
 #include "base/world_task_split.h"
 #include "solvers/solver.h"
+#include <algorithm>
 #include <vector>
 
 namespace solvers {
@@ -17,10 +18,39 @@ class TaskSplitter : public Solver {
   bool clone_stage_done;
 
  protected:
+  void AssignTasks() {
+    ALWAYS_ASSERT(world.WCount() <= worker_solvers.size());
+    unsigned task_id = 0;
+    for (unsigned i = 0; i < world.WCount(); ++i) {
+      auto& w = world.GetWorker(i);
+      if (w.task_assigned) {
+        worker_solvers[i].ResetTask(task_id++);
+        task_id %= world.TotalTasks();
+      }
+    }
+  }
+
+  void SplitTasks(unsigned new_tasks) {
+    thread_local std::vector<UnsignedSet> tasks;
+    auto v = world.UList();
+    new_tasks = std::min(new_tasks, unsigned(v.size()));
+    std::sort(v.begin(), v.end());
+    tasks.resize(new_tasks);
+    for (unsigned i = 0; i < new_tasks; ++i) {
+      tasks[i].Resize(world.Size());
+      tasks[i].Clear();
+      for (uint64_t j = (i * v.size()) / new_tasks;
+           j < ((i + 1) * v.size()) / new_tasks; ++j) {
+        tasks[i].Insert(v[j]);
+      }
+    }
+    world.SetNewTasks(tasks);
+    AssignTasks();
+  }
+
   void Init(const std::string& task, const std::string& bonuses) {
     world.Init(task);
     world.InitBonuses(bonuses);
-    // world.SetNewTasks(std::vector<UnsignedSet>(1, world.UnwrappedSet()));
     unsigned max_workers =
         world.boosters.clones.Size() + world.map.Count(Item::CLONE) + 1;
     clone_solver.Init(world);
@@ -30,6 +60,7 @@ class TaskSplitter : public Solver {
 
   ActionsList NextMove() {
     ALWAYS_ASSERT(world.WCount() <= worker_solvers.size());
+    unsigned assigned_workers = 0;
     ActionsList al(world.WCount(), ActionType::END);
     if (!clone_stage_done) {
       bool still_working = false;
@@ -38,20 +69,30 @@ class TaskSplitter : public Solver {
       for (unsigned i = 0; i < al.size(); ++i) {
         auto& w = world.GetWorker(i);
         if (w.task_assigned) {
+          assigned_workers += 1;
           ALWAYS_ASSERT(al[i].type == ActionType::END);
         } else {
           if (al[i].type == ActionType::END) {
             worker_solvers[i].Init(i, 0, world);
+            assigned_workers += 1;
           } else {
             still_working = true;
           }
         }
       }
       if (!still_working) {
-        // Do something!
         clone_stage_done = true;
       }
     }
+    if (assigned_workers > world.TotalTasks()) {
+      SplitTasks(assigned_workers);
+    }
+    for (unsigned i = 0; i < al.size(); ++i) {
+      if (al[i].type == ActionType::END) {
+        al[i] = worker_solvers[i].NextMove();
+      }
+    }
+
     for (unsigned i = 0; i < al.size(); ++i) {
       if (al[i].type == ActionType::END) {
         al[i] = worker_solvers[i].NextMove();

@@ -11,9 +11,7 @@ void Base::Init(unsigned _windex, unsigned _tindex, WorldTaskSplit& world) {
   Get().task_assigned = true;
 }
 
-void Base::ResetTask(unsigned new_index, UnsignedSet& new_task) {
-  tindex = new_index;
-}
+void Base::ResetTask(unsigned new_index) { tindex = new_index; }
 
 Action Base::NextMove() { return ActionType::DO_NOTHING; }
 }  // namespace worker
