@@ -26,7 +26,7 @@ def calculate_roi(n, index, base_yaml, compare_yaml):
     return roi, msg
 
 
-def get_best_roi_clone(n):
+def get_best_roi_clone(n, buy):
     # print ()
     # print (f"Task {n}")
     base = f"{GOLD}/prob-{n:03}.meta.yaml"
@@ -41,12 +41,15 @@ def get_best_roi_clone(n):
         if s:
             compare_yaml = read_yaml(folder + f)
             roi, msg = calculate_roi(n, s.group(1), base_yaml, compare_yaml)
-            if compare_yaml["buy"] != "C":
+            if compare_yaml["buy"] != buy:
                 continue
             rois.append((roi, s.group(1)))
 
     rois.sort(key = lambda x : x[0], reverse=True)
-    return rois[0]
+    if rois:
+        return rois[0]
+    else:
+        return [], None
 
 def process_task(n):
     # print ()
