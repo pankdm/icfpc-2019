@@ -14,13 +14,14 @@ void Local2::UpdateTarget() {
   int best_score = -1;
   std::map<int, int> rep_to_score;
   std::map<int, int> rep_to_size;
-  for (unsigned u : pworld->UList()) {
+  const auto& task = pworld->GetTask(tindex);
+  for (unsigned u : task.List()) {
     rep_to_size[pworld->DSFind(u)] = pworld->DSSize(u);
   }
   std::queue<std::pair<int, int>> q;
   UnsignedSet s(pworld->map.Size());
-  q.push(std::make_pair(pworld->map.Index(w.x, w.y), 0));
-  s.Insert(pworld->map.Index(w.x, w.y));
+  q.push(std::make_pair(pworld->Index(w.x, w.y), 0));
+  s.Insert(pworld->Index(w.x, w.y));
   for (; !q.empty(); q.pop()) {
     int index = q.front().first;
     int dist = q.front().second;
@@ -31,7 +32,7 @@ void Local2::UpdateTarget() {
         break;
       }
       int rep = pworld->DSFind(index);
-      if (rep_to_score.count(rep) == 0) {
+      if (rep_to_score.count(rep) == 0 && task.HasKey(index)) {
         int score = dist * DIST_WEIGHT + pworld->DSSize(rep);
         rep_to_score[rep] = score;
         if (best_score == -1 || score < best_score) {
@@ -55,7 +56,7 @@ void Local2::UpdateTarget() {
       s.Insert(index);
     }
   }
-  for (unsigned u : pworld->UList()) {
+  for (unsigned u : task.List()) {
     if (rep_to_score[pworld->DSFind(u)] == best_score) {
       target.Insert(u);
     }
@@ -80,6 +81,12 @@ Action Local2::NextMove() {
   if (pworld->UpdateTaskRequired(tindex)) {
     pworld->UpdateTask(tindex);
     UpdateTarget();
+  }
+  if (pworld->boosters.extensions.Available({pworld->time, windex})) {
+    auto p = Get().GetNextManipulatorPositionNaive(0);
+    pworld->boosters.extensions.LockUntilPicked();
+    Action a(ActionType::ATTACH_MANIPULATOR, p.first, p.second);
+    return a;
   }
   return PathToTarget(Base::Get(), *pworld, target);
 }
