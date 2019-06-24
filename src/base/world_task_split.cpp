@@ -53,13 +53,18 @@ void WorldTaskSplit::UpdateDS() {
   BuildDSForSet();
 }
 
-void WorldTaskSplit::UpdateTask(unsigned task) {
-  UpdateDS();
-  task_update_required.Remove(task);
+const UnsignedSet& WorldTaskSplit::GetTask(unsigned task_id) const {
+  ALWAYS_ASSERT(task_id < tasks.size());
+  return tasks[task_id];
 }
 
-bool WorldTaskSplit::UpdateTaskRequired(unsigned task) {
-  return task_update_required.HasKey(task);
+void WorldTaskSplit::UpdateTask(unsigned task_id) {
+  UpdateDS();
+  task_update_required.Remove(task_id);
+}
+
+bool WorldTaskSplit::UpdateTaskRequired(unsigned task_id) {
+  return task_update_required.HasKey(task_id);
 }
 
 UnsignedSet& WorldTaskSplit::UnwrappedSet() { return unwrapped; }

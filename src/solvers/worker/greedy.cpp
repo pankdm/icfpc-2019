@@ -6,8 +6,12 @@
 namespace solvers {
 namespace worker {
 Action Greedy::NextMove() {
-  ALWAYS_ASSERT(Base::pworld && Base::ptask);
-  return PathToTarget(Base::Get(), *Base::pworld, *Base::ptask);
+  ALWAYS_ASSERT(pworld);
+  const auto& task = pworld->GetTask(tindex);
+  if (task.Empty())
+    return ActionType::DO_NOTHING;
+  else
+    return PathToTarget(Base::Get(), *pworld, task);
 }
 }  // namespace worker
 }  // namespace solvers
