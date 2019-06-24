@@ -19,7 +19,8 @@ class BuyTask:
 
 
 tasks = [
-    BuyTask(FULL_RANGE, ("C", "CC")),
+    BuyTask(FULL_RANGE, ["C"]),
+    BuyTask(FULL_RANGE, ["CC"]),
     BuyTask(NON_CLONE_RANGE, ("CCC", "CCCC")),
 ]
 
@@ -35,6 +36,5 @@ for task in tasks:
     for i in task.range:
         if i % NUM_SHARDS == shard:
             for b in task.boosters:
-                print ()
-                print (f"Task {i}, buy {b}")
+                print (f"  >>> Task {i}, buy {b}")
                 # solve_one(i, b)
