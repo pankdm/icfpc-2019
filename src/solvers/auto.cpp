@@ -112,6 +112,13 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
           return Result("bc_t", bc3.Solve(task, sett, bonuses));
         })));
 
+    futures.emplace_back(tp->enqueueTask<Result>(
+        std::make_shared<std::packaged_task<Result()>>([&]() {
+          BaseClones1 bc3;
+          BaseClones1Settings sett{0, 0, 100, true, false, true};
+          return Result("bc_t", bc3.Solve(task, sett, bonuses));
+        })));
+
     for (unsigned i = 0; i < 2; ++i) {
       futures.emplace_back(tp->enqueueTask<Result>(
           std::make_shared<std::packaged_task<Result()>>([&, i]() {
