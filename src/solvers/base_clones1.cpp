@@ -257,7 +257,9 @@ Action BaseClones1::SendToNearestUnwrapped(unsigned windex) {
     return a;
   }
   thread_local std::queue<std::pair<int, Direction>> q;
-  for (; !q.empty();) q.pop();
+  for (; !q.empty();) {
+      q.pop();
+  }
   acw1.Clear();
 
   Point pw(w.x, w.y);
@@ -368,7 +370,9 @@ void BaseClones1::NextMove_Wrap(ActionsList& al) {
   unsigned l = al.size();
   unsigned waiting_workers = 0;
   for (auto& action : al) {
-    if (action.type == ActionType::DO_NOTHING) waiting_workers += 1;
+    if (action.type == ActionType::DO_NOTHING) {
+        waiting_workers += 1;
+    }
   }
   if (waiting_workers == 0) return;
   if (!ds_rebuid_required.Empty()) {
@@ -377,8 +381,12 @@ void BaseClones1::NextMove_Wrap(ActionsList& al) {
     UpdateTarget();
   }
   for (auto& tp : target) {
-    if (waiting_workers == 0) break;
-    if (AssignClosestWorker(tp.second, al)) waiting_workers -= 1;
+    if (waiting_workers == 0) {
+        break;
+    }
+    if (AssignClosestWorker(tp.second, al)) {
+        waiting_workers -= 1;
+    }
   }
   // Do something with remaining workers
   for (unsigned i = 0; i < l; ++i) {
@@ -425,12 +433,19 @@ ActionsClones BaseClones1::Solve(const std::string& task,
     }
     bool do_nothing = true;
     for (unsigned i = 0; i < al.size(); ++i) {
-      if (al[i].type != ActionType::DO_NOTHING) do_nothing = false;
+      if (al[i].type != ActionType::DO_NOTHING) {
+          do_nothing = false;
+      }
       actions[i].emplace_back(al[i]);
     }
-    if (do_nothing) break;
+    if (do_nothing) {
+        break;
+    }
   }
-  if (actions.size() < world.WCount()) actions.resize(world.WCount());
+  if (actions.size() < world.WCount()) {
+      actions.resize(world.WCount());
+  }
   return actions;
 }
+
 }  // namespace solvers
