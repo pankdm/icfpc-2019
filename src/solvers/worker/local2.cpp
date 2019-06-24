@@ -38,6 +38,12 @@ void Local2::UpdateTarget() {
     unsigned index = q.front().first;
     unsigned dist = q.front().second;
     if (task.HasKey(index)) {
+      int MOP_DIST = 5;
+      if (dist < MOP_DIST &&
+          pworld->map[index].CheckItem() == Item::EXTENSION) {
+        target.Insert(index);
+        return;
+      }
       unsigned r = pworld->DSFind(index);
       if (rep_to_score.find(r) == rep_to_score.end()) {
         unsigned score = dist * DIST_WEIGHT + rep_to_size[r];
@@ -83,12 +89,12 @@ Action Local2::NextMove() {
     pworld->UpdateTask(tindex);
     UpdateTarget();
   }
-  // if (pworld->boosters.extensions.Available({pworld->time, windex})) {
-  //   auto p = Get().GetNextManipulatorPositionNaive(0);
-  //   pworld->boosters.extensions.LockUntilPicked();
-  //   Action a(ActionType::ATTACH_MANIPULATOR, p.first, p.second);
-  //   return a;
-  // }
+  if (pworld->boosters.extensions.Available({pworld->time, windex})) {
+    auto p = Get().GetNextManipulatorPositionNaive(0);
+    pworld->boosters.extensions.LockUntilPicked();
+    Action a(ActionType::ATTACH_MANIPULATOR, p.first, p.second);
+    return a;
+  }
 
   Action a = PathToTarget(Base::Get(), *pworld, target);
   if (a.type == ActionType::DO_NOTHING) {
