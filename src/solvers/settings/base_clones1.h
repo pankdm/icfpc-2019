@@ -12,5 +12,6 @@ class BaseClones1Settings {
   bool even_mops{};
   bool use_teleports{};
   bool all_rotate_and_shift{};
+  bool sorted_points{};
 };
 }  // namespace solvers
