@@ -32,6 +32,7 @@ class BaseClones1 : public Solver {
   std::vector<std::pair<unsigned, unsigned>> target;  // Size-Representative
   UnsignedSet acw1, acw2;
   BaseClones1Settings sett;
+  double beaconAlpha{0.05};
 
  protected:
   void Init(const std::string& task, BaseClones1Settings sett);
