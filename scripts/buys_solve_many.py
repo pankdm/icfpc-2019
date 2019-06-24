@@ -45,7 +45,7 @@ for task in tasks:
             for b in task.boosters:
                 with open(f"log.buy.{shard}", "a") as log_file:
                     start = time.time()
-                    delta0 = int(prog_start - start)
+                    delta0 = int(start - prog_start)
                     log_file.write(f"{delta0}s: Task {i}, buy {b}\n")
                     solve_one(i, b)
                     delta = time.time() - start
