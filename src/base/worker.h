@@ -24,6 +24,7 @@ class Worker {
   unsigned time_fast_wheels = 0;
   unsigned time_drill = 0;
   Direction direction = 0;
+  bool valid = true;
 
  protected:
   void AddManipulatorI(int x, int y);
