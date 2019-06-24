@@ -71,8 +71,9 @@ def solve_one(n, boosters):
         ["../src/build/cpp_solver",
             "-solve", "1",
             "-in", task_in,
-            "-out", task_out,
-            "-bonus", buy_in] + extra_args)
+            "-out", task_out +
+            (["-bonus", buy_in] if boosters else []) +
+            extra_args)
 
     task_in_content = read_file(task_in)
     world = parse_problem(task_in_content)
