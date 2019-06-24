@@ -46,6 +46,7 @@ class BaseClones1 : public Solver {
   bool NextMove_Shift(unsigned windex, unsigned dest_index,
                       unsigned now_distance, Action& action);
   ActionsList NextMove();
+  std::vector<unsigned> ulist() const;
 
  public:
   ActionsClones Solve(const std::string& task, BaseClones1Settings sett,
