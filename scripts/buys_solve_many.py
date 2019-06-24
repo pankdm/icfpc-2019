@@ -37,4 +37,4 @@ for task in tasks:
         if i % NUM_SHARDS == shard:
             for b in task.boosters:
                 print (f"  >>> Task {i}, buy {b}")
-                # solve_one(i, b)
+                solve_one(i, b)
