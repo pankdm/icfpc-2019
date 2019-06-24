@@ -65,6 +65,20 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
 
     futures.emplace_back(tp->enqueueTask<Result>(
         std::make_shared<std::packaged_task<Result()>>([&]() {
+          BaseClones1Settings sett{-1, 1, 10000, true, false, true};
+          BaseClones1 bc;
+          return Result("bc_mops_inf1", bc.Solve(task, sett, bonuses));
+        })));
+
+    futures.emplace_back(tp->enqueueTask<Result>(
+        std::make_shared<std::packaged_task<Result()>>([&]() {
+          BaseClones1Settings sett{-1, 1, 10000, true, true, true};
+          BaseClones1 bc;
+          return Result("bc_mops_inf2", bc.Solve(task, sett, bonuses));
+        })));
+
+    futures.emplace_back(tp->enqueueTask<Result>(
+        std::make_shared<std::packaged_task<Result()>>([&]() {
           BaseClones1Settings sett{-1, 1, 200, true, true, true};
           BaseClones1 bc;
           return Result("bc_mops3", bc.Solve(task, sett, bonuses));
@@ -183,16 +197,15 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
     BaseClones1 bc;
     m.AddSolution(bc.Solve(task, sett, bonuses), std::string("bc"));
 
-    // for (unsigned i = 0; i < 16; i++) {
-    //   for (int j = 0; j < 40; j += 10) {
-    //     BaseClones1Settings sett{i & 1, i & 2, j, i & 4, true, i & 8};
-    //     BaseClones1 bc;
-    //     m.AddSolution(
-    //         bc.Solve(task, sett, bonuses),
-    //         std::string("bc_") + std::to_string(i) + "_" +
-    //         std::to_string(j));
-    //   }
-    // }
+    for (int j = 1; j < 200; j *= 4) {
+      for (unsigned i = 0; i < 8; i++) {
+        BaseClones1Settings sett{-1, i & 1, j, i & 2, true, i & 4};
+        BaseClones1 bc;
+        m.AddSolution(
+            bc.Solve(task, sett, bonuses),
+            std::string("bc_") + std::to_string(i) + "_" + std::to_string(j));
+      }
+    }
     /*
      */
 
