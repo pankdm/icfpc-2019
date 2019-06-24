@@ -77,7 +77,7 @@ class Collector:
         ])
 
         print(msg)
-        # post_to_slack(msg)
+        post_to_slack(msg)
 
 
 while True:
