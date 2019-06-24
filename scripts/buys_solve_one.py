@@ -88,7 +88,7 @@ def solve_one(n, boosters):
             "spent": money_spent(boosters),
             "max_score": get_max_score(world),
             "ts": int(time.time()),
-            "tag": tag,
+            "tag": TAG,
         }
         dump(metadata, meta_file)
 
