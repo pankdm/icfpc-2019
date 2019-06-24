@@ -19,11 +19,14 @@ class BuyTask:
 
 
 tasks = [
-    BuyTask(FULL_RANGE, ["C"]),
-    BuyTask(FULL_RANGE, ["CC"]),
-    BuyTask(NON_CLONE_RANGE, ("CCC", "CCCC")),
+    BuyTask(FULL_RANGE, ["B"]),
+    BuyTask(NON_CLONE_RANGE, ["C"]),
+    BuyTask(NON_CLONE_RANGE, ["BC"]),
+    BuyTask(FULL_RANGE, [""]),
+    BuyTask(FULL_RANGE, ["BB"]),
+    # BuyTask(FULL_RANGE, ["CC"]),
+    # BuyTask(NON_CLONE_RANGE, ("CCC", "CCCC")),
 ]
-
 
 
 shard = int(sys.argv[1])
@@ -42,7 +45,7 @@ for task in tasks:
             for b in task.boosters:
                 with open(f"log.buy.{shard}", "a") as log_file:
                     start = time.time()
-                    delta0 = int(prog_start - start)
+                    delta0 = int(start - prog_start)
                     log_file.write(f"{delta0}s: Task {i}, buy {b}\n")
                     solve_one(i, b)
                     delta = time.time() - start
