@@ -13,6 +13,7 @@ void CommandLine::Parse(int argc, char* const argv[]) {
   int_args["stop"] = 300;
   int_args["nobc"] = 0;
   args["current_best"] = "";
+  args["bonus"] = "";
 
   int index = 1;
   while (index + 1 < argc) {
