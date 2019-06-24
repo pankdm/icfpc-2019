@@ -21,6 +21,47 @@ from api import read_file, verify_solution
 
 SERVER = "https://monadic-lab.org"
 
+
+class KnapsackItem:
+    def __init__(self):
+        self.roi = None
+        self.spent = None
+        self.problem = None
+        self.path = None
+        self.files = None
+
+    def to_string(self):
+        return f"Item({self.roi:.2f}, {self.spent}, {self.problem})"
+
+def solve_knapsack(balance, knapsack):
+    knapsack.sort(key = lambda x: x.roi, reverse=True)
+    best_buy = {}
+    for item in knapsack:
+        if item.spent > balance:
+            continue
+        if item.roi <= 0:
+            continue
+
+        if item.problem in best_buy:
+            continue
+
+        print (f"roi = {item.roi:.2f}, balance = {balance}: " +
+            f"taking {item.to_string()}")
+
+        prefix = path.replace(".meta.yaml", "")
+        files = []
+        for ext in [".sol", ".buy"]:
+            name = prefix + ext
+            if os.path.exists(name):
+                files.append((name, f"prob-{problem:03}{ext}"))
+
+        item.files = files
+        best_buy[item.problem] = item
+        balance -= item.spent
+
+    print(f"Remaining balance {balance}")
+    return best_buy
+
 if __name__ == "__main__":
     with open("best_buy.yaml", "r") as config_file:
         yaml_config = safe_load(config_file)
@@ -53,8 +94,6 @@ if __name__ == "__main__":
         balance = int(f.read())
 
     print(f"Distributing {balance} shitcoins")
-
-    best_buy = {}
 
     knapsack = []
 
@@ -101,22 +140,15 @@ if __name__ == "__main__":
                 delta = (max_score * (gold_score - score) / gold_score)
                 roi = (delta - spent) / spent
 
-                knapsack.append((roi, spent, problem, path))
+                item = KnapsackItem()
+                item.roi = roi
+                item.spent = spent
+                item.problem = problem
+                item.path = path
+                knapsack.append(item)
 
-    knapsack.sort(key=lambda x: x[0], reverse=True)
-
-    for (roi, spent, problem, path) in knapsack:
-        if problem not in best_buy and spent <= balance and roi > 0:
-            prefix = path.replace(".meta.yaml", "")
-            files = []
-            for ext in [".sol", ".buy"]:
-                name = prefix + ext
-                if os.path.exists(name):
-                    files.append((name, f"prob-{problem:03}{ext}"))
-            best_buy[problem] = files
-            balance -= spent
-
-    print(f"Remaining balance {balance}")
+    best_buy = solve_knapsack(balance, knapsack)
+    best_buy_files = {}
 
     golds = list(filter(lambda x: x.endswith(".sol"), os.listdir(config.gold)))
     for gold in golds:
@@ -125,6 +157,7 @@ if __name__ == "__main__":
             continue
         problem = int(problem.group(1))
         if problem in best_buy:
+            best_buy_files[problem] = best_buy[problem].files
             continue
 
         print(f"Filling problem {problem} from gold {gold}")
@@ -138,7 +171,7 @@ if __name__ == "__main__":
         best_buy[problem] = files
 
     submissions = []
-    for _, files in best_buy.items():
+    for _, files in best_buy_files.items():
         submissions.extend(files)
 
     try:
@@ -152,6 +185,8 @@ if __name__ == "__main__":
         sys.exit("No gold merge directory exists, and unable to create")
 
     print(f"Submitting new solutions")
+    # sys.exit("early exit")
+
     timestamp = time.strftime("%Y-%m-%d_%H-%M-%S")
     archive = os.path.join(config.submission, timestamp + ".zip")
     with ZipFile(archive, mode="w", compression=ZIP_DEFLATED, compresslevel=9) as zipfile:

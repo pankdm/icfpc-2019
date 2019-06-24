@@ -67,7 +67,7 @@ void BaseClones1::UpdateTarget() {
   thread_local std::unordered_set<unsigned> s;
   s.clear();
   target.clear();
-  for (unsigned u : world.UList()) {
+  for (unsigned u : ulist()) {
     unsigned p = world.DSFind(u);
     if (s.find(p) == s.end()) {
       s.insert(p);
@@ -90,7 +90,7 @@ bool BaseClones1::AssignClosestWorker(unsigned r, ActionsList& al) {
     for (; !q.empty();) q.pop();
     acw1.Clear();
     acw2.Clear();
-    for (unsigned u : world.UList()) {
+    for (unsigned u : ulist()) {
       if (phase == 0 && !world.map.HasExtension(u)) {
         continue;
       }
@@ -504,6 +504,14 @@ ActionsList BaseClones1::NextMove() {
   NextMove_Wrap(al);
   world.ApplyC(al);
   return al;
+}
+
+std::vector<unsigned> BaseClones1::ulist() const {
+    auto result = world.UList();
+    if (sett.sorted_points) {
+        std::sort(result.begin(), result.end());
+    }
+    return result;
 }
 
 ActionsClones BaseClones1::Solve(const std::string& task,

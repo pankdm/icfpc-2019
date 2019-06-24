@@ -10,15 +10,15 @@ namespace worker {
 class Base {
  protected:
   unsigned windex;
+  unsigned tindex;
   WorldTaskSplit* pworld = nullptr;
-  UnsignedSet* ptask = nullptr;
 
  protected:
   Worker& Get();
 
  public:
-  void Init(unsigned _windex, WorldTaskSplit& world, UnsignedSet& task);
-  void ResetTask(UnsignedSet& new_task);
+  void Init(unsigned _windex, unsigned _tindex, WorldTaskSplit& world);
+  void ResetTask(unsigned new_index, UnsignedSet& new_task);
   Action NextMove();
 };
 }  // namespace worker
