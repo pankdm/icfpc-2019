@@ -220,12 +220,16 @@ void Worker::Apply(unsigned time, Map& map, const Action& action) {
     case ActionType::MOVE_DOWN: {
       bool drill_enabled = (time_drill >= time);
       Direction d(action.type);
+      if (!map.ValidToMove(x + d.DX(), y + d.DY())) {
+        valid = false;
+      }
       Move(d, map, time, drill_enabled);
       Wrap(map);
       if (time_fast_wheels >= time) {
-        if (map.ValidToMove(x + d.DX(), y + d.DY(), drill_enabled))
+        if (map.ValidToMove(x + d.DX(), y + d.DY(), drill_enabled)) {
           Move(d, map, time, drill_enabled);
-        Wrap(map);
+          Wrap(map);
+        }
       }
     } break;
     case ActionType::DO_NOTHING:
@@ -245,7 +249,7 @@ void Worker::Apply(unsigned time, Map& map, const Action& action) {
     case ActionType::ATTACH_FAST_WHEELS:
       ALWAYS_ASSERT(pboosters->fast_wheels.Available(Time(time)));
       pboosters->fast_wheels.Use();
-      time_fast_wheels = time + TIME_FAST_WHEELS + 1;
+      time_fast_wheels = time + TIME_FAST_WHEELS;
       break;
     case ActionType::USING_DRILL:
       ALWAYS_ASSERT(pboosters->fast_wheels.Available(Time(time)));
@@ -268,5 +272,8 @@ void Worker::Apply(unsigned time, Map& map, const Action& action) {
       break;
     default:
       ALWAYS_ASSERT(false);
+  }
+  if (!map.ValidToMove(x, y)) {
+    valid = false;
   }
 }
