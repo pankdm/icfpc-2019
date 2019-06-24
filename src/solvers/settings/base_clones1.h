@@ -12,6 +12,7 @@ class BaseClones1Settings {
   bool use_teleports{};
   bool all_rotate_and_shift{};
   bool sorted_points{};
+  bool use_fast_wheels{};
   bool is_manip(int index) { return manip_index == -1 || manip_index == index; }
 };
 }  // namespace solvers

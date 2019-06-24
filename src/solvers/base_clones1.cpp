@@ -131,6 +131,11 @@ bool BaseClones1::AssignClosestWorker(unsigned r, ActionsList& al) {
         ALWAYS_ASSERT(wi < al.size());
         if (Sleep(al[wi])) {
           Action temp;
+          if (NextMove_FastWheels(wi, temp)) {
+            al[wi] = temp;
+            return true;
+          }
+
           if (NextMove_SetBeacon(wi, temp)) {
             al[wi] = temp;
             return true;
@@ -300,6 +305,23 @@ bool BaseClones1::NextMove_SetBeacon(unsigned windex, Action& result) {
         result = a;
         return true;
       }
+    }
+  }
+
+  return false;
+}
+
+bool BaseClones1::NextMove_FastWheels(unsigned windex, Action& result) {
+  return false;
+
+  if (sett.use_fast_wheels && !fast_wheels) {
+    const auto& w = world.GetWorker(windex);
+    if (sett.is_manip(windex) &&
+        world.boosters.fast_wheels.Available({world.time, windex})) {
+      Action a(ActionType::ATTACH_FAST_WHEELS, w.x, w.y);
+      result = a;
+      fast_wheels = true;
+      return true;
     }
   }
 
