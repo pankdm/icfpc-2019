@@ -13,6 +13,7 @@
 #include "solvers/merger.h"
 #include "solvers/task_splitter.h"
 #include "solvers/worker/greedy.h"
+#include "solvers/worker/local.h"
 
 namespace solvers {
 ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
@@ -144,7 +145,6 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
             BaseClones1Settings sett{1, 0, 10, true, false, false, true};
             return Result("bc5_sober", bc2.Solve(task, sett, bonuses));
           })));
-
     }
     /*
      */
@@ -199,10 +199,14 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
     // }
 
     // clone::Base clone_solver;
-    // worker::Greedy worker_solver;
-    // TaskSplitter<clone::Base, worker::Greedy> tsp(clone_solver,
-    //                                               worker_solver);
-    // m.AddSolution(tsp.Solve(task, bonuses), "tsp");
+    // worker::Greedy worker_greedy;
+    // worker::Local worker_local;
+    // TaskSplitter<clone::Base, worker::Greedy> tsp_greedy(clone_solver,
+    //                                                      worker_greedy);
+    // TaskSplitter<clone::Base, worker::Local> tsp_local(clone_solver,
+    //                                                    worker_local);
+    // m.AddSolution(tsp_greedy.Solve(task, bonuses), "tsp_g");
+    // m.AddSolution(tsp_local.Solve(task, bonuses), "tsp_l");
   }
   return m.Solution();
 }
