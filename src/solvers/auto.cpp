@@ -46,7 +46,28 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
         std::make_shared<std::packaged_task<Result()>>([&]() {
           BaseClones1Settings sett{-1, 0, 20, true, true, true};
           BaseClones1 bc;
-          return Result("bg1", bc.Solve(task, sett, bonuses));
+          return Result("bc_mops1", bc.Solve(task, sett, bonuses));
+        })));
+
+    futures.emplace_back(tp->enqueueTask<Result>(
+        std::make_shared<std::packaged_task<Result()>>([&]() {
+          BaseClones1Settings sett{-1, 0, 200, true, true, true};
+          BaseClones1 bc;
+          return Result("bc_mops2", bc.Solve(task, sett, bonuses));
+        })));
+
+    futures.emplace_back(tp->enqueueTask<Result>(
+        std::make_shared<std::packaged_task<Result()>>([&]() {
+          BaseClones1Settings sett{-1, 1, 200, true, false, true};
+          BaseClones1 bc;
+          return Result("bc_mops3", bc.Solve(task, sett, bonuses));
+        })));
+
+    futures.emplace_back(tp->enqueueTask<Result>(
+        std::make_shared<std::packaged_task<Result()>>([&]() {
+          BaseClones1Settings sett{-1, 1, 200, true, true, true};
+          BaseClones1 bc;
+          return Result("bc_mops3", bc.Solve(task, sett, bonuses));
         })));
 
     futures.emplace_back(tp->enqueueTask<Result>(
