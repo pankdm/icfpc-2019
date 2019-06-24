@@ -2,6 +2,7 @@
 git pull --rebase
 
 cd ../src
+make clean
 make
 
 cd ../scripts
