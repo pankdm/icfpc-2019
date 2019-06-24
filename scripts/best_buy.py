@@ -140,6 +140,7 @@ if __name__ == "__main__":
             with open(path, "r") as f:
                 yaml = safe_load(f)
                 if not yaml:
+                    print(f"{path} borked")
                     continue
                 spent, score, max_score = yaml["spent"], yaml["time"], yaml["max_score"]
 
