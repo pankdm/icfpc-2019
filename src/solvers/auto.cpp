@@ -13,7 +13,6 @@
 #include "solvers/merger.h"
 #include "solvers/task_splitter.h"
 #include "solvers/worker/greedy.h"
-#include "solvers/worker/local.h"
 
 namespace solvers {
 ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
@@ -42,6 +41,48 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
                           fsolver.Solve(task, "", cmd.args["current_best"]));
           })));
     }
+
+    futures.emplace_back(tp->enqueueTask<Result>(
+        std::make_shared<std::packaged_task<Result()>>([&]() {
+          BaseClones1Settings sett{-1, 0, 20, true, true, true};
+          BaseClones1 bc;
+          return Result("bc_mops1", bc.Solve(task, sett, bonuses));
+        })));
+
+    futures.emplace_back(tp->enqueueTask<Result>(
+        std::make_shared<std::packaged_task<Result()>>([&]() {
+          BaseClones1Settings sett{-1, 0, 200, true, true, true};
+          BaseClones1 bc;
+          return Result("bc_mops2", bc.Solve(task, sett, bonuses));
+        })));
+
+    futures.emplace_back(tp->enqueueTask<Result>(
+        std::make_shared<std::packaged_task<Result()>>([&]() {
+          BaseClones1Settings sett{-1, 1, 200, true, true, true};
+          BaseClones1 bc;
+          return Result("bc_mops3", bc.Solve(task, sett, bonuses));
+        })));
+
+    futures.emplace_back(tp->enqueueTask<Result>(
+        std::make_shared<std::packaged_task<Result()>>([&]() {
+          BaseClones1Settings sett{-1, 0, 10000, true, true, true, true};
+          BaseClones1 bc;
+          return Result("bc_mops_inf1", bc.Solve(task, sett, bonuses));
+        })));
+
+    futures.emplace_back(tp->enqueueTask<Result>(
+        std::make_shared<std::packaged_task<Result()>>([&]() {
+          BaseClones1Settings sett{-1, 1, 10000, true, true, true, true};
+          BaseClones1 bc;
+          return Result("bc_mops_inf2", bc.Solve(task, sett, bonuses));
+        })));
+
+    futures.emplace_back(tp->enqueueTask<Result>(
+        std::make_shared<std::packaged_task<Result()>>([&]() {
+          BaseClones1Settings sett{-1, 0, 200, true, true, true, true};
+          BaseClones1 bc;
+          return Result("bc_mops3", bc.Solve(task, sett, bonuses));
+        })));
 
     futures.emplace_back(tp->enqueueTask<Result>(
         std::make_shared<std::packaged_task<Result()>>([&]() {
@@ -131,20 +172,6 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
             BaseClones1Settings sett{0, 0, 100, true, false, true};
             return Result("bc_t", bc3.Solve(task, sett, bonuses));
           })));
-
-      futures.emplace_back(tp->enqueueTask<Result>(
-          std::make_shared<std::packaged_task<Result()>>([&]() {
-            BaseClones1 bc2;
-            BaseClones1Settings sett{1, 0, 100, true, false, true, true};
-            return Result("bc2_sober", bc2.Solve(task, sett, bonuses));
-          })));
-
-      futures.emplace_back(tp->enqueueTask<Result>(
-          std::make_shared<std::packaged_task<Result()>>([&]() {
-            BaseClones1 bc2;
-            BaseClones1Settings sett{1, 0, 10, true, false, false, true};
-            return Result("bc5_sober", bc2.Solve(task, sett, bonuses));
-          })));
     }
     /*
      */
@@ -166,10 +193,9 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
     m.AddSolution(bc.Solve(task, sett, bonuses), std::string("bct"));
     */
 
-    for (unsigned i = 0; i < 32; i++) {
-      for (int j = 0; j < 40; j += 10) {
-        BaseClones1Settings sett{i & 1, i & 2, j,    i & 4,
-                                 true,  i & 8, true, i & 16};
+    for (int j = 1; j < 200; j *= 10) {
+      for (unsigned i = 0; i < 8; i++) {
+        BaseClones1Settings sett{-1, i & 1, j, i & 2, true, i & 4};
         BaseClones1 bc;
         m.AddSolution(
             bc.Solve(task, sett, bonuses),
@@ -199,14 +225,10 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
     // }
 
     // clone::Base clone_solver;
-    // worker::Greedy worker_greedy;
-    // worker::Local worker_local;
-    // TaskSplitter<clone::Base, worker::Greedy> tsp_greedy(clone_solver,
-    //                                                      worker_greedy);
-    // TaskSplitter<clone::Base, worker::Local> tsp_local(clone_solver,
-    //                                                    worker_local);
-    // m.AddSolution(tsp_greedy.Solve(task, bonuses), "tsp_g");
-    // m.AddSolution(tsp_local.Solve(task, bonuses), "tsp_l");
+    // worker::Greedy worker_solver;
+    // TaskSplitter<clone::Base, worker::Greedy> tsp(clone_solver,
+    //                                               worker_solver);
+    // m.AddSolution(tsp.Solve(task, bonuses), "tsp");
   }
   return m.Solution();
 }

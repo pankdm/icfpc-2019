@@ -18,8 +18,8 @@ def calculate_roi(n, index, base_yaml, compare_yaml):
     buy = compare_yaml["buy"]
     spent = compare_yaml["spent"]
     roi = (delta - spent) / spent
-    sign = "+" if delta > 0 else "-"
-    msg = (f"Task {n},{index}: {buy} ({spent}): " +
+    sign = "+" if delta > 0 else ""
+    msg = (f"Task {n},{index}: {buy} ({spent}) " +
            f"{old_score} -> {new_score} = ({sign}{delta:.1f}), max {max_score}, " +
            f"ROI = {roi * 100:.1f}%")
     # print (msg)
@@ -40,6 +40,9 @@ def get_best_roi_clone(n, buy):
         s = re.match("(\d+).meta.yaml", f)
         if s:
             compare_yaml = read_yaml(folder + f)
+            if not compare_yaml:
+                continue
+
             roi, msg = calculate_roi(n, s.group(1), base_yaml, compare_yaml)
             if compare_yaml["buy"] != buy:
                 continue
@@ -57,7 +60,7 @@ def process_task(n):
     base = f"{GOLD}/prob-{n:03}.meta.yaml"
     base_yaml = read_yaml(base)
 
-    rois = []
+    rois = {}
 
     folder = f"../buy_db/task{n}/"
     files = os.listdir(folder)
@@ -65,13 +68,24 @@ def process_task(n):
         s = re.match("(\d+).meta.yaml", f)
         if s:
             compare_yaml = read_yaml(folder + f)
-            roi, msg = calculate_roi(n, s.group(1), base_yaml, compare_yaml)
-            rois.append((roi, msg))
+            if not compare_yaml:
+                continue
 
-    rois.sort(key = lambda x : x[0], reverse=True)
+            roi, msg = calculate_roi(n, s.group(1), base_yaml, compare_yaml)
+            buy = compare_yaml["buy"]
+            if buy in rois:
+                prev = rois[buy]
+                if roi > prev[0]:
+                    rois[buy] = (roi, msg)
+            else:
+                rois[buy] = (roi, msg)
+
+
+    rois_values = list(rois.values())
+    rois_values.sort(key = lambda x : x[0], reverse=True)
     if FULL_ANALYTICS:
         print()
-        for roi in rois:
+        for roi in rois_values:
             print (roi[1])
     else:
         print (f"{rois[0][1]}")
