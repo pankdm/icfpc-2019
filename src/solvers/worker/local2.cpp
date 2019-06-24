@@ -95,6 +95,55 @@ Action Local2::NextMove() {
     return a;
   }
 
+  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  for (int i = 0; i < 2; i++) {
+    auto w = Get();
+    auto pw = Point(w.x, w.y);
+    Direction d((1 + 2 * i + w.direction.direction) % 4);
+    int score = 0;
+    Direction wd = w.direction;
+    int MAX = 4;
+    bool ok = true;
+    for (int iter = 0; iter < MAX; iter++) {
+      if (!pworld->map.ValidToMove(w.x + d.DX() + wd.DX() * iter,
+                                   w.y + d.DY() + wd.DY() * iter)) {
+        ok = false;
+      }
+    }
+    if (!ok) {
+      continue;
+    }
+    Point base = pw;
+    for (int iter = 0; iter < MAX; iter++) {
+      int shift_results[4];
+      if (iter > 0) {
+        base = base + wd;
+      }
+      if (!pworld->map.ValidToMove(base.x, base.y)) {
+        continue;
+      }
+      if (iter > 1 && pworld->map.Get(base.x, base.y).Wrapped()) {
+        continue;
+      }
+      for (int shift = -1; shift < 3; shift++) {
+        shift_results[shift + 1] =
+            w.CellsToNewlyWrap(pworld->map, wd.DX() * iter + d.DX() * shift,
+                               wd.DY() * iter + d.DY() * shift)
+                .size();
+      }
+      if (shift_results[2] > shift_results[1]) {
+        score++;  // Immediate gain
+      } else if (shift_results[0] == shift_results[1] &&
+                 shift_results[1] == shift_results[2] &&
+                 shift_results[2] > shift_results[3]) {
+        score++;
+      }
+    }
+    if (score == MAX) {
+      return Action(d.Get());
+    }
+  }
+  ////////////////////////////////////////////////////////////////////////////////////////////////////
   bool need_turn = true;
   Direction d(a.type);
   Direction wd = Get().direction;
