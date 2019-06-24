@@ -67,12 +67,17 @@ def solve_one(n, boosters):
     if os.path.isfile(task_out):
         extra_args = ["-current_best", task_out]
 
+    bonus_args = ["-bonus", buy_in]
+    # support no bonuses
+    if boosters == "":
+        bonus_args = []
+
     subprocess.check_call(
         ["../src/build/cpp_solver",
             "-solve", "1",
             "-in", task_in,
-            "-out", task_out +
-            (["-bonus", buy_in] if boosters else []) +
+            "-out", task_out] +
+            bonus_args +
             extra_args)
 
     task_in_content = read_file(task_in)

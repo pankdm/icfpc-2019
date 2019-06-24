@@ -17,7 +17,10 @@ def calculate_roi(n, index, base_yaml, compare_yaml):
 
     buy = compare_yaml["buy"]
     spent = compare_yaml["spent"]
-    roi = (delta - spent) / spent
+    if spent != 0:
+        roi = (delta - spent) / spent
+    else:
+        roi = 0
     sign = "+" if delta > 0 else ""
     msg = (f"Task {n},{index}: {buy} ({spent}) " +
            f"{old_score} -> {new_score} = ({sign}{delta:.1f}), max {max_score}, " +

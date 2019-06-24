@@ -8,7 +8,7 @@
 namespace solvers {
 namespace worker {
 class Base {
- protected:
+ public:
   unsigned windex;
   unsigned tindex;
   WorldTaskSplit* pworld = nullptr;
