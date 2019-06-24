@@ -1,4 +1,6 @@
 
+git commit -a -m "local changes"
+
 
 for i in `seq 20 10000`; do
     git pull --rebase
@@ -6,5 +8,5 @@ for i in `seq 20 10000`; do
     ./buy_db_analytics.py >roi-full.txt
     git commit -a -m "update buy_db v${i}"
     git push
-    sleep 180
+    sleep 60
 done
