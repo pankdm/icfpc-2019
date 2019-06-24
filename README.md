@@ -17,3 +17,9 @@ Script compares new solutions with gold ones, does client-side validation if nec
 ## best_buy.py
 
 Script best_buy.py is responsible for merging pure solutions with list of solutions with purchased boosters. It uses greedy knapsack approach based on empirical ROI formula. As soon as we're spending less lambdacoins than boost we gain, we should be good to use. As well as submit.py, this script ensures we're storing "safe" solution in dedicated directory. Other details are similar to submit.py.
+
+# Usage
+
+For python scripts, use Python 3 + virtual environment, most of scripts should be launched from scripts folder, except submit.py and best_buy.py. Run `pip3 install -r scripts/requirements.txt` to install libraries. Configuration can be provided via command line or yaml configs.
+
+For C++ code, run `make` in `src` folder and launch built binary providing args as described in source code.
