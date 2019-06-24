@@ -1,4 +1,14 @@
+# Solution
+
+The main idea of our solution is pretty obvious. We have a family of strategies. Many strategies have parameters (optional usage of boosters and so on).
+
+The most productive strategy ideas were:
+- Clone as many wrappers as possible. Extend one or all wrapper manipulators. Each wrapper wrap the closest unwrapped point.
+- Split the whole map into areas (mean to be well connected). Assign an area to a wrapper.
+
 # Mining
+
+For mining we used subset of strategies. Each of the mining blocks was processed in <5 minutes.t
 
 ## Map generator
 
