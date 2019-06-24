@@ -29,6 +29,7 @@ class BaseClones1 : public Solver {
   bool reset_beacon{};
   Point beacon{-1, -1};
   std::vector<int> beaconDist;
+  bool fast_wheels{};
 
   std::vector<std::pair<unsigned, unsigned>> target;  // Size-Representative
   UnsignedSet acw1, acw2;
@@ -44,6 +45,7 @@ class BaseClones1 : public Solver {
   void NextMove_Clone(ActionsList& al);
   void NextMove_Wrap(ActionsList& al);
   bool NextMove_SetBeacon(unsigned windex, Action& action);
+  bool NextMove_FastWheels(unsigned windex, Action& action);
   bool NextMove_Shift(unsigned windex, unsigned dest_index,
                       unsigned now_distance, Action& action);
   ActionsList NextMove();
