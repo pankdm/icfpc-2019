@@ -22,6 +22,7 @@ class WorldTaskSplit : public WorldExt {
   bool UpdateDSRequired() const;
 
  public:
+  unsigned TotalTasks() const;
   const UnsignedSet& GetTask(unsigned task_id) const;
   void UpdateTask(unsigned task_id);
   bool UpdateTaskRequired(unsigned task_id);

@@ -54,6 +54,8 @@ void WorldTaskSplit::UpdateDS() {
   BuildDSForSet();
 }
 
+unsigned WorldTaskSplit::TotalTasks() const { return tasks.size(); }
+
 const UnsignedSet& WorldTaskSplit::GetTask(unsigned task_id) const {
   ALWAYS_ASSERT(task_id < tasks.size());
   return tasks[task_id];
