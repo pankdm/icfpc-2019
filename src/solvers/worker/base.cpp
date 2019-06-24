@@ -4,14 +4,16 @@ namespace solvers {
 namespace worker {
 Worker& Base::Get() { return pworld->GetWorker(windex); }
 
-void Base::Init(unsigned _windex, WorldTaskSplit& world, UnsignedSet& task) {
+void Base::Init(unsigned _windex, unsigned _tindex, WorldTaskSplit& world) {
   windex = _windex;
+  tindex = _tindex;
   pworld = &world;
-  ptask = &task;
   Get().task_assigned = true;
 }
 
-void Base::ResetTask(UnsignedSet& new_task) { ptask = &new_task; }
+void Base::ResetTask(unsigned new_index, UnsignedSet& new_task) {
+  tindex = new_index;
+}
 
 Action Base::NextMove() { return ActionType::DO_NOTHING; }
 }  // namespace worker

@@ -1,20 +1,16 @@
 #pragma once
 
 #include "base/action.h"
-#include "base/worker.h"
-#include "base/world_task_split.h"
-#include "common/unsigned_set.h"
+#include "solvers/worker/base.h"
 
 namespace solvers {
 namespace worker {
-class Base {
+class Local : public Base {
  protected:
-  unsigned windex;
-  unsigned tindex;
-  WorldTaskSplit* pworld = nullptr;
+  UnsignedSet target;
 
  protected:
-  Worker& Get();
+  void UpdateTarget();
 
  public:
   void Init(unsigned _windex, unsigned _tindex, WorldTaskSplit& world);
