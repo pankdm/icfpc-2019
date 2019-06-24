@@ -8,5 +8,5 @@ cd ../scripts
 
 for i in `seq 0 3`; do
     echo "starting $i"
-    ./buys_solve_many.py $i 4 > tmp.buys.${i}.log &
+    ./buys_solve_many.py $i 4 > buys.${i}.log &
 done
