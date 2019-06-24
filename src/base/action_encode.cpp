@@ -1,7 +1,7 @@
 #include "base/action_encode.h"
 
 #include "base/action_type.h"
-#include <cassert>
+#include "common/always_assert.h"
 
 std::ostream& operator<<(std::ostream& os, const Action& a) {
   switch (a.type) {
@@ -32,7 +32,7 @@ std::ostream& operator<<(std::ostream& os, const Action& a) {
     case ActionType::CLONE:
       return os << "C";
   }
-  assert(false);
+  ALWAYS_ASSERT(false);
   return os;
 }
 
@@ -42,7 +42,7 @@ std::ostream& operator<<(std::ostream& os, const ActionsList& al) {
 }
 
 std::ostream& operator<<(std::ostream& os, const ActionsClones& al) {
-  assert(al.size() > 0);
+  ALWAYS_ASSERT(al.size() > 0);
   os << al[0];
   for (unsigned i = 1; i < al.size(); ++i) os << "#" << al[i];
   return os;

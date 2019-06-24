@@ -4,9 +4,9 @@
 #include "base/action_type.h"
 #include "base/direction.h"
 #include "base/point.h"
+#include "common/always_assert.h"
 #include "common/unsigned_set.h"
 #include <algorithm>
-#include <cassert>
 #include <iostream>
 #include <queue>
 #include <utility>
@@ -124,7 +124,7 @@ Action BaseGreedy2::NextMove() {
   }
   std::cout << std::endl;
   world.map.Print();
-  assert(false);
+  ALWAYS_ASSERT(false);
   return Action(ActionType::END);
 }
 

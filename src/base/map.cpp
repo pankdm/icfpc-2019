@@ -3,6 +3,7 @@
 #include "base/point.h"
 #include "base/square.h"
 #include "utils/split.h"
+#include "common/always_assert.h"
 #include <algorithm>
 #include <cassert>
 #include <iostream>
@@ -47,7 +48,7 @@ void Map::Init(const std::string& desc) {
     maxy = std::max(p.y, maxy);
     v.emplace_back(p);
   }
-  assert(v.size() > 1);
+  ALWAYS_ASSERT(v.size() > 1);
   v.push_back(v[0]);
   Resize(maxx, maxy);
   std::vector<std::vector<int>> vvy(xsize);
@@ -59,13 +60,13 @@ void Map::Init(const std::string& desc) {
         vvy[x].push_back(v[i].y);
       }
     } else {
-      assert(v[i - 1].x == v[i].x);
+      ALWAYS_ASSERT(v[i - 1].x == v[i].x);
     }
   }
   for (int x = 0; x < xsize; ++x) {
     auto& vy = vvy[x];
     std::sort(vy.begin(), vy.end());
-    assert((vy.size() % 2) == 0);
+    ALWAYS_ASSERT((vy.size() % 2) == 0);
     vy.push_back(maxy);
     vy.push_back(maxy);
     int y = 0;
@@ -103,7 +104,7 @@ bool Map::ValidToMove(int x, int y, bool drill_enabled) const {
 }
 
 void Map::Drill(int x, int y) {
-  assert(Inside(x, y));
+  ALWAYS_ASSERT(Inside(x, y));
   Get(x, y).Drill();
 }
 
@@ -119,7 +120,7 @@ void Map::Wrap(int x, int y) {
 }
 
 bool Map::HasBeacon(int x, int y) const {
-  assert(Inside(x, y));
+  ALWAYS_ASSERT(Inside(x, y));
   return Get(x, y).CheckItem() == Item::BEACON;
 }
 
@@ -128,12 +129,12 @@ bool Map::HasExtension(int index) const {
 }
 
 bool Map::HasExtension(int x, int y) const {
-  assert(Inside(x, y));
+  ALWAYS_ASSERT(Inside(x, y));
   return Get(x, y).CheckItem() == Item::EXTENSION;
 }
 
 void Map::SetBeacon(int x, int y) {
-  assert(Inside(x, y));
+  ALWAYS_ASSERT(Inside(x, y));
   Get(x, y).SetBeacon();
 }
 

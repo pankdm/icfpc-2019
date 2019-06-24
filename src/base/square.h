@@ -1,7 +1,7 @@
 #pragma once
 
 #include "base/item.h"
-#include <assert.h>
+#include "common/always_assert.h"
 #include <cstdint>
 
 class Square {
@@ -35,12 +35,12 @@ class Square {
   }
 
   void AddItem(Item item) {
-    assert(value == 0);
+    ALWAYS_ASSERT(value == 0);
     value = uint8_t(item);
   }
 
   void SetBeacon() {
-    assert((value & mask) == 0);
+    ALWAYS_ASSERT((value & mask) == 0);
     value += uint8_t(Item::BEACON);
   }
 };
