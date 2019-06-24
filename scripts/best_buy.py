@@ -25,42 +25,44 @@ SERVER = "https://monadic-lab.org"
 class KnapsackItem:
     def __init__(self):
         self.roi = None
+        self.deltaroi = None
         self.spent = None
         self.problem = None
         self.path = None
         self.files = None
 
-    def to_string(self):
-        return f"Item({self.roi:.2f}, {self.spent}, {self.problem})"
+    def __str__(self):
+        return f"Item({self.roi:.2f}, {self.deltaroi:.2f}, {self.spent}, {self.problem}, {self.path}, {self.files})"
+
 
 def solve_knapsack(balance, knapsack):
-    knapsack.sort(key = lambda x: x.roi, reverse=True)
+    knapsack.sort(key=lambda x: x.deltaroi, reverse=True)
     best_buy = {}
     for item in knapsack:
         if item.spent > balance:
             continue
         if item.roi <= 0:
             continue
-
-        if item.problem in best_buy:
+        if item.deltaroi <= 0:
             continue
 
-        print (f"roi = {item.roi:.2f}, balance = {balance}: " +
-            f"taking {item.to_string()}")
+        if item.problem in best_buy:
+            print(
+                f"Updating solution for {item.problem}, cost {best_buy[item.problem].spent} → {item.spent}")
+            balance += best_buy[item.problem].spent
 
-        prefix = path.replace(".meta.yaml", "")
-        files = []
+        prefix = item.path.replace(".meta.yaml", "")
         for ext in [".sol", ".buy"]:
             name = prefix + ext
             if os.path.exists(name):
-                files.append((name, f"prob-{problem:03}{ext}"))
+                item.files.append((name, f"prob-{item.problem:03}{ext}"))
 
-        item.files = files
         best_buy[item.problem] = item
         balance -= item.spent
 
     print(f"Remaining balance {balance}")
     return best_buy
+
 
 if __name__ == "__main__":
     with open("best_buy.yaml", "r") as config_file:
@@ -128,24 +130,53 @@ if __name__ == "__main__":
         metadata = list(filter(
             lambda x: x.endswith(".meta.yaml"), os.listdir(task_dir)))
 
+        absolute_roi_map = {}
+        absolute_roi_map[0] = (gold_name, 0, gold_score, 0)
+
         for metadata_name in metadata:
             path = os.path.join(task_dir, metadata_name)
 
-            spent, score, top = 0, gold_score, 0
+            spent, score, max_score = 0, gold_score, 0
             with open(path, "r") as f:
                 yaml = safe_load(f)
                 spent, score, max_score = yaml["spent"], yaml["time"], yaml["max_score"]
 
             if spent != 0:
-                delta = (max_score * (gold_score - score) / gold_score)
-                roi = (delta - spent) / spent
+                if spent not in absolute_roi_map or absolute_roi_map[spent][2] > score:
+                    absolute_roi_map[spent] = (path, spent, score, max_score)
 
-                item = KnapsackItem()
-                item.roi = roi
-                item.spent = spent
-                item.problem = problem
-                item.path = path
-                knapsack.append(item)
+        absolute_roi = []
+        for _, data in absolute_roi_map.items():
+            absolute_roi.append(data)
+
+        absolute_roi.sort(key=lambda x: x[1])
+
+        gold_score = absolute_roi[0][2]
+        prev = absolute_roi[0]
+
+        for curr in absolute_roi[1:]:
+            path, spent, score, max_score = curr
+            _, prev_spent, prev_score, _ = prev
+            delta = (max_score * (prev_score - score) / prev_score)
+            spent_delta = spent - prev_spent
+            deltaroi = (delta - spent_delta) / spent_delta
+
+            gold_delta = (max_score * (gold_score - score) / gold_score)
+            roi = (gold_delta - spent) / spent
+
+            if deltaroi < 0 or roi < 0:
+                continue
+
+            item = KnapsackItem()
+            item.roi = roi
+            item.deltaroi = deltaroi
+            item.spent = spent
+            item.problem = problem
+            item.path = path
+            item.files = []
+            knapsack.append(item)
+
+            prev = curr
 
     best_buy = solve_knapsack(balance, knapsack)
     best_buy_files = {}
@@ -168,7 +199,7 @@ if __name__ == "__main__":
             name = prefix + ext
             if os.path.exists(name):
                 files.append((name, f"prob-{problem:03}{ext}"))
-        best_buy[problem] = files
+        best_buy_files[problem] = files
 
     submissions = []
     for _, files in best_buy_files.items():
@@ -185,7 +216,6 @@ if __name__ == "__main__":
         sys.exit("No gold merge directory exists, and unable to create")
 
     print(f"Submitting new solutions")
-    # sys.exit("early exit")
 
     timestamp = time.strftime("%Y-%m-%d_%H-%M-%S")
     archive = os.path.join(config.submission, timestamp + ".zip")
@@ -255,7 +285,7 @@ if __name__ == "__main__":
                 if "time" not in merge_metadata or merge_metadata["time"] > score:
                     print(f"Problem {problem} solution improved")
                     update_archive = True
-                    for from_name, to_name in best_buy[problem]:
+                    for from_name, to_name in best_buy_files[problem]:
                         with open(from_name, "rb") as src, open(os.path.join(config.merge, to_name), "wb") as dst:
                             dst.write(src.read())
                     with open(merge, "rb") as src:
