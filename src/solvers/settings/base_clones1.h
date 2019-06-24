@@ -11,6 +11,6 @@ class BaseClones1Settings {
   bool use_shifts;
   bool even_mops;
   bool use_teleports;
-  bool all_rotate;
+  bool all_rotate_and_shift;
 };
 }  // namespace solvers
