@@ -1,7 +1,12 @@
 #include "solvers/merger.h"
 
-#include "solvers/test.h"
+#include <sys/stat.h>
+
 #include <iostream>
+#include <fstream>
+
+#include "solvers/test.h"
+#include "base/action_encode.h"
 
 namespace solvers {
 Merger::Merger(const std::string& _task, const std::string& _task_name,
@@ -19,6 +24,16 @@ void Merger::AddSolution(const ActionsClones& s,
     best_score = score;
     best_solutions = s;
   }
+
+  char dbuffer[1024];
+  sprintf(dbuffer, "solutions");
+  mkdir(dbuffer, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+  sprintf(dbuffer, "solutions/%s", solution_name.c_str());
+  mkdir(dbuffer, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+  char buffer[1024];
+  sprintf(buffer, "%s/%s.sol", dbuffer, task_name.c_str());
+  std::ofstream out(buffer);
+  out << s;
 }
 
 void Merger::AddSolution(const ActionsList& s,
