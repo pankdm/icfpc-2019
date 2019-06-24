@@ -67,7 +67,7 @@ void BaseClones1::UpdateTarget() {
   thread_local std::unordered_set<unsigned> s;
   s.clear();
   target.clear();
-  for (unsigned u : world.UList()) {
+  for (unsigned u : ulist()) {
     unsigned p = world.DSFind(u);
     if (s.find(p) == s.end()) {
       s.insert(p);
@@ -90,7 +90,7 @@ bool BaseClones1::AssignClosestWorker(unsigned r, ActionsList& al) {
     for (; !q.empty();) q.pop();
     acw1.Clear();
     acw2.Clear();
-    for (unsigned u : world.UList()) {
+    for (unsigned u : ulist()) {
       if (phase == 0 && !world.map.HasExtension(u)) {
         continue;
       }
@@ -157,7 +157,8 @@ bool BaseClones1::AssignClosestWorker(unsigned r, ActionsList& al) {
           Direction wd = w.direction;
           Point pw(w.x, w.y);
 
-          if (wi == sett.manip_index && sett.use_shifts) {
+          if ((wi == sett.manip_index || sett.all_rotate_and_shift) &&
+              sett.use_shifts) {
             for (int i = 0; i < 2; i++) {
               Direction d((1 + 2 * i + w.direction.direction) % 4);
               int score = 0;
@@ -208,7 +209,8 @@ bool BaseClones1::AssignClosestWorker(unsigned r, ActionsList& al) {
           }
 
           if (d.direction != wd.direction &&
-              (wi == sett.manip_index || sett.all_rotate) && phase == 1) {
+              (wi == sett.manip_index || sett.all_rotate_and_shift) &&
+              phase == 1) {
             bool need_turn = true;
             Point next = pw + d;
             for (int i = 0; i < 4; i++) {
@@ -494,6 +496,14 @@ ActionsList BaseClones1::NextMove() {
   NextMove_Wrap(al);
   world.ApplyC(al);
   return al;
+}
+
+std::vector<unsigned> BaseClones1::ulist() const {
+    auto result = world.UList();
+    if (sett.sorted_points) {
+        std::sort(result.begin(), result.end());
+    }
+    return result;
 }
 
 ActionsClones BaseClones1::Solve(const std::string& task,

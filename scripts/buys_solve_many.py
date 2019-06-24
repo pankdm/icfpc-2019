@@ -3,10 +3,10 @@
 from buys_solve_one import solve_one
 
 import sys
+import time
 
 # boosters = ["C", "B"]
 # boosters = ["CC"]
-
 
 
 FULL_RANGE = range(1, 301)
@@ -19,22 +19,28 @@ class BuyTask:
 
 
 tasks = [
-    BuyTask(FULL_RANGE, ("C", "CC")),
+    BuyTask(FULL_RANGE, ["C"]),
+    BuyTask(FULL_RANGE, ["CC"]),
     BuyTask(NON_CLONE_RANGE, ("CCC", "CCCC")),
 ]
 
 
 
 shard = int(sys.argv[1])
-NUM_SHARDS = int(sys.arv[2])
+NUM_SHARDS = int(sys.argv[2])
 
 assert 0 <= shard < NUM_SHARDS
 
+log_file = open(f"log.buy.{shard}", "w")
+log_file.close()
 
 for task in tasks:
     for i in task.range:
         if i % NUM_SHARDS == shard:
             for b in task.boosters:
-                print ()
-                print (f"Task {i}, buy {b}")
-                solve_one(i, b)
+                with open(f"log.buy.{shard}", "a") as log_file:
+                    start = time.time()
+                    log_file.write(f">>> Task {i}, buy {b}\n")
+                    solve_one(i, b)
+                    delta = time.time() - start
+                    log_file.write(f"   finished in {delta:.3f}s\n")
