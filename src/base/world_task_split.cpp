@@ -35,6 +35,7 @@ void WorldTaskSplit::Update() {
       }
     }
   }
+  UpdateAllPOI();
 }
 
 void WorldTaskSplit::BuildDS() {
@@ -69,6 +70,33 @@ bool WorldTaskSplit::UpdateTaskRequired(unsigned task_id) {
 
 UnsignedSet& WorldTaskSplit::UnwrappedSet() { return unwrapped; }
 
+void WorldTaskSplit::InitPOI() {
+  items.clear();
+  items.resize(unsigned(Item::UNKNOWN));
+  for (unsigned index = 0; index < Size(); ++index) {
+    Item item = map[index].CheckItem();
+    if ((item != Item::NONE) && (item < Item::UNKNOWN)) {
+      items[unsigned(item)].items.emplace_back(POI(item, index, g));
+    }
+  }
+}
+
+const POIList& WorldTaskSplit::GetPOIList(Item item) const {
+  ALWAYS_ASSERT(item < Item::UNKNOWN);
+  return items[unsigned(item)];
+}
+
+void WorldTaskSplit::UpdatePOIList(Item item) {
+  ALWAYS_ASSERT(item < Item::UNKNOWN);
+  items[unsigned(item)].Update(map);
+}
+
+void WorldTaskSplit::UpdateAllPOI() {
+  for (unsigned i = 0; i < items.size(); ++i) {
+    UpdatePOIList(Item(i));
+  }
+}
+
 void WorldTaskSplit::SetNewTasks(const std::vector<UnsignedSet>& new_tasks) {
   tasks = new_tasks;
   std::fill(task_id.begin(), task_id.end(), tasks.size());
@@ -85,6 +113,7 @@ void WorldTaskSplit::SetNewTasks(const std::vector<UnsignedSet>& new_tasks) {
 
 void WorldTaskSplit::Init(const std::string& desc) {
   WorldExt::Init(desc);
+  InitPOI();
   std::vector<UnsignedSet> vtemp(1, unwrapped);
   task_id.resize(Size());
   SetNewTasks(vtemp);
