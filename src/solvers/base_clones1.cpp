@@ -28,6 +28,27 @@ void BaseClones1::Init(const std::string& task, BaseClones1Settings _sett) {
   acw1.Resize(size);
   acw2.Resize(size);
   UpdateTarget();
+
+  auto isBadAlpha = [&](double alpha) {
+    int xmin = (0.5 - alpha) * world.map.xsize;
+    int xmax = (0.5 + alpha) * world.map.xsize;
+    int ymin = (0.5 - alpha) * world.map.ysize;
+    int ymax = (0.5 + alpha) * world.map.ysize;
+    for (int x = xmin; x <= xmax; ++x) {
+      for (int y = ymin; y <= ymax; ++y) {
+        if (world.map.Get(x, y).GetItem() == Item::NONE) {
+          return false;
+        }
+      }
+    }
+    return true;
+  };
+
+  if (sett.use_teleports) {
+    while (isBadAlpha(beaconAlpha)) {
+      beaconAlpha *= 1.2;
+    }
+  }
 }
 
 void BaseClones1::CleanPOI() {
@@ -233,9 +254,9 @@ bool BaseClones1::NextMove_SetBeacon(unsigned windex, Action& result) {
     if (windex == sett.manip_index &&
         world.boosters.teleporters.Available({world.time, windex}) &&
         !reset_beacon) {
-      auto atCenter = [](int x, int y, int xsize, int ysize) {
-        auto atCenter1 = [](int x, int xsize) {
-          return x > (5 * xsize / 11) && x < (6 * xsize / 11);
+      auto atCenter = [&](int x, int y, int xsize, int ysize) {
+        auto atCenter1 = [&](int x, int xsize) {
+          return x > ((0.5 - beaconAlpha) * xsize) && x < (0.5 + beaconAlpha * xsize);
         };
 
         return atCenter1(x, xsize) && atCenter1(y, ysize);
