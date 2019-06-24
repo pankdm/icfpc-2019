@@ -12,6 +12,7 @@ class UnsignedSet {
   UnsignedSet(unsigned total_size = 0) { Resize(total_size); };
 
   bool Empty() const { return vlist.empty(); }
+  unsigned TotalSize() const { return vset.size(); }
   unsigned Size() const { return unsigned(vlist.size()); }
   unsigned HasKey(unsigned key) const { return vset[key]; }
   unsigned Last() const { return vlist.back(); }
