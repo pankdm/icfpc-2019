@@ -18,8 +18,8 @@ Action PathToTarget(const Worker& w, const WorldExt& world,
   unsigned wi = world.Index(w.x, w.y);
   Point pw(w.x, w.y);
   if (target.HasKey(wi)) return Action(ActionType::DO_NOTHING);
-  for (unsigned _d = 0; _d < 4; ++_d) {
-    Direction d(_d);
+  for (unsigned i = 0; i < 4; ++i) {
+    Direction d((i + w.direction.direction) % 4);
     Point pd = pw + d;
     if (world.map.ValidToMove(pd.x, pd.y)) {
       unsigned inext = world.Index(pd.x, pd.y);
