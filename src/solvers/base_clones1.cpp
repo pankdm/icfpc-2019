@@ -145,9 +145,13 @@ bool BaseClones1::AssignClosestWorker(unsigned r, ActionsList& al) {
           Direction d = GetDirection(world.map, u, f);
           Worker w = world.GetWorker(wi);
 
-          if (wi == sett.manip_index &&
+          if (wi == next_mop_picker &&
               world.boosters.extensions.Available({world.time, wi})) {
             auto p = w.GetNextManipulatorPositionNaive(sett.strategy);
+            if (sett.manip_index == -1) {
+              next_mop_picker = (next_mop_picker + 1) % world.WCount();
+            }
+            world.boosters.extensions.LockUntilPicked();
             al[wi].type = ActionType::ATTACH_MANIPULATOR;
             al[wi].x = p.first;
             al[wi].y = p.second;
@@ -157,7 +161,7 @@ bool BaseClones1::AssignClosestWorker(unsigned r, ActionsList& al) {
           Direction wd = w.direction;
           Point pw(w.x, w.y);
 
-          if ((wi == sett.manip_index || sett.all_rotate_and_shift) &&
+          if ((sett.is_manip(wi) || sett.all_rotate_and_shift) &&
               sett.use_shifts) {
             for (int i = 0; i < 2; i++) {
               Direction d((1 + 2 * i + w.direction.direction) % 4);
@@ -209,8 +213,7 @@ bool BaseClones1::AssignClosestWorker(unsigned r, ActionsList& al) {
           }
 
           if (d.direction != wd.direction &&
-              (wi == sett.manip_index || sett.all_rotate_and_shift) &&
-              phase == 1) {
+              (sett.is_manip(wi) || sett.all_rotate_and_shift) && phase == 1) {
             bool need_turn = true;
             Point next = pw + d;
             for (int i = 0; i < 4; i++) {
@@ -253,12 +256,13 @@ bool BaseClones1::AssignClosestWorker(unsigned r, ActionsList& al) {
 bool BaseClones1::NextMove_SetBeacon(unsigned windex, Action& result) {
   if (sett.use_teleports) {
     const auto& w = world.GetWorker(windex);
-    if (windex == sett.manip_index &&
+    if (sett.is_manip(windex) &&
         world.boosters.teleporters.Available({world.time, windex}) &&
         !reset_beacon) {
       auto atCenter = [&](int x, int y, int xsize, int ysize) {
         auto atCenter1 = [&](int x, int xsize) {
-          return x > ((0.5 - beaconAlpha) * xsize) && x < (0.5 + beaconAlpha * xsize);
+          return x > ((0.5 - beaconAlpha) * xsize) &&
+                 x < (0.5 + beaconAlpha * xsize);
         };
 
         return atCenter1(x, xsize) && atCenter1(y, ysize);
@@ -325,9 +329,13 @@ bool BaseClones1::NextMove_Shift(unsigned windex, unsigned dest_index,
 
 Action BaseClones1::SendToNearestUnwrapped(unsigned windex) {
   auto& w = world.GetWorker(windex);
-  if (windex == sett.manip_index &&
+  if (windex == next_mop_picker &&
       world.boosters.extensions.Available({world.time, windex})) {
     auto p = w.GetNextManipulatorPositionNaive(sett.strategy);
+    if (sett.manip_index == -1) {
+      next_mop_picker = (next_mop_picker + 1) % world.WCount();
+    }
+    world.boosters.extensions.LockUntilPicked();
     Action a(ActionType::ATTACH_MANIPULATOR, p.first, p.second);
     return a;
   }
@@ -371,7 +379,7 @@ Action BaseClones1::SendToNearestUnwrapped(unsigned windex) {
       }
 
       if (d.direction % 2 != w.direction.direction % 2 &&
-          windex == sett.manip_index) {
+          sett.is_manip(windex)) {
         bool need_turn = true;
         Point next = pw + d;
         for (int i = 0; i < 2; i++) {
@@ -502,6 +510,11 @@ ActionsClones BaseClones1::Solve(const std::string& task,
                                  BaseClones1Settings sett,
                                  const std::string& bonuses) {
   Init(task, sett);
+  if (sett.manip_index == -1) {
+    next_mop_picker = 0;
+  } else {
+    next_mop_picker = sett.manip_index;
+  }
   world.InitBonuses(bonuses);
   ActionsClones actions;
   for (; !world.Solved();) {

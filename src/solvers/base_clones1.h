@@ -24,6 +24,7 @@ class BaseClones1 : public Solver {
   WorldExt world;
   std::vector<POI> poi;
   UnsignedSet poi_assigned;
+  int next_mop_picker;
 
   bool reset_beacon{};
   Point beacon{-1, -1};
