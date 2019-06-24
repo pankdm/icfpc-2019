@@ -105,6 +105,13 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
           return Result("bc6", bc3.Solve(task, sett, bonuses));
         })));
 
+    futures.emplace_back(tp->enqueueTask<Result>(
+        std::make_shared<std::packaged_task<Result()>>([&]() {
+          BaseClones1 bc3;
+          BaseClones1Settings sett{0, 0, 10, true, false, true};
+          return Result("bc_t", bc3.Solve(task, sett, bonuses));
+        })));
+
     for (unsigned i = 0; i < 2; ++i) {
       futures.emplace_back(tp->enqueueTask<Result>(
           std::make_shared<std::packaged_task<Result()>>([&, i]() {
@@ -124,15 +131,23 @@ ActionsClones Auto::Solve(const std::string& task, const std::string& task_name,
     m.AddSolution(fsolver.Solve(task, task_name), "fsr");
     // End "never comment" section
 
-    for (unsigned i = 0; i < 8; i++) {
+    /*
+    BaseClones1Settings sett{0, 0, 0, 0, true, 1};
+    BaseClones1 bc;
+    m.AddSolution(bc.Solve(task, sett, bonuses), std::string("bct"));
+    */
+
+    for (unsigned i = 0; i < 16; i++) {
       for (int j = 0; j < 40; j += 10) {
-        BaseClones1Settings sett{i & 1, i & 2, j, i & 4, true};
+        BaseClones1Settings sett{i & 1, i & 2, j, i & 4, true, i & 8};
         BaseClones1 bc;
         m.AddSolution(
             bc.Solve(task, sett, bonuses),
             std::string("bc_") + std::to_string(i) + "_" + std::to_string(j));
       }
     }
+    /*
+    */
 
     // for (unsigned i = 1; i < 3; ++i) {
     //   for (unsigned j = 1; j < 3; ++j) {

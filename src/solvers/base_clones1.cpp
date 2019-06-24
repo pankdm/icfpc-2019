@@ -139,6 +139,7 @@ bool BaseClones1::AssignClosestWorker(unsigned r, ActionsList& al) {
       acw2.Insert(index);
       m[index] = i;
     }
+
     unsigned best_distance = unsigned(-1);
     bool ok = false;
     Worker w = world.GetWorker(0);
@@ -152,6 +153,17 @@ bool BaseClones1::AssignClosestWorker(unsigned r, ActionsList& al) {
         unsigned wi = m[u];
         ALWAYS_ASSERT(wi < al.size());
         if (al[wi].type == ActionType::DO_NOTHING) {
+          Action temp;
+          if (NextMove_SetBeacon(wi, temp)) {
+            al[wi] = temp;
+            return true;
+          }
+
+          if (NextMove_Shift(wi, u, d, temp)) {
+            al[wi] = temp;
+            return true;
+          }
+
           w = world.GetWorker(wi);
           Direction d = GetDirection(world.map, u, f);
           Worker w = world.GetWorker(wi);
@@ -249,6 +261,77 @@ bool BaseClones1::AssignClosestWorker(unsigned r, ActionsList& al) {
   return false;
 }
 
+bool BaseClones1::NextMove_SetBeacon(unsigned windex, Action& result) {
+  if (sett.use_teleports) {
+    const auto& w = world.GetWorker(windex);
+    if (windex == sett.manip_index &&
+        world.boosters.teleporters.Available({world.time, windex}) &&
+        !reset_beacon) {
+      auto atCenter = [](int x, int y, int xsize, int ysize) {
+        auto atCenter1 = [](int x, int xsize) {
+          return x > (5 * xsize / 11) && x < (6 * xsize / 11);
+        };
+
+        return atCenter1(x, xsize) && atCenter1(y, ysize);
+      };
+
+      if (atCenter(w.x, w.y, world.map.xsize, world.map.ysize)) {
+        Action a(ActionType::SET_BEACON, w.x, w.y);
+        beacon = {w.x, w.y};
+        reset_beacon = true;
+
+        beaconDist.resize(world.map.Size(), -1);
+        beaconDist[world.map.Index(w.x, w.y)] = 0;
+        std::queue<int> q;
+        q.push(world.map.Index(w.x, w.y));
+
+        while (!q.empty()) {
+            int now = q.front();
+            Point pnow(world.map.X(now), world.map.Y(now));
+            q.pop();
+
+            for (unsigned _d = 0; _d < 4; ++_d) {
+              Direction d(_d);
+              Point pd = pnow + d;
+              if (world.map.ValidToMove(pd.x, pd.y)) {
+                int pdi = world.map.Index(pd.x, pd.y);
+                if (beaconDist[pdi] == -1) {
+                    beaconDist[pdi] = beaconDist[now] + 1;
+                    q.push(pdi);
+                }
+              }
+            }
+        }
+
+        result = a;
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+bool BaseClones1::NextMove_Shift(unsigned windex, unsigned dest_index,
+                                 unsigned now_distance, Action& action) {
+  if (sett.use_teleports && reset_beacon) {
+    // std::cerr << beaconDist[dest_index] << " " << now_distance << std::endl;
+    auto& w = world.GetWorker(windex);
+    if ((beaconDist[dest_index] >= 0) &&
+        (beaconDist[dest_index] + 2 < now_distance) && (now_distance > 5)) {
+      std::cerr << "Use beacon at (" << beacon.x << ", " << beacon.y
+                << ") to get from (" << w.x << ", " << w.y << ") "
+                << " to (" << world.map.X(dest_index) << ", "
+                << world.map.Y(dest_index) << ")"
+                << " now_dist: " << now_distance
+                << " beacon_dist: " << beaconDist[dest_index] << std::endl;
+      action = Action(ActionType::SHIFT, beacon.x, beacon.y);
+      return true;
+    }
+  }
+  return false;
+}
+
 Action BaseClones1::SendToNearestUnwrapped(unsigned windex) {
   auto& w = world.GetWorker(windex);
   if (windex == sett.manip_index &&
@@ -257,9 +340,21 @@ Action BaseClones1::SendToNearestUnwrapped(unsigned windex) {
     Action a(ActionType::ATTACH_MANIPULATOR, p.first, p.second);
     return a;
   }
-  thread_local std::queue<std::pair<int, Direction>> q;
+
+  Action temp;
+  if (NextMove_SetBeacon(windex, temp)) {
+    return temp;
+  }
+
+  struct QItem {
+    int pointIndex;
+    Direction d;
+    int distance;
+  };
+
+  thread_local std::queue<QItem> q;
   for (; !q.empty();) {
-      q.pop();
+    q.pop();
   }
   acw1.Clear();
 
@@ -269,15 +364,22 @@ Action BaseClones1::SendToNearestUnwrapped(unsigned windex) {
     Point pd = pw + d;
     if (world.map.ValidToMove(pd.x, pd.y)) {
       int index = world.map.Index(pd.x, pd.y);
-      q.push(std::make_pair(index, d));
+      q.push(QItem{index, d, 1});
       acw1.Insert(index);
     }
   }
   for (; !q.empty(); q.pop()) {
-    int index = q.front().first;
-    Direction d = q.front().second;
+    QItem now = q.front();
+    int index = now.pointIndex;
+    Direction d = now.d;
     if (unwrapped.HasKey(index) || world.map.HasExtension(index)) {
-      if (d.direction % 2 != w.direction.direction % 2 && windex == sett.manip_index) {
+      Action temp;
+      if (NextMove_Shift(windex, index, now.distance, temp)) {
+        return temp;
+      }
+
+      if ((d.direction % 2 != w.direction.direction % 2) &&
+          (windex == sett.manip_index)) {
         bool need_turn = true;
         Point next = pw + d;
         for (int i = 0; i < 2; i++) {
@@ -299,7 +401,7 @@ Action BaseClones1::SendToNearestUnwrapped(unsigned windex) {
     }
     for (int inext : g.Edges(index)) {
       if (!acw1.HasKey(inext)) {
-        q.push(std::make_pair(inext, d));
+        q.push(QItem{inext, d, now.distance + 1});
         acw1.Insert(inext);
       }
     }
