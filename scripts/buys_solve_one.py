@@ -49,6 +49,7 @@ def get_max_score(world):
 # n - task number
 # boosters - string of extra boosters
 def solve_one(n, boosters):
+    print ("Solving ", n, " boosters")
     folder = f"{STORAGE}/task{n}/"
     os.system(f"mkdir -p {folder}")
     new_id = get_new_id(folder)
