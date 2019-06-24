@@ -22,7 +22,7 @@ def verify_solution(problem, solution):
     world = parse_problem(problem)
     actions = parse_solution(solution)
     for action in actions:
-        print('applying action', action.type, action.pt)
+        # print('applying action', action.type, action.pt)
         apply_action(world, action)
         # world.debug_print()
         # raw_input(">")
