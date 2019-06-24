@@ -50,6 +50,8 @@ def solve_knapsack(balance, knapsack):
             continue
 
         if item.problem in best_buy:
+            if best_buy[item.problem].spent > item.spent:
+                continue
             print(
                 f"Updating solution for {item.problem}, cost {best_buy[item.problem].spent} → {item.spent}")
             balance += best_buy[item.problem].spent
@@ -60,7 +62,7 @@ def solve_knapsack(balance, knapsack):
             if os.path.exists(name):
                 item.files.append((name, f"prob-{item.problem:03}{ext}"))
 
-        print (f"{item.roi:.2f}    taking item {item.to_short_string()}")
+        print(f"{item.roi:.2f}    taking item {item.to_short_string()}")
         best_buy[item.problem] = item
         balance -= item.spent
 
