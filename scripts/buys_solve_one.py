@@ -100,4 +100,4 @@ def solve_one(n, boosters):
 
 
 if __name__ == "__main__":
-    solve_one(2, "C")
+    solve_one(102, "C")

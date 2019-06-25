@@ -20,7 +20,7 @@ class BuyTask:
 
 tasks = [
     # BuyTask(FULL_RANGE, ["BC"]),
-    # BuyTask(FULL_RANGE, ["F"]),
+    BuyTask(FULL_RANGE, ["F"]),
     # BuyTask(FULL_RANGE, ["B"]),
     BuyTask(NON_CLONE_RANGE, ["C"]),
     # BuyTask(NON_CLONE_RANGE, ["C"]),
