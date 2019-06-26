@@ -30,7 +30,7 @@ def loadState():
             state = loads(fState.read())
 
 def print_and_log(logs, s):
-    print (s)
+    print(s)
     logs.append(s)
 
 iteration = 0
@@ -72,7 +72,7 @@ def solve(task, check_prev=False):
         fTask.write(task)
 
     # print(task)
-    print_and_log (logs, "puzzle task: {}".format(blockinfo["puzzle"].split("#")[0]))
+    print_and_log(logs, "puzzle task: {}".format(blockinfo["puzzle"].split("#")[0]))
     if "15" in blockinfo["balances"]:
         balance = blockinfo["balances"]["15"]
         print_and_log(logs, f"balance = {balance}")
