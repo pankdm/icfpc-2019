@@ -319,7 +319,7 @@ bool BaseClones1::NextMove_FastWheels(unsigned windex, Action& result) {
       Action a(ActionType::ATTACH_FAST_WHEELS);
       result = a;
       fast_wheels = true;
-      std::cerr << "attach" << std::endl;
+      //std::cerr << "attach" << std::endl;
       return true;
     }
   }
