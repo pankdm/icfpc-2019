@@ -1,0 +1,95 @@
+<html><body>
+
+
+<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+
+
+<table
+    id='tasks'
+    box-sizing="border-box"
+    border='1'
+    table-layout="fixed"
+>
+</table>
+
+
+<script>
+function tableCell(text, green) {
+  if (green) {
+    return '<td bgColor=#00cc00>' + text + '</td>';
+  } else {
+    return '<td>' + text + '</td>';
+  }
+}
+
+function tableCellColor(text, color) {
+  if (color == "red") {
+    return '<td bgColor=#ff5c33>' + text + '</td>';
+  } else if (color == "green"){
+    return '<td bgColor=#00cc00>' + text + '</td>';
+  } else {
+    return '<td>' + text + '</td>';
+  }
+}
+
+function tableRow(text) {
+  return '<tr>' + text + '</tr>';
+}
+
+function pct(roi) {
+  return "" + (roi * 100).toFixed(0) + "%";
+}
+
+function roi_pct(buys, key) {
+  if (key in buys) {
+    return pct(buys[key]["roi"]);
+  } else {
+    return "N/A"
+  }
+}
+
+$.getJSON('dump.json', function(data) {
+  table = $('#tasks')
+
+  table.append('<tr>' +
+    '<td> Task </td>' +
+    '<td> Gold </td>' +
+    '<td> "" </td>' +
+    '<td> C </td>' +
+    '<td> CC </td>' +
+    '<td> 3C </td>' +
+    '<td> 4C </td>' +
+  '</tr>'
+  );
+
+  for (i in data) {
+    t = data[i]
+    console.log(t)
+
+    row = ''
+    row += tableCell(t["task"])
+
+    buys = t["buys"]
+    selected = t["selected"]
+
+    special_color = ""
+    if (selected == "") {
+      special_color = "green"
+    } else if (selected == "gold") {
+      special_color = "red"
+    }
+
+    row += tableCell(t["gold"], selected == "gold")
+    row += tableCellColor(buys[""]["time"], special_color)
+    row += tableCell(roi_pct(buys, "C"), selected == "C")
+    row += tableCell(roi_pct(buys, "CC"), selected == "CC")
+    row += tableCell(roi_pct(buys, "CCC"), selected == "CCC")
+    row += tableCell(roi_pct(buys, "CCCC"), selected == "CCCC")
+    table.append(tableRow(row))
+  }
+});
+
+</script>
+
+
+</body></html>

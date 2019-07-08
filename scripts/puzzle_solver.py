@@ -109,6 +109,8 @@ class PuzzleSolver:
         self.used_for_boosters = set()
         self.used_for_something = set()
 
+        self.counter = 0
+
     def get_points_order(self):
         pts = [pt for pt in spec.excluded]
         # pts = list(filter(lambda p: p[0] and p[1], pts))
@@ -347,11 +349,13 @@ class PuzzleSolver:
             self.bfs_to_filled(pt)
             # input(">")
 
+        self.show()
 
         contour = self.generate_contour()
         num_turns = len(contour)
         print("Initial #turns: ", num_turns)
-        # self.show()
+
+        self.show()
 
         if num_turns < self.spec.vMin:
             to_fill = self.spec.vMin - num_turns
@@ -368,9 +372,10 @@ class PuzzleSolver:
 
         task_spec.location = self.gen_location()
 
-        # self.show()
+        self.show()
         print("#points: ", len(contour))
         mappa = Mappa(contour, [], task_spec.location)
+
 
         spec = self.spec
         for ch, count in [
@@ -408,10 +413,12 @@ class PuzzleSolver:
 
         pp(location[0], location[1], (0, 0, 255))
 
-        scale = int(1000 / self.size)
+        scale = int(500 / self.size)
         img = img.resize((scale * self.size, scale * self.size))
         img.show()
-        img.save('image.png')
+        img.save(f"images/{self.counter}.png")
+        self.counter += 1
+
 
     def show(self, task_spec=None):
         if not self.draw:
@@ -428,10 +435,11 @@ class PuzzleSolver:
                 img.putpixel((b[1][0], self.size - 1 -
                               b[1][1]), (255, 255, 255))
         # img = img.resize((1000, 1000), Image.BILINEAR)
-        scale = int(1000 / self.size)
+        scale = int(500 / self.size)
         img = img.resize((scale * self.size, scale * self.size))
         img.show()
-        # img.save('image.png')
+        img.save(f"images/{self.counter}.png")
+        self.counter += 1
         # input("waiting >")
 
 
