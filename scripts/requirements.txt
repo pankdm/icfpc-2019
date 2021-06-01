@@ -9,7 +9,7 @@ PyYAML==5.1.1
 requests==2.22.0
 soupsieve==1.9.1
 tqdm==4.32.2
-urllib3==1.25.3
+urllib3==1.26.5
 slackclient==2.0.0
 lxml==4.3.4
 terminaltables
